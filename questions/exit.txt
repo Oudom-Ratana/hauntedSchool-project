@@ -1,0 +1,7 @@
+Q: What color is the sky?
+A: Option 1
+B: Option 2
+C: Blue
+D: Option 4
+Answer: 3
+

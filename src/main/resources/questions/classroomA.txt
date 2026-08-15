@@ -1,0 +1,34 @@
+Q: What is the capital of France?
+A: Berlin
+B: Madrid
+C: Paris
+D: Rome
+Answer: 3
+
+Q: Which number is even?
+A: 3
+B: 7
+C: 10
+D: 9
+Answer: 3
+
+Q: What do plants breathe?
+A: Carbon Dioxide
+B: Helium
+C: Nitrogen
+D: Oxygen
+Answer: 1
+
+Q: 5 + 7 = ?
+A: 10
+B: 11
+C: 12
+D: 13
+Answer: 3
+
+Q: Which color is a mix of red and white?
+A: Pink
+B: Green
+C: Blue
+D: Black
+Answer: 1

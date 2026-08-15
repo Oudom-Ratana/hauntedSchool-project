@@ -1,0 +1,34 @@
+Q: What does CPU stand for?
+A: Central Processing Unit
+B: Computer Personal Unit
+C: Central Power Unit
+D: Control Processing Unit
+Answer: 1
+
+Q: Which is a programming language?
+A: HTML
+B: Java
+C: CSS
+D: HTTP
+Answer: 2
+
+Q: What stores data persistently?
+A: RAM
+B: GPU
+C: Hard Drive
+D: ALU
+Answer: 3
+
+Q: Which one is an input device?
+A: Monitor
+B: Keyboard
+C: Speaker
+D: GPU
+Answer: 2
+
+Q: What is binary base?
+A: 2
+B: 8
+C: 10
+D: 16
+Answer: 1

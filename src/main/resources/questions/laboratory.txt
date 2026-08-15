@@ -1,0 +1,34 @@
+Q: Water's chemical formula?
+A: H2O
+B: CO2
+C: O2
+D: NaCl
+Answer: 1
+
+Q: The boiling point of water (C)?
+A: 50
+B: 100
+C: 200
+D: 0
+Answer: 2
+
+Q: Unit of force?
+A: Pascal
+B: Joule
+C: Newton
+D: Watt
+Answer: 3
+
+Q: Light speed is fastest in?
+A: Vacuum
+B: Water
+C: Glass
+D: Air
+Answer: 1
+
+Q: pH < 7 is?
+A: Neutral
+B: Acidic
+C: Basic
+D: Saline
+Answer: 2
