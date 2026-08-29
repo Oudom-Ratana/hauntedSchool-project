@@ -52,6 +52,7 @@ public class GameScene {
         Button backButton = new Button("MENU");
         backButton.getStyleClass().add("secondary-button");
         backButton.setOnAction(event -> {
+            if (hudTimer != null) hudTimer.stop();
             game.stop();
             AudioManager.getInstance().stopAll();
             SceneManager.showMainMenu();

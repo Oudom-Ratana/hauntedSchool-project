@@ -41,7 +41,7 @@ if exist "hantedSchool_3.jar" (
 :: 3. Launch the game
 echo [INFO] Launching the game...
 echo.
-java -jar "%JAR_PATH%"
+java --enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED -jar "%JAR_PATH%"
 
 if %ERRORLEVEL% NEQ 0 (
     echo.

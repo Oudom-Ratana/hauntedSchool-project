@@ -1,6 +1,7 @@
 package com.khmerspirit.education;
 
-import com.khmerspirit.config.Constants;
+import com.khmerspirit.admin.model.QuestionModel;
+import com.khmerspirit.admin.service.QuestionFileService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,19 +15,45 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Loads simple text-based question files from resources/questions/{roomId}.txt
- * File format for each question block (blocks separated by an empty line):
- * Q: question text
- * A: option1
- * B: option2
- * C: option3
- * D: option4
- * Answer: 1   (1-based index: 1..4)
+ * Loads questions from questions.json (managed by Admin Panel) or legacy text/JSON files.
  */
 public class QuestionLoader {
 
+    private final QuestionFileService questionFileService = new QuestionFileService();
+
     public List<Question> loadQuestionsForRoom(String roomId) {
-        // Prefer external questions directory so teachers can edit files without repackaging
+        // 1. Try loading from Admin Panel questions.json first
+        try {
+            List<QuestionModel> adminQuestions = questionFileService.loadQuestions();
+            if (adminQuestions != null && !adminQuestions.isEmpty()) {
+                List<Question> roomQuestions = new ArrayList<>();
+                for (QuestionModel qm : adminQuestions) {
+                    if (qm.isActive() && (roomId == null || roomId.equalsIgnoreCase(qm.getRoom()) || "all".equalsIgnoreCase(qm.getRoom()))) {
+                        List<String> options = new ArrayList<>();
+                        if (qm.getOptionA() != null && !qm.getOptionA().isBlank()) options.add(qm.getOptionA());
+                        if (qm.getOptionB() != null && !qm.getOptionB().isBlank()) options.add(qm.getOptionB());
+                        if (qm.getOptionC() != null && !qm.getOptionC().isBlank()) options.add(qm.getOptionC());
+                        if (qm.getOptionD() != null && !qm.getOptionD().isBlank()) options.add(qm.getOptionD());
+
+                        int ansIdx = 0;
+                        if ("B".equalsIgnoreCase(qm.getCorrectAnswer())) ansIdx = 1;
+                        else if ("C".equalsIgnoreCase(qm.getCorrectAnswer())) ansIdx = 2;
+                        else if ("D".equalsIgnoreCase(qm.getCorrectAnswer())) ansIdx = 3;
+
+                        if (options.size() >= 2) {
+                            roomQuestions.add(new Question(qm.getText(), options, Math.min(ansIdx, options.size() - 1)));
+                        }
+                    }
+                }
+                if (!roomQuestions.isEmpty()) {
+                    return roomQuestions;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error reading admin questions.json: " + e.getMessage());
+        }
+
+        // 2. Legacy fallback to individual per-room files
         Path externalTxt = Path.of("questions", roomId + ".txt");
         Path externalJson = Path.of("questions", roomId + ".json");
         try {
@@ -99,6 +126,7 @@ public class QuestionLoader {
                 return new Question(qText, opts, Math.max(0, Math.min(answer, opts.size() - 1)));
             }
         } catch (Exception ignored) {
+            // Safe fallback
         }
         return null;
     }
@@ -111,7 +139,6 @@ public class QuestionLoader {
         return list;
     }
 
-    // Very small JSON parser for our teacher-written files (expects the writer's format)
     private List<Question> parseJson(String content) {
         List<Question> result = new ArrayList<>();
         String lower = content.trim();

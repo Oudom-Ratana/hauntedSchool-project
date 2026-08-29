@@ -182,36 +182,31 @@ public class MainMenuScene {
                 return relativeFile.toURI().toString();
             }
 
-            File absoluteFile = new File("D:/ISTAD/Bachelor_Degree/Year1/Semester2/OOP/FinalProject/hantedSchool_3/images/bg/menu-video2.mp4");
-            if (absoluteFile.exists()) {
-                return absoluteFile.toURI().toString();
-            }
-
             File devFile = new File("src/main/resources/images/bg/menu-video.mp4");
             if (devFile.exists()) {
                 return devFile.toURI().toString();
             }
 
             URL resource = getClass().getResource("/images/bg/menu-video2.mp4");
+            if (resource == null) {
+                resource = getClass().getResource("/images/bg/menu-video.mp4");
+            }
             if (resource != null) {
                 File tempVideo = File.createTempFile("hanted_school_menu_video_", ".mp4");
                 tempVideo.deleteOnExit();
-                try (InputStream in = getClass().getResourceAsStream("/images/bg/menu-video2.mp4");
+                try (InputStream in = resource.openStream();
                      FileOutputStream out = new FileOutputStream(tempVideo)) {
-                    if (in != null) {
-                        byte[] buffer = new byte[16384];
-                        int read;
-                        while ((read = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, read);
-                        }
-                        out.flush();
-                        return tempVideo.toURI().toString();
+                    byte[] buffer = new byte[16384];
+                    int read;
+                    while ((read = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, read);
                     }
+                    out.flush();
+                    return tempVideo.toURI().toString();
                 }
             }
         } catch (Exception e) {
             System.err.println("Error resolving menu video path: " + e.getMessage());
-            e.printStackTrace();
         }
         return null;
     }

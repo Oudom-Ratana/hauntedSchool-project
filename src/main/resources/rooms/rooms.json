@@ -1,0 +1,65 @@
+[
+  {
+    "id": "entrance",
+    "name": "School Entrance",
+    "description": "The shadowy entrance lobby filled with dust and broken desks.",
+    "requiredQs": 5,
+    "reward": "High-Power Flashlight",
+    "nextRoomId": "classroomA",
+    "active": true
+  },
+  {
+    "id": "classroomA",
+    "name": "Classroom A",
+    "description": "An abandoned classroom with cursed chalkboard equations.",
+    "requiredQs": 5,
+    "reward": "Extra Batteries",
+    "nextRoomId": "classroomB",
+    "active": true
+  },
+  {
+    "id": "classroomB",
+    "name": "Classroom B",
+    "description": "Darkened room where strange footsteps resonate.",
+    "requiredQs": 5,
+    "reward": "Ancient Holy Charm",
+    "nextRoomId": "computer",
+    "active": true
+  },
+  {
+    "id": "computer",
+    "name": "Computer Lab",
+    "description": "Monitors flickering with binary code and strange symbols.",
+    "requiredQs": 5,
+    "reward": "Emergency Medical Kit",
+    "nextRoomId": "laboratory",
+    "active": true
+  },
+  {
+    "id": "laboratory",
+    "name": "Science Lab",
+    "description": "Chemical beakers and mysterious glowing green liquids.",
+    "requiredQs": 5,
+    "reward": "Master Key",
+    "nextRoomId": "library",
+    "active": true
+  },
+  {
+    "id": "library",
+    "name": "Grand Library",
+    "description": "Towering bookshelves containing forgotten occult knowledge.",
+    "requiredQs": 5,
+    "reward": "Ancient Holy Charm",
+    "nextRoomId": "basement",
+    "active": true
+  },
+  {
+    "id": "basement",
+    "name": "Forbidden Basement",
+    "description": "Underground chamber freezing cold with eerie whispers.",
+    "requiredQs": 5,
+    "reward": "Master Key",
+    "nextRoomId": "exit",
+    "active": true
+  }
+]

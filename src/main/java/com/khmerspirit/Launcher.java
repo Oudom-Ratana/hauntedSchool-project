@@ -5,7 +5,9 @@ package com.khmerspirit;
  * Sidesteps JavaFX module path restrictions for executable JARs.
  */
 public class Launcher {
-    public static void main(String[] args) {
+    public static void main(    String[] args) {
         Main.main(args);
     }
+
+
 }

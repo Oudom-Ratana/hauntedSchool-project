@@ -1,0 +1,37 @@
+[
+  {
+    "id": "RWD_001",
+    "name": "Master Key",
+    "type": "Key",
+    "description": "Unlocks the heavy iron gate leading out of the haunted school.",
+    "quantity": 1
+  },
+  {
+    "id": "RWD_002",
+    "name": "High-Power Flashlight",
+    "type": "Item",
+    "description": "Illuminates dark corridors and weakens lurking spirits.",
+    "quantity": 2
+  },
+  {
+    "id": "RWD_003",
+    "name": "Extra Batteries",
+    "type": "Battery",
+    "description": "Restores full charge to electronic equipment and flashlights.",
+    "quantity": 5
+  },
+  {
+    "id": "RWD_004",
+    "name": "Ancient Holy Charm",
+    "type": "Buff",
+    "description": "Provides temporary immunity against ghost attacks.",
+    "quantity": 3
+  },
+  {
+    "id": "RWD_005",
+    "name": "Emergency Medical Kit",
+    "type": "Health",
+    "description": "Heals injuries sustained from paranormal encounters.",
+    "quantity": 4
+  }
+]
