@@ -5,11 +5,16 @@ import javafx.scene.paint.Color;
 public class MasterKey extends Item {
 
     public MasterKey() {
-        super("master_key", "Master Key", false, Color.web("#f0cf65"));
+        super("master_key", "Grand Master Key", false, Color.web("#f0cf65"));
     }
 
     @Override
     public String getUseMessage() {
-        return "The master key can open restricted school doors.";
+        return "Grand Master Key: Unlocks ANY door in the entire school, and the final Grand Exit Gate!";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "Sacred golden key of the Principal. Bypasses all locks in the school and unlocks the final Grand Exit Gate to win!";
     }
 }

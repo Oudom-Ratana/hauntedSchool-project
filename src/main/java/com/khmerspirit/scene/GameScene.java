@@ -15,6 +15,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.effect.DropShadow;
 
 public class GameScene {
 
@@ -49,6 +53,21 @@ public class GameScene {
         }
         game.setGameOverHandler(() -> showGameOverOverlay(playArea));
 
+        playArea.widthProperty().addListener((obs, oldV, newV) -> {
+            double w = newV.doubleValue();
+            if (w > 200 && game != null) {
+                canvas.setWidth(w);
+                game.onResize(w, canvas.getHeight());
+            }
+        });
+        playArea.heightProperty().addListener((obs, oldV, newV) -> {
+            double h = newV.doubleValue();
+            if (h > 200 && game != null) {
+                canvas.setHeight(h);
+                game.onResize(canvas.getWidth(), h);
+            }
+        });
+
         Button backButton = new Button("MENU");
         backButton.getStyleClass().add("secondary-button");
         backButton.setOnAction(event -> {
@@ -71,9 +90,8 @@ public class GameScene {
         scene.setOnKeyReleased(event -> game.getPlayerController().release(event.getCode()));
         AudioManager audio = AudioManager.getInstance();
         audio.stopAll();
+        audio.playGameMusic();
         audio.playLoop("rain");
-        audio.playLoop("wind");
-        audio.playLoop("ambience");
         game.start();
         startHudUpdates();
         return scene;
@@ -124,44 +142,113 @@ public class GameScene {
     }
 
     private void showGameOverOverlay(StackPane playArea) {
-        if (hudTimer != null) {
-            hudTimer.stop();
+        javafx.application.Platform.runLater(() -> {
+            if (hudTimer != null) {
+                hudTimer.stop();
+            }
+
+            AudioManager.getInstance().playOneShot("ghost");
+
+            StackPane overlay = new StackPane();
+            overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.42);");
+            overlay.setPickOnBounds(true);
+
+            StackPane panelContainer = new StackPane();
+            panelContainer.setMaxSize(580, 330);
+            panelContainer.setPickOnBounds(false);
+
+            try {
+                var stream = getClass().getResourceAsStream("/images/ui/game_over_panel.png");
+                if (stream != null) {
+                    javafx.scene.image.ImageView bgView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(stream));
+                    bgView.setFitWidth(580);
+                    bgView.setFitHeight(330);
+                    bgView.setPreserveRatio(false);
+                    bgView.setMouseTransparent(true);
+                    bgView.setEffect(new javafx.scene.effect.DropShadow(24, javafx.scene.paint.Color.rgb(180, 10, 10, 0.65)));
+                    panelContainer.getChildren().add(bgView);
+                }
+            } catch (Exception ignored) {}
+
+            Button retryButton = createImageButton(
+                    "/images/ui/btn_gameover_retry.png",
+                    "/images/ui/btn_gameover_retry_hover.png",
+                    "RETRY",
+                    () -> {
+                        if (hudTimer != null) hudTimer.stop();
+                        game.stop();
+                        new com.khmerspirit.save.SaveManager().deleteSave();
+                        SceneManager.showGame(selectedCharacter);
+                    }
+            );
+
+            Button menuButton = createImageButton(
+                    "/images/ui/btn_gameover_main_menu.png",
+                    "/images/ui/btn_gameover_main_menu_hover.png",
+                    "MAIN MENU",
+                    () -> {
+                        if (hudTimer != null) hudTimer.stop();
+                        game.stop();
+                        new com.khmerspirit.save.SaveManager().deleteSave();
+                        SceneManager.showMainMenu();
+                    }
+            );
+
+            HBox actions = new HBox(28, retryButton, menuButton);
+            actions.setAlignment(Pos.CENTER);
+            actions.setPickOnBounds(false);
+            actions.setTranslateY(24);
+
+            panelContainer.getChildren().add(actions);
+            overlay.getChildren().add(panelContainer);
+            playArea.getChildren().add(overlay);
+            retryButton.requestFocus();
+        });
+    }
+
+    private Button createImageButton(String normalRes, String hoverRes, String fallbackText, Runnable action) {
+        Button button = new Button();
+        button.setStyle("-fx-background-color: transparent; -fx-padding: 0; -fx-cursor: hand; -fx-border-width: 0;");
+        button.setPickOnBounds(true);
+
+        Image normalImg = null;
+        Image hoverImg = null;
+        try {
+            var nStream = getClass().getResourceAsStream(normalRes);
+            if (nStream != null) normalImg = new Image(nStream);
+            var hStream = getClass().getResourceAsStream(hoverRes);
+            if (hStream != null) hoverImg = new Image(hStream);
+        } catch (Exception ignored) {}
+
+        if (normalImg != null) {
+            ImageView iv = new ImageView(normalImg);
+            iv.setFitWidth(200);
+            iv.setFitHeight(46);
+            iv.setPreserveRatio(false);
+            button.setGraphic(iv);
+
+            final Image fNormal = normalImg;
+            final Image fHover = hoverImg != null ? hoverImg : normalImg;
+
+            button.setOnMouseEntered(e -> {
+                iv.setImage(fHover);
+                button.setEffect(new DropShadow(18, Color.rgb(255, 60, 60, 0.85)));
+            });
+            button.setOnMouseExited(e -> {
+                iv.setImage(fNormal);
+                button.setEffect(null);
+            });
+        } else {
+            button.setText(fallbackText);
+            button.setStyle("-fx-background-color: #5c1111; -fx-text-fill: #ffeaa7; -fx-padding: 10px 24px; -fx-font-size: 15px; -fx-font-weight: bold; -fx-cursor: hand;");
         }
 
-        StackPane overlay = new StackPane();
-        overlay.getStyleClass().add("game-over-overlay");
-
-        VBox panel = new VBox(14);
-        panel.setAlignment(Pos.CENTER);
-        panel.getStyleClass().add("game-over-panel");
-
-        Label title = new Label("GAME OVER");
-        title.getStyleClass().add("game-over-title");
-
-        Label message = new Label("The school has taken your last heart.");
-        message.getStyleClass().add("game-over-message");
-
-        Button retryButton = new Button("PLAY AGAIN");
-        retryButton.getStyleClass().add("primary-button");
-        retryButton.setOnAction(event -> {
-            game.stop();
-            new com.khmerspirit.save.SaveManager().deleteSave();
-            SceneManager.showGame(selectedCharacter);
+        button.setOnAction(e -> {
+            if (action != null) {
+                action.run();
+            }
         });
 
-        Button menuButton = new Button("MAIN MENU");
-        menuButton.getStyleClass().add("secondary-button");
-        menuButton.setOnAction(event -> {
-            game.stop();
-            new com.khmerspirit.save.SaveManager().deleteSave();
-            SceneManager.showMainMenu();
-        });
-
-        HBox actions = new HBox(12, retryButton, menuButton);
-        actions.setAlignment(Pos.CENTER);
-
-        panel.getChildren().addAll(title, message, actions);
-        overlay.getChildren().add(panel);
-        playArea.getChildren().add(overlay);
+        return button;
     }
 }

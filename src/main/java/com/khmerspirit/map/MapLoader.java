@@ -1,15 +1,288 @@
 package com.khmerspirit.map;
 
 import com.khmerspirit.config.Constants;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapLoader {
+
+    public TileMap loadBigClassroom() {
+        InputStream stream = MapLoader.class.getResourceAsStream(Constants.CLASSROOM_MAP_RESOURCE);
+        TileMap map;
+        if (stream == null) {
+            map = createDefaultBigClassroom();
+        } else {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+                List<String> rows = reader.lines()
+                        .filter(line -> !line.isBlank())
+                        .toList();
+                map = buildClassroomFromRows(rows);
+            } catch (IOException exception) {
+                map = createDefaultBigClassroom();
+            }
+        }
+
+        // Attach high-res rendered classroom artwork background
+        try {
+            InputStream bgStream = MapLoader.class.getResourceAsStream(Constants.CLASSROOM_BACKGROUND);
+            if (bgStream != null) {
+                map.setBackgroundImage(new Image(bgStream));
+            }
+        } catch (Exception ignored) {
+        }
+
+        // Configure pixel-accurate collision boxes matching classroom_room.png objects
+        map.setCollisionBoxes(buildClassroomCollisionBoxes(map.getPixelWidth(), map.getPixelHeight()));
+        map.initializeDoorCollisions();
+        return map;
+    }
+
+    private List<Rectangle2D> buildClassroomCollisionBoxes(double mapWidth, double mapHeight) {
+        // The background artwork is 1376 x 768 native resolution
+        double sx = mapWidth / 1376.0;
+        double sy = mapHeight / 768.0;
+        List<Rectangle2D> boxes = new ArrayList<>();
+
+        // 1. ROOM BOUNDARY WALLS (Keep player inside the visible classroom)
+        boxes.add(new Rectangle2D(0 * sx, 0 * sy, 1376 * sx, 175 * sy));    // Top wall across full width
+        boxes.add(new Rectangle2D(0 * sx, 0 * sy, 145 * sx, 768 * sy));     // Left wall
+        boxes.add(new Rectangle2D(1335 * sx, 0 * sy, 41 * sx, 768 * sy));   // Right wall
+        boxes.add(new Rectangle2D(0 * sx, 665 * sy, 648 * sx, 103 * sy));   // Bottom left wall
+        boxes.add(new Rectangle2D(710 * sx, 665 * sy, 666 * sx, 103 * sy)); // Bottom right wall (Entrance opening at x=648..710)
+
+        // 2. TEACHER'S TABLE (PODIUM DESK)
+        boxes.add(new Rectangle2D(605 * sx, 180 * sy, 155 * sx, 75 * sy));
+
+        // 3. STUDENT TABLES (EXACTLY 4 TABLES IN 2X2 CLUSTER, LEAVING VAST OPEN SPACE)
+        boxes.add(new Rectangle2D(595 * sx, 310 * sy, 70 * sx, 50 * sy)); // Top-Left table
+        boxes.add(new Rectangle2D(720 * sx, 310 * sy, 70 * sx, 50 * sy)); // Top-Right table
+        boxes.add(new Rectangle2D(590 * sx, 370 * sy, 75 * sx, 55 * sy)); // Bottom-Left table
+        boxes.add(new Rectangle2D(720 * sx, 370 * sy, 75 * sx, 55 * sy)); // Bottom-Right table
+
+        return boxes;
+    }
+
+    private void setupClassroomDoor(TileMap map, int mapRows) {
+        double sx = map.getPixelWidth() / 1376.0;
+        double sy = map.getPixelHeight() / 768.0;
+
+        Rectangle2D doorVisualBounds = new Rectangle2D(643 * sx, 626 * sy, 71 * sx, 142 * sy);
+        Rectangle2D doorCollisionBox = new Rectangle2D(648 * sx, 665 * sy, 62 * sx, 103 * sy);
+        Rectangle2D wallPatchBounds = new Rectangle2D(713 * sx, 626 * sy, 57 * sx, 142 * sy);
+        Rectangle2D wallPatchSource = new Rectangle2D(713, 485, 57, 142);
+
+        Door entranceDoor = new Door("classroom_entrance", 24, mapRows - 2, "classroomA", "hall", false, true, "key", doorVisualBounds);
+        entranceDoor.setCollisionBox(doorCollisionBox);
+        entranceDoor.setWallPatchBounds(wallPatchBounds);
+        entranceDoor.setWallPatchSource(wallPatchSource);
+        map.addDoor(entranceDoor);
+    }
+
+    private TileMap buildClassroomFromRows(List<String> rows) {
+        int mapRows = rows.size();
+        int mapColumns = rows.stream().mapToInt(String::length).max().orElse(48);
+        TileMap map = new TileMap(mapColumns, mapRows);
+
+        for (int row = 0; row < mapRows; row++) {
+            String line = rows.get(row);
+            for (int column = 0; column < mapColumns; column++) {
+                char symbol = column < line.length() ? line.charAt(column) : '#';
+                map.setTile(column, row, Tile.fromSymbol(symbol));
+            }
+        }
+
+        map.clearRoomsAndDoors();
+        map.addRoom(new Room("classroomA", "Classroom (ថ្នាក់រៀន)", 0, 0, mapColumns, mapRows));
+        setupClassroomDoor(map, mapRows);
+        return map;
+    }
+
+    private TileMap createDefaultBigClassroom() {
+        TileMap map = new TileMap(48, 30);
+        map.fill(Tile.FLOOR);
+        buildRoom(map, "classroomA", "Classroom (ថ្នាក់រៀន)", 0, 0, 48, 30, Tile.FLOOR);
+        try {
+            InputStream bgStream = MapLoader.class.getResourceAsStream(Constants.CLASSROOM_BACKGROUND);
+            if (bgStream != null) {
+                map.setBackgroundImage(new Image(bgStream));
+            }
+        } catch (Exception ignored) {
+        }
+        setupClassroomDoor(map, 30);
+        map.setCollisionBoxes(buildClassroomCollisionBoxes(map.getPixelWidth(), map.getPixelHeight()));
+        map.initializeDoorCollisions();
+        return map;
+    }
+
+    public TileMap loadMapForId(String id) {
+        return switch (id.toLowerCase()) {
+            case "classrooma", "classroom" -> loadBigClassroom();
+            case "hall", "hallway", "school", "main_hall" -> loadMainHall();
+            case "library" -> loadDetailedRoom("library", "Library (បណ្ណាល័យ)", "/images/maps/library/library_map.png");
+            case "laboratory", "science_lab" -> loadDetailedRoom("laboratory", "Science Lab (បន្ទប់ពិសោធន៍)", "/images/maps/science_lab/science_lab_map.png");
+            case "teacher", "principal_office" -> loadDetailedRoom("teacher", "Principal's Office (ការិយាល័យនាយក)", "/images/maps/principal_office/principal_office_map.png");
+            case "dormitory", "infirmary" -> loadDetailedRoom("dormitory", "Infirmary (បន្ទប់សុខាភិបាល)", "/images/maps/infirmary/infirmary_map.png");
+            case "basement", "storage_room" -> loadDetailedRoom("basement", "Storage Room (បន្ទប់ឃ្លាំង)", "/images/maps/storage_room/storage_room_map.png");
+            case "computer", "music_art_room" -> loadDetailedRoom("computer", "Music & Art Room (បន្ទប់តន្ត្រី)", "/images/maps/music_art_room/music_art_room_map.png");
+            case "classroomb", "teachers_lounge" -> loadDetailedRoom("classroomb", "Teachers' Lounge (បន្ទប់គ្រូ)", "/images/maps/teachers_lounge/teachers_lounge_map.png");
+            case "entrance", "restroom" -> loadDetailedRoom("entrance", "Restroom (បន្ទប់ទឹក)", "/images/maps/restroom/restroom_map.png");
+            default -> loadMainHall();
+        };
+    }
+
+    public TileMap loadMainHall() {
+        TileMap map = new TileMap(48, 27);
+        map.fill(Tile.FLOOR);
+        map.clearRoomsAndDoors();
+        map.addRoom(new Room("hall", "Main Hall (សាលធំកណ្តាល)", 0, 0, 48, 27));
+
+        try {
+            InputStream bgStream = MapLoader.class.getResourceAsStream("/images/maps/main_hall/main_hall_map.png");
+            if (bgStream != null) {
+                map.setBackgroundImage(new Image(bgStream));
+            }
+        } catch (Exception ignored) {}
+
+        double sx = map.getPixelWidth() / 1376.0;
+        double sy = map.getPixelHeight() / 768.0;
+
+        // West Wing Doors (Left Column)
+        // 1. Classroom A (Top-Left)
+        Rectangle2D doorClassroom = new Rectangle2D(100 * sx, 90 * sy, 110 * sx, 130 * sy);
+        Door doorA = new Door("hall_door_classroomA", 8, 4, "classroomA", "hall", false, false, null, doorClassroom);
+        doorA.setCollisionBox(doorClassroom);
+        map.addDoor(doorA);
+
+        // 2. Science Lab (Upper-Mid-Left)
+        Rectangle2D doorSci = new Rectangle2D(100 * sx, 270 * sy, 110 * sx, 130 * sy);
+        Door doorSciLab = new Door("hall_door_scilab", 8, 10, "laboratory", "hall", false, false, null, doorSci);
+        doorSciLab.setCollisionBox(doorSci);
+        map.addDoor(doorSciLab);
+
+        // 3. Teacher's Lounge (Lower-Mid-Left)
+        Rectangle2D doorLounge = new Rectangle2D(100 * sx, 460 * sy, 110 * sx, 130 * sy);
+        Door doorB = new Door("hall_door_lounge", 8, 16, "classroomB", "hall", false, false, null, doorLounge);
+        doorB.setCollisionBox(doorLounge);
+        map.addDoor(doorB);
+
+        // 4. Music & Art Room (Bottom-Left)
+        Rectangle2D doorMusic = new Rectangle2D(100 * sx, 635 * sy, 110 * sx, 130 * sy);
+        Door doorC = new Door("hall_door_music", 8, 22, "computer", "hall", false, false, null, doorMusic);
+        doorC.setCollisionBox(doorMusic);
+        map.addDoor(doorC);
+
+        // East Wing Doors (Right Column)
+        // 5. School Infirmary (Top-Right)
+        Rectangle2D doorInfirmary = new Rectangle2D(1160 * sx, 90 * sy, 110 * sx, 130 * sy);
+        Door doorInf = new Door("hall_door_infirmary", 40, 4, "dormitory", "hall", false, false, null, doorInfirmary);
+        doorInf.setCollisionBox(doorInfirmary);
+        map.addDoor(doorInf);
+
+        // 6. Storage Vault (Upper-Mid-Right)
+        Rectangle2D doorStorage = new Rectangle2D(1160 * sx, 270 * sy, 110 * sx, 130 * sy);
+        Door doorStg = new Door("hall_door_storage", 40, 10, "basement", "hall", false, false, null, doorStorage);
+        doorStg.setCollisionBox(doorStorage);
+        map.addDoor(doorStg);
+
+        // 7. Principal's Office (Lower-Mid-Right)
+        Rectangle2D doorPrincipal = new Rectangle2D(1160 * sx, 460 * sy, 110 * sx, 130 * sy);
+        Door doorD = new Door("hall_door_principal", 40, 16, "teacher", "hall", false, false, null, doorPrincipal);
+        doorD.setCollisionBox(doorPrincipal);
+        map.addDoor(doorD);
+
+        // 8. Restroom & Mirror (Bottom-Right)
+        Rectangle2D doorRestroom = new Rectangle2D(1160 * sx, 635 * sy, 110 * sx, 130 * sy);
+        Door doorRest = new Door("hall_door_restroom", 40, 22, "entrance", "hall", false, false, null, doorRestroom);
+        doorRest.setCollisionBox(doorRestroom);
+        map.addDoor(doorRest);
+
+        // North Center: Lore Library
+        Rectangle2D doorNorth = new Rectangle2D(620 * sx, 40 * sy, 135 * sx, 130 * sy);
+        Door doorN = new Door("hall_corridor_north", 24, 2, "library", "hall", false, false, null, doorNorth);
+        doorN.setCollisionBox(doorNorth);
+        map.addDoor(doorN);
+
+        // South Center: Grand School Exit Gate
+        Rectangle2D doorSouth = new Rectangle2D(550 * sx, 670 * sy, 276 * sx, 98 * sy);
+        Door doorS = new Door("hall_corridor_south", 24, 25, "exit", "hall", false, true, "master_key", doorSouth);
+        doorS.setCollisionBox(doorSouth);
+        map.addDoor(doorS);
+
+        // Hallway boundaries and stone colonnades
+        List<Rectangle2D> boxes = new ArrayList<>();
+        // Outer boundaries
+        boxes.add(new Rectangle2D(0, 0, 80 * sx, 768 * sy));
+        boxes.add(new Rectangle2D(1296 * sx, 0, 80 * sx, 768 * sy));
+        boxes.add(new Rectangle2D(0, 0, 610 * sx, 40 * sy));
+        boxes.add(new Rectangle2D(765 * sx, 0, 611 * sx, 40 * sy));
+
+        // West-side pillar line
+        boxes.add(new Rectangle2D(480 * sx, 180 * sy, 65 * sx, 120 * sy));
+        boxes.add(new Rectangle2D(480 * sx, 480 * sy, 65 * sx, 140 * sy));
+        // East-side pillar line
+        boxes.add(new Rectangle2D(830 * sx, 180 * sy, 65 * sx, 120 * sy));
+        boxes.add(new Rectangle2D(830 * sx, 480 * sy, 65 * sx, 140 * sy));
+
+        map.setCollisionBoxes(boxes);
+        map.initializeDoorCollisions();
+        return map;
+    }
+
+    public TileMap loadDetailedRoom(String roomId, String displayName, String backgroundResource) {
+        TileMap map = new TileMap(48, 27);
+        map.fill(Tile.FLOOR);
+        map.clearRoomsAndDoors();
+        map.addRoom(new Room(roomId, displayName, 0, 0, 48, 27));
+
+        try {
+            InputStream bgStream = MapLoader.class.getResourceAsStream(backgroundResource);
+            if (bgStream != null) {
+                map.setBackgroundImage(new Image(bgStream));
+            }
+        } catch (Exception ignored) {
+        }
+
+        double sx = map.getPixelWidth() / 1376.0;
+        double sy = map.getPixelHeight() / 768.0;
+
+        // Bottom doorway bounds
+        Rectangle2D doorVisualBounds = new Rectangle2D(643 * sx, 626 * sy, 71 * sx, 142 * sy);
+        Rectangle2D doorCollisionBox = new Rectangle2D(648 * sx, 665 * sy, 62 * sx, 103 * sy);
+
+        // In detailed rooms, the exit door back to hallway is initially open
+        Door exitDoor = new Door(roomId + "_exit", 24, 25, roomId, "hall", true, false, null, doorVisualBounds);
+        exitDoor.setCollisionBox(doorCollisionBox);
+        map.addDoor(exitDoor);
+
+        map.setCollisionBoxes(buildStandardRoomCollisionBoxes(map.getPixelWidth(), map.getPixelHeight()));
+        return map;
+    }
+
+    private List<Rectangle2D> buildStandardRoomCollisionBoxes(double mapWidth, double mapHeight) {
+        double sx = mapWidth / 1376.0;
+        double sy = mapHeight / 768.0;
+        List<Rectangle2D> boxes = new ArrayList<>();
+
+        // Boundary walls
+        boxes.add(new Rectangle2D(0 * sx, 0 * sy, 1376 * sx, 175 * sy));    // Top wall
+        boxes.add(new Rectangle2D(0 * sx, 0 * sy, 145 * sx, 768 * sy));     // Left wall
+        boxes.add(new Rectangle2D(1335 * sx, 0 * sy, 41 * sx, 768 * sy));   // Right wall
+        boxes.add(new Rectangle2D(0 * sx, 665 * sy, 648 * sx, 103 * sy));   // Bottom left wall
+        boxes.add(new Rectangle2D(710 * sx, 665 * sy, 666 * sx, 103 * sy)); // Bottom right wall
+
+        // Center room furniture / workstation cluster (leaving wide corridors on all sides)
+        boxes.add(new Rectangle2D(580 * sx, 280 * sy, 220 * sx, 160 * sy));
+
+        return boxes;
+    }
 
     public TileMap loadAbandonedSchool() {
         InputStream stream = MapLoader.class.getResourceAsStream(Constants.SCHOOL_MAP_RESOURCE);

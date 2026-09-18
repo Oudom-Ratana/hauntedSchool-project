@@ -10,6 +10,11 @@ public class Flashlight extends Item {
 
     @Override
     public String getUseMessage() {
-        return "Flashlight beam cuts through the dark hallway.";
+        return "Flashlight toggled! Illuminates darkness in front of player [Press F or slot hotkey].";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "High-intensity handheld beam that cuts through dark corridors. Consumes battery power when active.";
     }
 }

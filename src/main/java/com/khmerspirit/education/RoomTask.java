@@ -51,4 +51,12 @@ public class RoomTask {
     public int getCorrectCount() {
         return correctCount;
     }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
 }

@@ -2,12 +2,17 @@ package com.khmerspirit.player;
 
 public class Camera {
 
-    private final double viewportWidth;
-    private final double viewportHeight;
+    private double viewportWidth;
+    private double viewportHeight;
     private final double worldWidth;
     private final double worldHeight;
     private double x;
     private double y;
+
+    public void setViewportSize(double width, double height) {
+        this.viewportWidth = width;
+        this.viewportHeight = height;
+    }
 
     public Camera(double viewportWidth, double viewportHeight, double worldWidth, double worldHeight) {
         this.viewportWidth = viewportWidth;

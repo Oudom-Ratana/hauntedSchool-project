@@ -36,11 +36,11 @@ public class RewardManagementView extends VBox {
     }
 
     private void buildHeader() {
-        VBox header = new VBox(4);
-        Label title = new Label("REWARD MANAGEMENT SYSTEM");
-        title.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 24px; -fx-font-weight: 900; -fx-text-fill: #f8fafc; -fx-letter-spacing: 1px; -fx-effect: dropshadow(gaussian, rgba(225, 29, 72, 0.5), 10, 0.3, 0, 0);");
-        Label subtitle = new Label("Configure items, keys, holy charms, batteries, and health items awarded to players upon room completion");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-font-weight: bold;");
+        VBox header = new VBox(2);
+        Label title = new Label("💾  Save Data & Relic Vault");
+        title.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #f8fafc;");
+        Label subtitle = new Label("Configure mystical artifacts, chamber keys, charms, batteries, and health items awarded to players");
+        subtitle.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-text-fill: #94a3b8;");
         header.getChildren().addAll(title, subtitle);
         getChildren().add(header);
     }
@@ -48,23 +48,24 @@ public class RewardManagementView extends VBox {
     private void buildToolbar() {
         HBox actionRow = new HBox(12);
         actionRow.setAlignment(Pos.CENTER_LEFT);
-        actionRow.setPadding(new Insets(14));
-        actionRow.setStyle("-fx-background-color: rgba(15, 23, 42, 0.9); -fx-border-color: rgba(255, 255, 255, 0.08); -fx-border-width: 1px; -fx-background-radius: 8px;");
+        actionRow.setPadding(new Insets(12, 14, 12, 14));
+        actionRow.getStyleClass().add("admin-card-container");
 
-        Button addBtn = new Button("+ ADD REWARD");
-        addBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #35572F, #1E351C); -fx-text-fill: #E6D3A7; -fx-font-weight: bold; -fx-border-color: #76A14D; -fx-cursor: hand;");
+        Button addBtn = new Button("➕  Add Reward");
+        addBtn.getStyleClass().add("btn-modern-primary");
         addBtn.setOnAction(e -> showAddDialog());
 
-        Button editBtn = new Button("✏ EDIT REWARD");
-        editBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #7A6135, #4A3A1F); -fx-text-fill: #F0DFB7; -fx-font-weight: bold; -fx-border-color: #D4AF37; -fx-cursor: hand;");
+        Button editBtn = new Button("✏️  Edit Reward");
+        editBtn.getStyleClass().add("btn-modern-secondary");
         editBtn.setOnAction(e -> showEditDialog());
 
-        Button deleteBtn = new Button("🗑 DELETE REWARD");
-        deleteBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #7F2020, #4A1212); -fx-text-fill: #FFB3B3; -fx-font-weight: bold; -fx-border-color: #FF4D4D; -fx-cursor: hand;");
+        Button deleteBtn = new Button("🗑️  Delete Reward");
+        deleteBtn.getStyleClass().add("btn-modern-secondary");
+        deleteBtn.setStyle("-fx-text-fill: #f87171;");
         deleteBtn.setOnAction(e -> handleDelete());
 
-        Button refreshBtn = new Button("🔄 REFRESH");
-        refreshBtn.setStyle("-fx-background-color: #2E3E50; -fx-text-fill: #C9D6DF; -fx-font-weight: bold; -fx-cursor: hand;");
+        Button refreshBtn = new Button("🔄  Refresh Repository");
+        refreshBtn.getStyleClass().add("btn-modern-secondary");
         refreshBtn.setOnAction(e -> loadData());
 
         actionRow.getChildren().addAll(addBtn, editBtn, deleteBtn, refreshBtn);
@@ -73,7 +74,7 @@ public class RewardManagementView extends VBox {
 
     @SuppressWarnings("unchecked")
     private void buildTableView() {
-        tableView.setStyle("-fx-background-color: rgba(12, 18, 26, 0.95); -fx-border-color: #2E3E50; -fx-border-width: 1px;");
+        tableView.setStyle("-fx-background-color: #0c1322; -fx-border-color: #1e293b; -fx-border-width: 1px; -fx-border-radius: 8px;");
         VBox.setVgrow(tableView, Priority.ALWAYS);
 
         TableColumn<RewardModel, String> idCol = new TableColumn<>("Reward ID");
@@ -183,28 +184,36 @@ public class RewardManagementView extends VBox {
         private final Spinner<Integer> qtySpinner = new Spinner<>(1, 999, 1);
 
         public RewardFormDialog(RewardModel existing, List<RewardModel> allRewards) {
-            setTitle(existing == null ? "Add New Reward" : "Edit Reward " + existing.getId());
-            setHeaderText(existing == null ? "Fill in reward details and quantity." : "Modify reward details.");
+            setTitle(existing == null ? "Add New Reward" : "Edit Reward: " + existing.getId());
+            setHeaderText(existing == null ? "Configure reward relic details, item type, and drop quantity." : "Modify reward details and quantity.");
 
             DialogPane pane = getDialogPane();
-            pane.setStyle("-fx-background-color: #0E1622; -fx-text-fill: #E8D2A0;");
             pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            pane.setPrefWidth(480);
+
+            // Modern input styling
+            idField.getStyleClass().add("modern-form-input");
+            nameField.getStyleClass().add("modern-form-input");
+            typeBox.getStyleClass().add("modern-form-input");
+            descArea.getStyleClass().add("modern-form-input");
+            qtySpinner.getStyleClass().add("modern-form-input");
 
             GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(16));
+            grid.setHgap(14);
+            grid.setVgap(12);
+            grid.setPadding(new Insets(18));
 
             typeBox.getItems().addAll("Item", "Key", "Battery", "Health", "Buff", "Currency", "Tool");
             typeBox.getSelectionModel().selectFirst();
+            typeBox.setMaxWidth(Double.MAX_VALUE);
 
             descArea.setPrefRowCount(3);
 
-            grid.add(new Label("Reward ID:"), 0, 0); grid.add(idField, 1, 0);
-            grid.add(new Label("Reward Name:"), 0, 1); grid.add(nameField, 1, 1);
-            grid.add(new Label("Type:"), 0, 2); grid.add(typeBox, 1, 2);
-            grid.add(new Label("Description:"), 0, 3); grid.add(descArea, 1, 3);
-            grid.add(new Label("Quantity:"), 0, 4); grid.add(qtySpinner, 1, 4);
+            grid.add(createFormLabel("Reward ID:"), 0, 0); grid.add(idField, 1, 0);
+            grid.add(createFormLabel("Reward Name:"), 0, 1); grid.add(nameField, 1, 1);
+            grid.add(createFormLabel("Item Type:"), 0, 2); grid.add(typeBox, 1, 2);
+            grid.add(createFormLabel("Description:"), 0, 3); grid.add(descArea, 1, 3);
+            grid.add(createFormLabel("Quantity:"), 0, 4); grid.add(qtySpinner, 1, 4);
 
             if (existing != null) {
                 idField.setText(existing.getId());
@@ -249,6 +258,12 @@ public class RewardManagementView extends VBox {
             alert.setHeaderText(null);
             alert.setContentText(msg);
             alert.showAndWait();
+        }
+
+        private static Label createFormLabel(String text) {
+            Label lbl = new Label(text);
+            lbl.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
+            return lbl;
         }
     }
 }

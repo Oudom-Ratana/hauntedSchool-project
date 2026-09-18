@@ -21,12 +21,16 @@ public class PlayerController {
         pressedKeys.remove(keyCode);
     }
 
+    public boolean isSprinting() {
+        return pressedKeys.contains(KeyCode.SHIFT);
+    }
+
     public double getHorizontalAxis() {
         double axis = 0.0;
-        if (pressedKeys.contains(KeyCode.A)) {
+        if (pressedKeys.contains(KeyCode.A) || pressedKeys.contains(KeyCode.LEFT)) {
             axis -= 1.0;
         }
-        if (pressedKeys.contains(KeyCode.D)) {
+        if (pressedKeys.contains(KeyCode.D) || pressedKeys.contains(KeyCode.RIGHT)) {
             axis += 1.0;
         }
         return axis;
@@ -34,10 +38,10 @@ public class PlayerController {
 
     public double getVerticalAxis() {
         double axis = 0.0;
-        if (pressedKeys.contains(KeyCode.W)) {
+        if (pressedKeys.contains(KeyCode.W) || pressedKeys.contains(KeyCode.UP)) {
             axis -= 1.0;
         }
-        if (pressedKeys.contains(KeyCode.S)) {
+        if (pressedKeys.contains(KeyCode.S) || pressedKeys.contains(KeyCode.DOWN)) {
             axis += 1.0;
         }
         return axis;

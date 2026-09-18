@@ -19,32 +19,34 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-:: 2. Locate the runnable JAR file
-if exist "hantedSchool_3.jar" (
-    set "JAR_PATH=hantedSchool_3.jar"
-) else if exist "target\hantedSchool_3.jar" (
-    set "JAR_PATH=target\hantedSchool_3.jar"
-) else (
-    echo [INFO] Game JAR not found. Attempting to build using Maven...
-    mvn clean package
-    if exist "target\hantedSchool_3.jar" (
-        set "JAR_PATH=target\hantedSchool_3.jar"
-    ) else (
-        echo.
-        echo [ERROR] Could not find or build hantedSchool_3.jar!
-        echo.
-        pause
-        exit /b 1
-    )
+:: 2. Check and launch using automation suite if JAR is missing or flags passed
+if "%1"=="--build" (
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0automate.ps1" -Build
+    exit /b %ERRORLEVEL%
+)
+if "%1"=="--auto" (
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0automate.ps1" -Auto
+    exit /b %ERRORLEVEL%
+)
+if "%1"=="--menu" (
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0automate.ps1"
+    exit /b %ERRORLEVEL%
+)
+
+if not exist "hantedSchool_3.jar" (
+    echo [INFO] Game JAR not found. Running complete automation suite to build...
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0automate.ps1" -Auto
+    exit /b %ERRORLEVEL%
 )
 
 :: 3. Launch the game
 echo [INFO] Launching the game...
 echo.
-java --enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED -jar "%JAR_PATH%"
+java --enable-native-access=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED -jar "hantedSchool_3.jar"
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
     echo [NOTE] Game process finished.
     pause
 )
+

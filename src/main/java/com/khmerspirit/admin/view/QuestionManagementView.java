@@ -5,434 +5,720 @@ import com.khmerspirit.admin.model.RoomModel;
 import com.khmerspirit.admin.service.QuestionFileService;
 import com.khmerspirit.admin.service.RoomFileService;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.shape.Rectangle;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Question Management View featuring TableView, Search, Multi-Filter, CRUD, and Player Preview.
+ * Modern Question Management View matching draftDesign.png,
+ * featuring a 3-column split view:
+ * 1. Rooms & Tasks selector card list (Left Column)
+ * 2. Room & Task question data table with action buttons (Center Column)
+ * 3. Add/Edit question inspector form with live validation (Right Column)
  */
-public class QuestionManagementView extends VBox {
+public class QuestionManagementView extends HBox {
 
     private final QuestionFileService questionFileService = new QuestionFileService();
     private final RoomFileService roomFileService = new RoomFileService();
 
-    private final TableView<QuestionModel> tableView = new TableView<>();
     private final ObservableList<QuestionModel> masterData = FXCollections.observableArrayList();
     private FilteredList<QuestionModel> filteredData;
 
+    // Room Card Column components
+    private final VBox roomCardsContainer = new VBox(8);
+    private String selectedRoomId = "classroomA";
+    private String selectedRoomDisplayName = "Classroom";
+
+    // Center Column components
+    private Label tableHeaderTitle;
+    private Label tableHeaderSubtitle;
     private TextField searchField;
-    private ComboBox<String> roomFilterBox;
-    private ComboBox<String> categoryFilterBox;
-    private ComboBox<String> difficultyFilterBox;
+    private ComboBox<String> taskFilterBox;
+    private final TableView<QuestionModel> tableView = new TableView<>();
+
+    // Right Column Form components
+    private Label formHeaderTitle;
+    private QuestionModel editingQuestion = null;
+    private ComboBox<String> formRoomBox;
+    private ComboBox<Integer> formTaskBox;
+    private TextArea questionTextArea;
+    private Label charCounterLabel;
+    private TextField optAField;
+    private TextField optBField;
+    private TextField optCField;
+    private TextField optDField;
+    private ComboBox<String> formAnsBox;
+    private RadioButton rbActive;
+    private RadioButton rbInactive;
 
     public QuestionManagementView() {
-        setSpacing(16);
-        setPadding(new Insets(20));
-        setStyle("-fx-background-color: transparent;");
+        setSpacing(14);
+        setPadding(new Insets(16));
+        setStyle("-fx-background-color: #070b14;");
 
-        buildHeader();
-        buildToolbar();
-        buildTableView();
+        // Build 3-column layout
+        VBox leftCol = buildRoomsColumn();
+        VBox centerCol = buildQuestionsColumn();
+        VBox rightCol = buildFormColumn();
+
+        HBox.setHgrow(centerCol, Priority.ALWAYS);
+
+        getChildren().addAll(leftCol, centerCol, rightCol);
+
         loadData();
     }
 
-    private void buildHeader() {
-        VBox header = new VBox(4);
-        Label title = new Label("QUESTION MANAGEMENT SYSTEM");
-        title.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 24px; -fx-font-weight: 900; -fx-text-fill: #f8fafc; -fx-letter-spacing: 1px; -fx-effect: dropshadow(gaussian, rgba(225, 29, 72, 0.5), 10, 0.3, 0, 0);");
-        Label subtitle = new Label("Create, modify, filter, and preview quiz challenges for all haunted school rooms");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-font-weight: bold;");
-        header.getChildren().addAll(title, subtitle);
-        getChildren().add(header);
+    /**
+     * Column 1: Rooms & Tasks Card List (Left)
+     */
+    private VBox buildRoomsColumn() {
+        VBox col = new VBox(12);
+        col.setPrefWidth(240);
+        col.setMinWidth(220);
+        col.setMaxWidth(260);
+        col.getStyleClass().add("admin-card-container");
+
+        // Header Title
+        HBox headerBox = new HBox(8);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        Label iconLbl = new Label("🏠");
+        iconLbl.setStyle("-fx-font-size: 14px;");
+        Label titleLbl = new Label("Rooms & Tasks");
+        titleLbl.getStyleClass().add("admin-card-header-title");
+        headerBox.getChildren().addAll(iconLbl, titleLbl);
+
+        // Scrollable room cards
+        ScrollPane scrollPane = new ScrollPane(roomCardsContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;");
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        col.getChildren().addAll(headerBox, scrollPane);
+        return col;
     }
 
-    private void buildToolbar() {
-        VBox toolbarContainer = new VBox(12);
-        toolbarContainer.setPadding(new Insets(14));
-        toolbarContainer.setStyle("-fx-background-color: rgba(15, 23, 42, 0.9); -fx-border-color: rgba(255, 255, 255, 0.08); -fx-border-width: 1px; -fx-background-radius: 8px;");
+    /**
+     * Column 2: Question Table for selected room & task (Center)
+     */
+    private VBox buildQuestionsColumn() {
+        VBox col = new VBox(12);
+        col.getStyleClass().add("admin-card-container");
 
-        // Row 1: Search & Filters
-        HBox filterRow = new HBox(12);
-        filterRow.setAlignment(Pos.CENTER_LEFT);
+        // 1. Header with Task Title & Controls
+        HBox headerRow = new HBox(12);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
 
+        Label screenIcon = new Label("📺");
+        screenIcon.setStyle("-fx-font-size: 18px;");
+
+        VBox titleBox = new VBox(2);
+        tableHeaderTitle = new Label("Classroom - Task 1");
+        tableHeaderTitle.getStyleClass().add("admin-card-header-title");
+        tableHeaderTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: 900; -fx-text-fill: #f8fafc;");
+        tableHeaderSubtitle = new Label("Manage questions for this task");
+        tableHeaderSubtitle.getStyleClass().add("admin-card-header-sub");
+        titleBox.getChildren().addAll(tableHeaderTitle, tableHeaderSubtitle);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Filter: Task selection
+        taskFilterBox = new ComboBox<>();
+        taskFilterBox.getItems().addAll("All Tasks", "Task 1", "Task 2", "Task 3", "Task 4", "Task 5");
+        taskFilterBox.getSelectionModel().selectFirst();
+        taskFilterBox.getStyleClass().add("modern-form-input");
+        taskFilterBox.setPrefWidth(120);
+        taskFilterBox.valueProperty().addListener((obs, oldV, newV) -> applyFilters());
+
+        // Filter: Search field
         searchField = new TextField();
-        searchField.setPromptText("Search question text, ID, or explanation...");
-        searchField.setPrefWidth(260);
-        searchField.setStyle("-fx-background-color: rgba(10, 14, 22, 0.9); -fx-text-fill: #f1f5f9; -fx-prompt-text-fill: #64748b; -fx-border-color: rgba(255, 255, 255, 0.1); -fx-border-radius: 6px; -fx-background-radius: 6px;");
+        searchField.setPromptText("Search questions...");
+        searchField.getStyleClass().add("modern-form-input");
+        searchField.setPrefWidth(180);
+        searchField.textProperty().addListener((obs, oldV, newV) -> applyFilters());
 
-        roomFilterBox = new ComboBox<>();
-        roomFilterBox.setPromptText("Filter Room");
-        roomFilterBox.setStyle("-fx-background-color: rgba(10, 14, 22, 0.9); -fx-text-fill: #f1f5f9; -fx-border-color: rgba(255, 255, 255, 0.1); -fx-border-radius: 6px; -fx-background-radius: 6px;");
+        // Preview In-Game Quiz Button
+        Button btnPreview = new Button("👁️ Preview");
+        btnPreview.getStyleClass().add("btn-modern-secondary");
+        btnPreview.setOnAction(e -> handlePreview());
 
-        categoryFilterBox = new ComboBox<>();
-        categoryFilterBox.getItems().addAll("All Categories", "Programming", "Networking", "CyberSecurity", "Hardware", "General");
-        categoryFilterBox.getSelectionModel().selectFirst();
-        categoryFilterBox.setStyle("-fx-background-color: rgba(10, 14, 22, 0.9); -fx-text-fill: #f1f5f9; -fx-border-color: rgba(255, 255, 255, 0.1); -fx-border-radius: 6px; -fx-background-radius: 6px;");
+        headerRow.getChildren().addAll(screenIcon, titleBox, spacer, taskFilterBox, searchField, btnPreview);
 
-        difficultyFilterBox = new ComboBox<>();
-        difficultyFilterBox.getItems().addAll("All Difficulties", "Easy", "Medium", "Hard");
-        difficultyFilterBox.getSelectionModel().selectFirst();
-        difficultyFilterBox.setStyle("-fx-background-color: rgba(10, 14, 22, 0.9); -fx-text-fill: #f1f5f9; -fx-border-color: rgba(255, 255, 255, 0.1); -fx-border-radius: 6px; -fx-background-radius: 6px;");
+        // 2. TableView matching draftDesign.png
+        buildTableView();
+        VBox.setVgrow(tableView, Priority.ALWAYS);
 
-        Button clearFilterBtn = new Button("RESET FILTERS");
-        clearFilterBtn.setStyle("-fx-background-color: rgba(30, 41, 59, 0.8); -fx-text-fill: #cbd5e1; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-color: rgba(255, 255, 255, 0.1); -fx-border-radius: 6px; -fx-background-radius: 6px;");
-        clearFilterBtn.setOnAction(e -> resetFilters());
-
-        filterRow.getChildren().addAll(new Label("Search:"), searchField, roomFilterBox, categoryFilterBox, difficultyFilterBox, clearFilterBtn);
-
-        // Row 2: Action Buttons
-        HBox actionRow = new HBox(12);
-        actionRow.setAlignment(Pos.CENTER_LEFT);
-
-        Button addBtn = new Button("+ ADD QUESTION");
-        addBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #35572F, #1E351C); -fx-text-fill: #E6D3A7; -fx-font-weight: bold; -fx-border-color: #76A14D; -fx-cursor: hand;");
-        addBtn.setOnAction(e -> showAddDialog());
-
-        Button editBtn = new Button("✏ EDIT");
-        editBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #7A6135, #4A3A1F); -fx-text-fill: #F0DFB7; -fx-font-weight: bold; -fx-border-color: #D4AF37; -fx-cursor: hand;");
-        editBtn.setOnAction(e -> showEditDialog());
-
-        Button deleteBtn = new Button("🗑 DELETE");
-        deleteBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #7F2020, #4A1212); -fx-text-fill: #FFB3B3; -fx-font-weight: bold; -fx-border-color: #FF4D4D; -fx-cursor: hand;");
-        deleteBtn.setOnAction(e -> handleDelete());
-
-        Button previewBtn = new Button("👁 PLAYER PREVIEW");
-        previewBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #1D5370, #0F2E3F); -fx-text-fill: #7BB7D8; -fx-font-weight: bold; -fx-border-color: #3B97D4; -fx-cursor: hand;");
-        previewBtn.setOnAction(e -> handlePreview());
-
-        actionRow.getChildren().addAll(addBtn, editBtn, deleteBtn, previewBtn);
-
-        toolbarContainer.getChildren().addAll(filterRow, actionRow);
-        getChildren().add(toolbarContainer);
-
-        // Filter triggers
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        roomFilterBox.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        categoryFilterBox.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
-        difficultyFilterBox.valueProperty().addListener((obs, oldVal, newVal) -> applyFilters());
+        col.getChildren().addAll(headerRow, tableView);
+        return col;
     }
 
     @SuppressWarnings("unchecked")
     private void buildTableView() {
-        tableView.setStyle("-fx-background-color: rgba(12, 18, 26, 0.95); -fx-border-color: #2E3E50; -fx-border-width: 1px;");
-        VBox.setVgrow(tableView, Priority.ALWAYS);
+        tableView.setStyle("-fx-background-color: #0c1322; -fx-border-color: #1e293b; -fx-border-width: 1px; -fx-border-radius: 8px;");
 
-        TableColumn<QuestionModel, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        idCol.setPrefWidth(90);
+        // Column 1: # (Index)
+        TableColumn<QuestionModel, Integer> indexCol = new TableColumn<>("#");
+        indexCol.setPrefWidth(42);
+        indexCol.setStyle("-fx-alignment: center;");
+        indexCol.setCellValueFactory(cellData -> {
+            int idx = tableView.getItems().indexOf(cellData.getValue()) + 1;
+            return new SimpleIntegerProperty(idx).asObject();
+        });
 
-        TableColumn<QuestionModel, String> textCol = new TableColumn<>("Question Text");
-        textCol.setCellValueFactory(new PropertyValueFactory<>("text"));
-        textCol.setPrefWidth(280);
+        // Column 2: Question (Text)
+        TableColumn<QuestionModel, String> textCol = new TableColumn<>("Question");
+        textCol.setPrefWidth(290);
+        textCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getText()));
 
-        TableColumn<QuestionModel, String> roomCol = new TableColumn<>("Room");
-        roomCol.setCellValueFactory(new PropertyValueFactory<>("room"));
-        roomCol.setPrefWidth(110);
+        // Column 3: Type (Pill Badge)
+        TableColumn<QuestionModel, String> typeCol = new TableColumn<>("Type");
+        typeCol.setPrefWidth(85);
+        typeCol.setStyle("-fx-alignment: center;");
+        typeCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getQuestionType()));
+        typeCol.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    Label badge = new Label(item);
+                    badge.getStyleClass().addAll("badge-pill", "badge-pill-mcq");
+                    setGraphic(badge);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
+            }
+        });
 
-        TableColumn<QuestionModel, String> catCol = new TableColumn<>("Category");
-        catCol.setCellValueFactory(new PropertyValueFactory<>("category"));
-        catCol.setPrefWidth(110);
+        // Column 4: Status (Pill Badge)
+        TableColumn<QuestionModel, Boolean> statusCol = new TableColumn<>("Status");
+        statusCol.setPrefWidth(85);
+        statusCol.setStyle("-fx-alignment: center;");
+        statusCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleBooleanProperty(cellData.getValue().isActive()));
+        statusCol.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Boolean active, boolean empty) {
+                super.updateItem(active, empty);
+                if (empty || active == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    Label badge = new Label(active ? "Active" : "Inactive");
+                    badge.getStyleClass().add("badge-pill");
+                    badge.getStyleClass().add(active ? "badge-pill-active" : "badge-pill-inactive");
+                    setGraphic(badge);
+                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
+            }
+        });
 
-        TableColumn<QuestionModel, String> diffCol = new TableColumn<>("Difficulty");
-        diffCol.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
-        diffCol.setPrefWidth(90);
+        // Column 5: Actions (Edit & Delete)
+        TableColumn<QuestionModel, Void> actionCol = new TableColumn<>("Actions");
+        actionCol.setPrefWidth(95);
+        actionCol.setStyle("-fx-alignment: center;");
+        actionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button btnEdit = new Button("✏");
+            private final Button btnDelete = new Button("🗑");
+            private final HBox pane = new HBox(6, btnEdit, btnDelete);
 
-        TableColumn<QuestionModel, String> ansCol = new TableColumn<>("Answer");
-        ansCol.setCellValueFactory(new PropertyValueFactory<>("correctAnswer"));
-        ansCol.setPrefWidth(70);
+            {
+                pane.setAlignment(Pos.CENTER);
+                btnEdit.getStyleClass().add("btn-icon-action");
+                btnDelete.getStyleClass().add("btn-icon-danger");
 
-        TableColumn<QuestionModel, String> rewardCol = new TableColumn<>("Reward Value");
-        rewardCol.setCellValueFactory(new PropertyValueFactory<>("rewardValue"));
-        rewardCol.setPrefWidth(120);
+                btnEdit.setOnAction(e -> {
+                    QuestionModel q = getTableView().getItems().get(getIndex());
+                    populateFormForEditing(q);
+                });
 
-        TableColumn<QuestionModel, Boolean> activeCol = new TableColumn<>("Active");
-        activeCol.setCellValueFactory(new PropertyValueFactory<>("active"));
-        activeCol.setPrefWidth(70);
+                btnDelete.setOnAction(e -> {
+                    QuestionModel q = getTableView().getItems().get(getIndex());
+                    handleDelete(q);
+                });
+            }
 
-        tableView.getColumns().addAll(idCol, textCol, roomCol, catCol, diffCol, ansCol, rewardCol, activeCol);
-        getChildren().add(tableView);
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : pane);
+            }
+        });
+
+        tableView.getColumns().addAll(indexCol, textCol, typeCol, statusCol, actionCol);
+
+        // Click row to edit
+        tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            if (newV != null) {
+                populateFormForEditing(newV);
+            }
+        });
     }
 
+    /**
+     * Column 3: Add New Question / Edit Form (Right)
+     */
+    private VBox buildFormColumn() {
+        VBox col = new VBox(10);
+        col.setPrefWidth(350);
+        col.setMinWidth(320);
+        col.setMaxWidth(380);
+        col.getStyleClass().add("admin-card-container");
+
+        // Header
+        HBox headerRow = new HBox(6);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        formHeaderTitle = new Label("➕ Add New Question");
+        formHeaderTitle.getStyleClass().add("admin-card-header-title");
+        headerRow.getChildren().add(formHeaderTitle);
+
+        // Scrollable Form Fields
+        VBox formFields = new VBox(10);
+
+        // 1. Room Field
+        Label lblRoom = new Label("Room");
+        lblRoom.getStyleClass().add("modern-form-label");
+        formRoomBox = new ComboBox<>();
+        formRoomBox.setMaxWidth(Double.MAX_VALUE);
+        formRoomBox.getStyleClass().add("modern-form-input");
+
+        // 2. Task Number Field
+        Label lblTask = new Label("Task Number");
+        lblTask.getStyleClass().add("modern-form-label");
+        formTaskBox = new ComboBox<>();
+        formTaskBox.getItems().addAll(1, 2, 3, 4, 5);
+        formTaskBox.getSelectionModel().selectFirst();
+        formTaskBox.setMaxWidth(Double.MAX_VALUE);
+        formTaskBox.getStyleClass().add("modern-form-input");
+
+        // 3. Question Text Area + Char counter
+        Label lblPrompt = new Label("Question Text");
+        lblPrompt.getStyleClass().add("modern-form-label");
+
+        questionTextArea = new TextArea();
+        questionTextArea.setPromptText("Enter the question here...");
+        questionTextArea.setPrefRowCount(3);
+        questionTextArea.setWrapText(true);
+        questionTextArea.getStyleClass().add("modern-form-input");
+
+        charCounterLabel = new Label("0/500");
+        charCounterLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #64748b; -fx-alignment: center-right;");
+        questionTextArea.textProperty().addListener((obs, oldV, newV) -> {
+            int len = newV != null ? newV.length() : 0;
+            charCounterLabel.setText(len + "/500");
+        });
+
+        HBox charCountBox = new HBox(charCounterLabel);
+        charCountBox.setAlignment(Pos.CENTER_RIGHT);
+
+        // 4. Question Type (MCQ Only)
+        Label lblType = new Label("Question Type");
+        lblType.getStyleClass().add("modern-form-label");
+
+        HBox typeBadgeBox = new HBox();
+        Label mcqBadge = new Label("Multiple Choice (MCQ)");
+        mcqBadge.getStyleClass().addAll("badge-pill", "badge-pill-mcq");
+        mcqBadge.setStyle("-fx-padding: 4px 12px; -fx-font-size: 12px; -fx-font-weight: bold;");
+        typeBadgeBox.getChildren().add(mcqBadge);
+
+        // 5. Options (for MCQ)
+        Label lblOptions = new Label("Options (for MCQ)");
+        lblOptions.getStyleClass().add("modern-form-label");
+
+        optAField = new TextField();
+        optAField.setPromptText("Option A");
+        optAField.getStyleClass().add("modern-form-input");
+        HBox rowA = new HBox(8, new Label("A."), optAField);
+        rowA.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(optAField, Priority.ALWAYS);
+
+        optBField = new TextField();
+        optBField.setPromptText("Option B");
+        optBField.getStyleClass().add("modern-form-input");
+        HBox rowB = new HBox(8, new Label("B."), optBField);
+        rowB.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(optBField, Priority.ALWAYS);
+
+        optCField = new TextField();
+        optCField.setPromptText("Option C");
+        optCField.getStyleClass().add("modern-form-input");
+        HBox rowC = new HBox(8, new Label("C."), optCField);
+        rowC.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(optCField, Priority.ALWAYS);
+
+        optDField = new TextField();
+        optDField.setPromptText("Option D");
+        optDField.getStyleClass().add("modern-form-input");
+        HBox rowD = new HBox(8, new Label("D."), optDField);
+        rowD.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(optDField, Priority.ALWAYS);
+
+        VBox optionsBox = new VBox(6, rowA, rowB, rowC, rowD);
+
+        // 6. Correct Answer
+        Label lblAns = new Label("Correct Answer");
+        lblAns.getStyleClass().add("modern-form-label");
+        formAnsBox = new ComboBox<>();
+        formAnsBox.getItems().addAll("A", "B", "C", "D");
+        formAnsBox.getSelectionModel().selectFirst();
+        formAnsBox.setMaxWidth(Double.MAX_VALUE);
+        formAnsBox.getStyleClass().add("modern-form-input");
+
+        // 7. Status (Active / Inactive)
+        Label lblStatus = new Label("Status");
+        lblStatus.getStyleClass().add("modern-form-label");
+        ToggleGroup statusGroup = new ToggleGroup();
+        rbActive = new RadioButton("Active");
+        rbActive.setToggleGroup(statusGroup);
+        rbActive.setSelected(true);
+        rbActive.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 11.5px;");
+
+        rbInactive = new RadioButton("Inactive");
+        rbInactive.setToggleGroup(statusGroup);
+        rbInactive.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 11.5px;");
+
+        HBox statusBox = new HBox(16, rbActive, rbInactive);
+
+        // 8. Action Buttons (Save & Clear)
+        Button btnSave = new Button("💾 Save Question");
+        btnSave.getStyleClass().add("btn-modern-primary");
+        HBox.setHgrow(btnSave, Priority.ALWAYS);
+        btnSave.setMaxWidth(Double.MAX_VALUE);
+        btnSave.setOnAction(e -> handleSaveForm());
+
+        Button btnClear = new Button("🔄 Clear");
+        btnClear.getStyleClass().add("btn-modern-secondary");
+        btnClear.setOnAction(e -> resetForm());
+
+        HBox buttonBox = new HBox(10, btnSave, btnClear);
+        buttonBox.setPadding(new Insets(6, 0, 0, 0));
+
+        formFields.getChildren().addAll(
+                lblRoom, formRoomBox,
+                lblTask, formTaskBox,
+                lblPrompt, questionTextArea, charCountBox,
+                lblType, typeBadgeBox,
+                lblOptions, optionsBox,
+                lblAns, formAnsBox,
+                lblStatus, statusBox,
+                buttonBox
+        );
+
+        ScrollPane scrollForm = new ScrollPane(formFields);
+        scrollForm.setFitToWidth(true);
+        scrollForm.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;");
+        VBox.setVgrow(scrollForm, Priority.ALWAYS);
+
+        col.getChildren().addAll(headerRow, scrollForm);
+        return col;
+    }
+
+    /**
+     * Load data from QuestionFileService & RoomFileService and construct room cards
+     */
     public void loadData() {
         List<QuestionModel> questions = questionFileService.loadQuestions();
         masterData.setAll(questions);
         filteredData = new FilteredList<>(masterData, p -> true);
         tableView.setItems(filteredData);
 
-        // Update Room filter options dynamically from RoomFileService
+        // Populate room options in right form
         List<RoomModel> rooms = roomFileService.loadRooms();
-        ObservableList<String> roomOptions = FXCollections.observableArrayList("All Rooms");
+        ObservableList<String> roomOptions = FXCollections.observableArrayList();
         for (RoomModel r : rooms) {
-            roomOptions.add(r.getId());
+            roomOptions.add(r.getName() + " [" + r.getId() + "]");
         }
-        roomFilterBox.setItems(roomOptions);
-        roomFilterBox.getSelectionModel().selectFirst();
+        formRoomBox.setItems(roomOptions);
+        if (!roomOptions.isEmpty()) {
+            formRoomBox.getSelectionModel().selectFirst();
+        }
+
+        // Build left column room cards
+        renderRoomCards(rooms);
+
+        // Apply filters
+        applyFilters();
+    }
+
+    private void renderRoomCards(List<RoomModel> rooms) {
+        roomCardsContainer.getChildren().clear();
+
+        for (RoomModel r : rooms) {
+            HBox card = new HBox(10);
+            card.setAlignment(Pos.CENTER_LEFT);
+            card.getStyleClass().add("admin-room-card");
+
+            if (r.getId().equalsIgnoreCase(selectedRoomId)) {
+                card.getStyleClass().add("admin-room-card-selected");
+            }
+
+            // Thumbnail Image
+            ImageView thumbView = new ImageView();
+            Image img = loadRoomImage(r.getId());
+            if (img != null) {
+                thumbView.setImage(img);
+                thumbView.setFitWidth(54);
+                thumbView.setFitHeight(42);
+                thumbView.setPreserveRatio(false);
+                Rectangle clip = new Rectangle(54, 42);
+                clip.setArcWidth(6);
+                clip.setArcHeight(6);
+                thumbView.setClip(clip);
+            }
+
+            // Title & Task count
+            VBox infoBox = new VBox(2);
+            Label nameLbl = new Label(r.getName());
+            nameLbl.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #f1f5f9;");
+
+            long taskCount = masterData.stream().filter(q -> isRoomMatch(q.getRoom(), r.getId())).count();
+            Label taskLbl = new Label(taskCount + " tasks");
+            taskLbl.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 11px; -fx-text-fill: #38bdf8;");
+
+            infoBox.getChildren().addAll(nameLbl, taskLbl);
+            card.getChildren().addAll(thumbView, infoBox);
+
+            card.setOnMouseClicked(e -> {
+                selectedRoomId = r.getId();
+                selectedRoomDisplayName = r.getName();
+                tableHeaderTitle.setText(r.getName() + " - Task 1");
+
+                // Pre-select this room in form
+                for (String opt : formRoomBox.getItems()) {
+                    if (opt.contains("[" + r.getId() + "]")) {
+                        formRoomBox.setValue(opt);
+                        break;
+                    }
+                }
+
+                renderRoomCards(rooms);
+                applyFilters();
+            });
+
+            roomCardsContainer.getChildren().add(card);
+        }
     }
 
     private void applyFilters() {
         if (filteredData == null) return;
 
-        String query = searchField.getText() == null ? "" : searchField.getText().toLowerCase().trim();
-        String selRoom = roomFilterBox.getValue();
-        String selCat = categoryFilterBox.getValue();
-        String selDiff = difficultyFilterBox.getValue();
+        String query = searchField.getText() != null ? searchField.getText().toLowerCase().trim() : "";
+        String taskSel = taskFilterBox.getValue();
 
         filteredData.setPredicate(q -> {
-            // Search filter
-            boolean matchesSearch = query.isEmpty() ||
-                    (q.getId() != null && q.getId().toLowerCase().contains(query)) ||
-                    (q.getText() != null && q.getText().toLowerCase().contains(query)) ||
-                    (q.getExplanation() != null && q.getExplanation().toLowerCase().contains(query));
-
-            // Room filter
-            boolean matchesRoom = selRoom == null || "All Rooms".equalsIgnoreCase(selRoom) ||
-                    (q.getRoom() != null && q.getRoom().equalsIgnoreCase(selRoom));
-
-            // Category filter
-            boolean matchesCat = selCat == null || "All Categories".equalsIgnoreCase(selCat) ||
-                    (q.getCategory() != null && q.getCategory().equalsIgnoreCase(selCat));
-
-            // Difficulty filter
-            boolean matchesDiff = selDiff == null || "All Difficulties".equalsIgnoreCase(selDiff) ||
-                    (q.getDifficulty() != null && q.getDifficulty().equalsIgnoreCase(selDiff));
-
-            return matchesSearch && matchesRoom && matchesCat && matchesDiff;
-        });
-    }
-
-    private void resetFilters() {
-        searchField.clear();
-        roomFilterBox.getSelectionModel().selectFirst();
-        categoryFilterBox.getSelectionModel().selectFirst();
-        difficultyFilterBox.getSelectionModel().selectFirst();
-    }
-
-    private void showAddDialog() {
-        QuestionFormDialog dialog = new QuestionFormDialog(null, masterData, roomFileService.loadRooms());
-        Optional<QuestionModel> result = dialog.showAndWait();
-        result.ifPresent(q -> {
-            masterData.add(q);
-            questionFileService.saveQuestions(masterData);
-            loadData();
-            showInfo("Success", "Question added successfully!");
-        });
-    }
-
-    private void showEditDialog() {
-        QuestionModel selected = tableView.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showError("No Selection", "Please select a question from the table to edit.");
-            return;
-        }
-        QuestionFormDialog dialog = new QuestionFormDialog(selected, masterData, roomFileService.loadRooms());
-        Optional<QuestionModel> result = dialog.showAndWait();
-        result.ifPresent(q -> {
-            int idx = masterData.indexOf(selected);
-            if (idx >= 0) {
-                masterData.set(idx, q);
+            // Room match
+            if (!isRoomMatch(q.getRoom(), selectedRoomId)) {
+                return false;
             }
-            questionFileService.saveQuestions(masterData);
-            loadData();
-            showInfo("Success", "Question updated successfully!");
+
+            // Task match
+            if (taskSel != null && !taskSel.equals("All Tasks")) {
+                int targetTask = 1;
+                try {
+                    targetTask = Integer.parseInt(taskSel.replace("Task ", "").trim());
+                } catch (Exception ignored) {}
+                if (q.getTaskNumber() != targetTask) {
+                    return false;
+                }
+            }
+
+            // Query match
+            if (!query.isEmpty()) {
+                boolean matchText = q.getText() != null && q.getText().toLowerCase().contains(query);
+                boolean matchId = q.getId() != null && q.getId().toLowerCase().contains(query);
+                return matchText || matchId;
+            }
+
+            return true;
         });
     }
 
-    private void handleDelete() {
-        QuestionModel selected = tableView.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showError("No Selection", "Please select a question from the table to delete.");
+    private void populateFormForEditing(QuestionModel q) {
+        this.editingQuestion = q;
+        formHeaderTitle.setText("✏️ Edit Question: " + q.getId());
+
+        // Room
+        String curRoom = q.getRoom();
+        for (String item : formRoomBox.getItems()) {
+            if (item.contains("[" + curRoom + "]") || item.equalsIgnoreCase(curRoom)) {
+                formRoomBox.setValue(item);
+                break;
+            }
+        }
+
+        formTaskBox.setValue(q.getTaskNumber() > 0 ? q.getTaskNumber() : 1);
+        questionTextArea.setText(q.getText() != null ? q.getText() : "");
+
+        optAField.setText(q.getOptionA() != null ? q.getOptionA() : "");
+        optBField.setText(q.getOptionB() != null ? q.getOptionB() : "");
+        optCField.setText(q.getOptionC() != null ? q.getOptionC() : "");
+        optDField.setText(q.getOptionD() != null ? q.getOptionD() : "");
+
+        formAnsBox.setValue(q.getCorrectAnswer() != null ? q.getCorrectAnswer() : "A");
+
+        if (q.isActive()) {
+            rbActive.setSelected(true);
+        } else {
+            rbInactive.setSelected(true);
+        }
+    }
+
+    private void handleSaveForm() {
+        String roomRaw = formRoomBox.getValue();
+        Integer taskNum = formTaskBox.getValue();
+        String text = questionTextArea.getText().trim();
+        String a = optAField.getText().trim();
+        String b = optBField.getText().trim();
+        String c = optCField.getText().trim();
+        String d = optDField.getText().trim();
+        String ans = formAnsBox.getValue();
+        boolean active = rbActive.isSelected();
+        String qType = "MCQ";
+
+        if (roomRaw == null || text.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", "Please select a room and enter the question prompt text.");
             return;
         }
 
+        String roomId = roomRaw;
+        if (roomRaw.contains("[") && roomRaw.contains("]")) {
+            roomId = roomRaw.substring(roomRaw.indexOf("[") + 1, roomRaw.indexOf("]")).trim();
+        }
+
+        if (editingQuestion != null) {
+            // Update existing question
+            editingQuestion.setText(text);
+            editingQuestion.setRoom(roomId);
+            editingQuestion.setTaskNumber(taskNum != null ? taskNum : 1);
+            editingQuestion.setQuestionType(qType);
+            editingQuestion.setOptionA(a);
+            editingQuestion.setOptionB(b);
+            editingQuestion.setOptionC(c);
+            editingQuestion.setOptionD(d);
+            editingQuestion.setCorrectAnswer(ans);
+            editingQuestion.setActive(active);
+
+            questionFileService.saveQuestions(masterData);
+            loadData();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Question updated successfully!");
+        } else {
+            // Create new question
+            String newId = "Q_" + (masterData.size() + 1);
+            QuestionModel newQ = new QuestionModel(
+                    newId, text, a, b, c, d, ans, "General", roomId, "Medium",
+                    "Item", "Flashlight", "", active, qType, taskNum != null ? taskNum : 1
+            );
+            masterData.add(newQ);
+            questionFileService.saveQuestions(masterData);
+            loadData();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "New question added successfully!");
+        }
+
+        resetForm();
+    }
+
+    private void resetForm() {
+        editingQuestion = null;
+        formHeaderTitle.setText("➕ Add New Question");
+        questionTextArea.clear();
+        optAField.clear();
+        optBField.clear();
+        optCField.clear();
+        optDField.clear();
+        rbActive.setSelected(true);
+        formAnsBox.getSelectionModel().selectFirst();
+        formTaskBox.getSelectionModel().selectFirst();
+        tableView.getSelectionModel().clearSelection();
+    }
+
+    private void handleDelete(QuestionModel q) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Deletion");
-        confirm.setHeaderText("Delete Question " + selected.getId() + "?");
-        confirm.setContentText("Are you sure you want to remove this question? Backups will be updated automatically.");
+        confirm.setHeaderText("Delete Question " + q.getId() + "?");
+        confirm.setContentText("Are you sure you want to remove this question?");
 
         Optional<ButtonType> res = confirm.showAndWait();
         if (res.isPresent() && res.get() == ButtonType.OK) {
-            masterData.remove(selected);
+            masterData.remove(q);
             questionFileService.saveQuestions(masterData);
             loadData();
-            showInfo("Deleted", "Question " + selected.getId() + " has been removed.");
+            resetForm();
         }
     }
 
     private void handlePreview() {
         QuestionModel selected = tableView.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showError("No Selection", "Please select a question from the table to preview.");
-            return;
+        if (selected == null && !tableView.getItems().isEmpty()) {
+            selected = tableView.getItems().get(0);
         }
-        QuestionPreviewDialog.showPreview(selected);
+        if (selected != null) {
+            QuestionPreviewDialog.showPreview(selected);
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "No Question", "Please select a question from the table to preview.");
+        }
     }
 
-    private void showError(String title, String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private boolean isRoomMatch(String qRoom, String targetId) {
+        if (qRoom == null || targetId == null) return false;
+        String qr = qRoom.toLowerCase().trim();
+        String tr = targetId.toLowerCase().trim();
+        if (qr.equals(tr)) return true;
+        if ((qr.equals("classrooma") || qr.equals("classroom")) && (tr.equals("classrooma") || tr.equals("classroom"))) return true;
+        if ((qr.equals("classroomb") || qr.equals("teachers_lounge")) && (tr.equals("classroomb") || tr.equals("teachers_lounge"))) return true;
+        if ((qr.equals("computer") || qr.equals("music_art_room")) && (tr.equals("computer") || tr.equals("music_art_room"))) return true;
+        if ((qr.equals("laboratory") || qr.equals("science_lab")) && (tr.equals("laboratory") || tr.equals("science_lab"))) return true;
+        if ((qr.equals("teacher") || qr.equals("principal_office")) && (tr.equals("teacher") || tr.equals("principal_office"))) return true;
+        if ((qr.equals("dormitory") || qr.equals("infirmary")) && (tr.equals("dormitory") || tr.equals("infirmary"))) return true;
+        if ((qr.equals("basement") || qr.equals("storage_room")) && (tr.equals("basement") || tr.equals("storage_room"))) return true;
+        if ((qr.equals("entrance") || qr.equals("restroom")) && (tr.equals("entrance") || tr.equals("restroom"))) return true;
+        if ((qr.equals("hall") || qr.equals("main_hall") || qr.equals("school")) && (tr.equals("hall") || tr.equals("main_hall") || tr.equals("school"))) return true;
+        return false;
+    }
+
+    private Image loadRoomImage(String roomId) {
+        String filename = "classroom_a.png";
+        String rid = roomId != null ? roomId.toLowerCase() : "";
+        if (rid.contains("library")) filename = "library.png";
+        else if (rid.contains("lab")) filename = "laboratory.png";
+        else if (rid.contains("base") || rid.contains("storage")) filename = "basement_stairway.png";
+        else if (rid.contains("exit") || rid.contains("courtyard") || rid.contains("gate")) filename = "courtyard_gate.png";
+        else if (rid.contains("teacher") || rid.contains("lounge") || rid.contains("principal")) filename = "teacher_room.png";
+        else if (rid.contains("dorm") || rid.contains("infirmary")) filename = "dormitory.png";
+        else if (rid.contains("hall") || rid.contains("entrance") || rid.contains("restroom")) filename = "gloomy_hallway.png";
+
+        String resPath = "/images/environment_concepts/" + filename;
+        String filePath = "images/environment_concepts/" + filename;
+
+        try {
+            InputStream is = getClass().getResourceAsStream(resPath);
+            if (is != null) return new Image(is);
+            File f = new File(filePath);
+            if (f.exists()) return new Image(f.toURI().toString());
+            File rf = new File("src/main/resources" + resPath);
+            if (rf.exists()) return new Image(rf.toURI().toString());
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String msg) {
+        Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
-    }
-
-    private void showInfo(String title, String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
-    }
-
-    // Inner Form Dialog Class for Add/Edit
-    private static class QuestionFormDialog extends Dialog<QuestionModel> {
-
-        private final TextField idField = new TextField();
-        private final TextArea textArea = new TextArea();
-        private final TextField optAField = new TextField();
-        private final TextField optBField = new TextField();
-        private final TextField optCField = new TextField();
-        private final TextField optDField = new TextField();
-        private final ComboBox<String> ansBox = new ComboBox<>();
-        private final ComboBox<String> catBox = new ComboBox<>();
-        private final ComboBox<String> roomBox = new ComboBox<>();
-        private final ComboBox<String> diffBox = new ComboBox<>();
-        private final TextField rewardTypeField = new TextField();
-        private final TextField rewardValField = new TextField();
-        private final TextArea explanationArea = new TextArea();
-        private final CheckBox activeCheckBox = new CheckBox("Active");
-
-        public QuestionFormDialog(QuestionModel existing, List<QuestionModel> allQuestions, List<RoomModel> availableRooms) {
-            setTitle(existing == null ? "Add New Question" : "Edit Question " + existing.getId());
-            setHeaderText(existing == null ? "Fill in all fields to add a new question to the pool." : "Modify fields and save changes.");
-
-            DialogPane pane = getDialogPane();
-            pane.setStyle("-fx-background-color: #0E1622; -fx-text-fill: #E8D2A0;");
-            pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(16));
-
-            // Populate choices
-            ansBox.getItems().addAll("A", "B", "C", "D");
-            catBox.getItems().addAll("Programming", "Networking", "CyberSecurity", "Hardware", "General");
-            for (RoomModel r : availableRooms) {
-                roomBox.getItems().add(r.getId());
-            }
-            if (roomBox.getItems().isEmpty()) {
-                roomBox.getItems().addAll("entrance", "classroomA", "classroomB", "computer", "laboratory", "library", "basement");
-            }
-            diffBox.getItems().addAll("Easy", "Medium", "Hard");
-
-            textArea.setPrefRowCount(3);
-            explanationArea.setPrefRowCount(2);
-
-            grid.add(new Label("Question ID:"), 0, 0); grid.add(idField, 1, 0);
-            grid.add(new Label("Room:"), 2, 0); grid.add(roomBox, 3, 0);
-
-            grid.add(new Label("Question Text:"), 0, 1); grid.add(textArea, 1, 1, 3, 1);
-
-            grid.add(new Label("Option A:"), 0, 2); grid.add(optAField, 1, 2);
-            grid.add(new Label("Option B:"), 2, 2); grid.add(optBField, 3, 2);
-            grid.add(new Label("Option C:"), 0, 3); grid.add(optCField, 1, 3);
-            grid.add(new Label("Option D:"), 2, 3); grid.add(optDField, 3, 3);
-
-            grid.add(new Label("Correct Answer:"), 0, 4); grid.add(ansBox, 1, 4);
-            grid.add(new Label("Category:"), 2, 4); grid.add(catBox, 3, 4);
-
-            grid.add(new Label("Difficulty:"), 0, 5); grid.add(diffBox, 1, 5);
-            grid.add(new Label("Active Status:"), 2, 5); grid.add(activeCheckBox, 3, 5);
-
-            grid.add(new Label("Reward Type:"), 0, 6); grid.add(rewardTypeField, 1, 6);
-            grid.add(new Label("Reward Value:"), 2, 6); grid.add(rewardValField, 3, 6);
-
-            grid.add(new Label("Explanation:"), 0, 7); grid.add(explanationArea, 1, 7, 3, 1);
-
-            if (existing != null) {
-                idField.setText(existing.getId());
-                idField.setDisable(true); // Don't edit ID
-                textArea.setText(existing.getText());
-                optAField.setText(existing.getOptionA());
-                optBField.setText(existing.getOptionB());
-                optCField.setText(existing.getOptionC());
-                optDField.setText(existing.getOptionD());
-                ansBox.setValue(existing.getCorrectAnswer());
-                catBox.setValue(existing.getCategory());
-                roomBox.setValue(existing.getRoom());
-                diffBox.setValue(existing.getDifficulty());
-                rewardTypeField.setText(existing.getRewardType());
-                rewardValField.setText(existing.getRewardValue());
-                explanationArea.setText(existing.getExplanation());
-                activeCheckBox.setSelected(existing.isActive());
-            } else {
-                idField.setText("Q_" + (allQuestions.size() + 1));
-                ansBox.getSelectionModel().selectFirst();
-                catBox.getSelectionModel().selectFirst();
-                roomBox.getSelectionModel().selectFirst();
-                diffBox.getSelectionModel().selectFirst();
-                rewardTypeField.setText("Item");
-                rewardValField.setText("Flashlight");
-                activeCheckBox.setSelected(true);
-            }
-
-            pane.setContent(grid);
-
-            setResultConverter(dialogButton -> {
-                if (dialogButton == ButtonType.OK) {
-                    // Input Validation
-                    String id = idField.getText().trim();
-                    String text = textArea.getText().trim();
-                    String a = optAField.getText().trim();
-                    String b = optBField.getText().trim();
-                    String c = optCField.getText().trim();
-                    String d = optDField.getText().trim();
-                    String ans = ansBox.getValue();
-                    String cat = catBox.getValue();
-                    String room = roomBox.getValue();
-                    String diff = diffBox.getValue();
-
-                    if (id.isEmpty() || text.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty() ||
-                        ans == null || cat == null || room == null || diff == null) {
-                        showFormError("Validation Error", "All required fields must be filled in (ID, Text, Options A-D, Answer, Category, Room, Difficulty).");
-                        return null;
-                    }
-
-                    if (existing == null && allQuestions.stream().anyMatch(q -> q.getId().equalsIgnoreCase(id))) {
-                        showFormError("Duplicate ID", "A question with ID '" + id + "' already exists! Please use a unique ID.");
-                        return null;
-                    }
-
-                    return new QuestionModel(
-                            id, text, a, b, c, d, ans, cat, room, diff,
-                            rewardTypeField.getText().trim(), rewardValField.getText().trim(),
-                            explanationArea.getText().trim(), activeCheckBox.isSelected()
-                    );
-                }
-                return null;
-            });
-        }
-
-        private void showFormError(String title, String msg) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(msg);
-            alert.showAndWait();
-        }
     }
 }

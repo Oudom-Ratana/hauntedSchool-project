@@ -23,6 +23,14 @@ public class ItemPickup {
         return item;
     }
 
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
     public boolean isNear(double worldX, double worldY) {
         double deltaX = x - worldX;
         double deltaY = y - worldY;
@@ -30,13 +38,23 @@ public class ItemPickup {
     }
 
     public void render(GraphicsContext graphics, Camera camera) {
+        render(graphics, camera, null);
+    }
+
+    public void render(GraphicsContext graphics, Camera camera, javafx.scene.image.Image sprite) {
         double screenX = x - camera.getX();
         double screenY = y - camera.getY();
-        graphics.setFill(Color.rgb(0, 0, 0, 0.45));
-        graphics.fillOval(screenX - 14, screenY - 8, 28, 16);
-        graphics.setFill(item.getColor());
-        graphics.fillRect(Math.round(screenX - 10), Math.round(screenY - 20), 20, 20);
-        graphics.setStroke(Color.web("#f1d28a"));
-        graphics.strokeRect(Math.round(screenX - 10) + 0.5, Math.round(screenY - 20) + 0.5, 19, 19);
+        graphics.setFill(Color.rgb(0, 0, 0, 0.40));
+        graphics.fillOval(screenX - 16, screenY - 2, 32, 14);
+
+        if (sprite != null) {
+            double size = 32.0;
+            graphics.drawImage(sprite, Math.round(screenX - size / 2.0), Math.round(screenY - size + 4.0), size, size);
+        } else {
+            graphics.setFill(item.getColor());
+            graphics.fillRect(Math.round(screenX - 10), Math.round(screenY - 20), 20, 20);
+            graphics.setStroke(Color.web("#f1d28a"));
+            graphics.strokeRect(Math.round(screenX - 10) + 0.5, Math.round(screenY - 20) + 0.5, 19, 19);
+        }
     }
 }

@@ -10,6 +10,11 @@ public class Notebook extends Item {
 
     @Override
     public String getUseMessage() {
-        return "The notebook records clues from the abandoned school.";
+        return "Investigator's Notebook: Examined school records and quiz clues for this room!";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "Leather journal recording research notes, historical school records, and question clues for the current room.";
     }
 }

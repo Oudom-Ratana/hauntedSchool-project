@@ -5,11 +5,16 @@ import javafx.scene.paint.Color;
 public class Key extends Item {
 
     public Key() {
-        super("key", "Key", false, Color.web("#d4a947"));
+        super("key", "Room Key", false, Color.web("#d4a947"));
     }
 
     @Override
     public String getUseMessage() {
-        return "The key feels cold and old.";
+        return "Brass Room Key: Unlocks sealed classroom and department doors in the school.";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "Heavy brass room key engraved with ancient protective motifs that unlocks sealed school rooms and classrooms.";
     }
 }

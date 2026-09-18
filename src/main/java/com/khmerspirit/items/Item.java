@@ -33,4 +33,8 @@ public abstract class Item {
     }
 
     public abstract String getUseMessage();
+
+    public String getAbilityDescription() {
+        return getUseMessage();
+    }
 }

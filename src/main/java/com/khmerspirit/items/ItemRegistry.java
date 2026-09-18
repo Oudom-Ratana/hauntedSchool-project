@@ -20,6 +20,14 @@ public final class ItemRegistry {
         register(new Lighter());
         register(new MapItem());
         register(new Toolbox());
+        register(new AcidBottle());
+        register(new Crowbar());
+        register(new ElectricFuse());
+        register(new AncientTome());
+        register(new MedicineBottle());
+        register(new SheetMusic());
+        register(new BronzeBell());
+        register(new NightVision());
     }
 
     private ItemRegistry() {

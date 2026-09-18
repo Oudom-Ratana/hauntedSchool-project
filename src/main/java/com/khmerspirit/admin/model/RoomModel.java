@@ -3,7 +3,8 @@ package com.khmerspirit.admin.model;
 import java.util.Objects;
 
 /**
- * Model representing a game Room configuration in the Admin Panel.
+ * Model representing a game Room configuration in the Admin Panel,
+ * including story guide instructions and key progression rewards.
  */
 public class RoomModel {
 
@@ -15,12 +16,24 @@ public class RoomModel {
     private String nextRoomId;
     private boolean active;
 
+    // Admin-managed Story & Quest Guide Panel data
+    private String guideTitle;
+    private String guideNarrative;
+    private String guideNextStep;
+    private String keyReward; // e.g. "key" or "master_key"
+
     public RoomModel() {
         this.requiredQs = 5;
         this.active = true;
+        this.keyReward = "key";
     }
 
     public RoomModel(String id, String name, String description, int requiredQs, String reward, String nextRoomId, boolean active) {
+        this(id, name, description, requiredQs, reward, nextRoomId, active, null, null, null, "key");
+    }
+
+    public RoomModel(String id, String name, String description, int requiredQs, String reward, String nextRoomId,
+                     boolean active, String guideTitle, String guideNarrative, String guideNextStep, String keyReward) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,6 +41,10 @@ public class RoomModel {
         this.reward = reward;
         this.nextRoomId = nextRoomId;
         this.active = active;
+        this.guideTitle = guideTitle;
+        this.guideNarrative = guideNarrative;
+        this.guideNextStep = guideNextStep;
+        this.keyReward = keyReward != null ? keyReward : "key";
     }
 
     public String getId() {
@@ -86,6 +103,38 @@ public class RoomModel {
         this.active = active;
     }
 
+    public String getGuideTitle() {
+        return guideTitle;
+    }
+
+    public void setGuideTitle(String guideTitle) {
+        this.guideTitle = guideTitle;
+    }
+
+    public String getGuideNarrative() {
+        return guideNarrative;
+    }
+
+    public void setGuideNarrative(String guideNarrative) {
+        this.guideNarrative = guideNarrative;
+    }
+
+    public String getGuideNextStep() {
+        return guideNextStep;
+    }
+
+    public void setGuideNextStep(String guideNextStep) {
+        this.guideNextStep = guideNextStep;
+    }
+
+    public String getKeyReward() {
+        return keyReward != null ? keyReward : "key";
+    }
+
+    public void setKeyReward(String keyReward) {
+        this.keyReward = keyReward;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -101,6 +150,6 @@ public class RoomModel {
 
     @Override
     public String toString() {
-        return name != null ? name + " (" + id + ")" : id;
+        return name != null ? name + " [" + id + "]" : id;
     }
 }

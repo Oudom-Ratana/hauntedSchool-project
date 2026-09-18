@@ -1,0 +1,232 @@
+[
+  {
+    "id": "ITEM_001",
+    "itemId": "flashlight",
+    "itemName": "Flashlight",
+    "roomId": "classroomA",
+    "tileX": 24.0,
+    "tileY": 21.0,
+    "description": "On the front study desk",
+    "active": true
+  },
+  {
+    "id": "ITEM_003",
+    "itemId": "bronze_bell",
+    "itemName": "Sacred Bronze Bell",
+    "roomId": "classroomB",
+    "tileX": 34.0,
+    "tileY": 14.0,
+    "description": "Resting on faculty coffee table (Stuns ghosts 5s)",
+    "active": true
+  },
+  {
+    "id": "ITEM_004",
+    "itemId": "battery",
+    "itemName": "Flashlight Battery",
+    "roomId": "classroomB",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "Inside the teacher\u0027s filing cabinet",
+    "active": true
+  },
+  {
+    "id": "ITEM_005",
+    "itemId": "holy_charm",
+    "itemName": "Ancient Holy Charm",
+    "roomId": "computer",
+    "tileX": 14.0,
+    "tileY": 14.0,
+    "description": "Beside the antique grand piano (Scares ghosts away)",
+    "active": true
+  },
+  {
+    "id": "ITEM_006",
+    "itemId": "sheet_music",
+    "itemName": "Haunted Melody Sheet",
+    "roomId": "computer",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "On the wooden art easel",
+    "active": true
+  },
+  {
+    "id": "ITEM_007",
+    "itemId": "ancient_tome",
+    "itemName": "Angkorian Scripture",
+    "roomId": "library",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "On the reading podium",
+    "active": true
+  },
+  {
+    "id": "ITEM_008",
+    "itemId": "battery",
+    "itemName": "Flashlight Battery",
+    "roomId": "library",
+    "tileX": 34.0,
+    "tileY": 12.0,
+    "description": "Between old reference encyclopedias",
+    "active": true
+  },
+  {
+    "id": "ITEM_009",
+    "itemId": "acid_bottle",
+    "itemName": "Holy Acid Bottle",
+    "roomId": "laboratory",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "Beside the glass chemical distillation rack",
+    "active": true
+  },
+  {
+    "id": "ITEM_010",
+    "itemId": "lighter",
+    "itemName": "Brass Lighter",
+    "roomId": "laboratory",
+    "tileX": 14.0,
+    "tileY": 14.0,
+    "description": "Near the Bunsen burner station",
+    "active": true
+  },
+  {
+    "id": "ITEM_011",
+    "itemId": "night_vision",
+    "itemName": "Night Vision Goggles",
+    "roomId": "basement",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "Inside the unlocked security vault (Reveals ghosts on radar)",
+    "active": true
+  },
+  {
+    "id": "ITEM_012",
+    "itemId": "crowbar",
+    "itemName": "Heavy Iron Crowbar",
+    "roomId": "basement",
+    "tileX": 14.0,
+    "tileY": 14.0,
+    "description": "Propped against wooden storage crates",
+    "active": true
+  },
+  {
+    "id": "ITEM_013",
+    "itemId": "toolbox",
+    "itemName": "Maintenance Toolbox",
+    "roomId": "basement",
+    "tileX": 34.0,
+    "tileY": 14.0,
+    "description": "On the workbench",
+    "active": true
+  },
+  {
+    "id": "ITEM_014",
+    "itemId": "first_aid_kit",
+    "itemName": "First Aid Kit",
+    "roomId": "dormitory",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "On the nurse\u0027s examination counter (+1 Heart)",
+    "active": true
+  },
+  {
+    "id": "ITEM_015",
+    "itemId": "medicine_bottle",
+    "itemName": "Herbal Tonic",
+    "roomId": "dormitory",
+    "tileX": 14.0,
+    "tileY": 14.0,
+    "description": "Beside the hospital bed",
+    "active": true
+  },
+  {
+    "id": "ITEM_016",
+    "itemId": "battery",
+    "itemName": "Flashlight Battery",
+    "roomId": "entrance",
+    "tileX": 14.0,
+    "tileY": 14.0,
+    "description": "Next to the shattered mirror basin",
+    "active": true
+  },
+  {
+    "id": "ITEM_017",
+    "itemId": "master_key",
+    "itemName": "Master Key",
+    "roomId": "teacher",
+    "tileX": 24.0,
+    "tileY": 10.0,
+    "description": "Resting on the Headmaster\u0027s mahogany desk",
+    "active": true
+  },
+  {
+    "id": "ITEM_018",
+    "itemId": "map",
+    "itemName": "Architectural Blueprint",
+    "roomId": "teacher",
+    "tileX": 34.0,
+    "tileY": 14.0,
+    "description": "Framed on the wall",
+    "active": true
+  },
+  {
+    "id": "ITEM_019",
+    "itemId": "flashlight",
+    "itemName": "Flashlight",
+    "roomId": "hall",
+    "tileX": 42.0,
+    "tileY": 22.0,
+    "description": "Dropped near central stone pillar",
+    "active": true
+  },
+  {
+    "id": "ITEM_020",
+    "itemId": "battery",
+    "itemName": "Flashlight Battery",
+    "roomId": "hall",
+    "tileX": 20.0,
+    "tileY": 22.0,
+    "description": "West Wing hallway corner",
+    "active": true
+  },
+  {
+    "id": "ITEM_021",
+    "itemId": "battery",
+    "itemName": "Flashlight Battery",
+    "roomId": "hall",
+    "tileX": 65.0,
+    "tileY": 22.0,
+    "description": "East Wing hallway corner",
+    "active": true
+  },
+  {
+    "id": "ITEM_022",
+    "itemId": "notebook",
+    "itemName": "Student Diary",
+    "roomId": "hall",
+    "tileX": 44.0,
+    "tileY": 35.0,
+    "description": "Near the entrance archway",
+    "active": true
+  },
+  {
+    "id": "ITEM_023",
+    "itemId": "battery",
+    "itemName": "Battery",
+    "roomId": "classroomA",
+    "tileX": 35.5,
+    "tileY": 8.5,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_025",
+    "itemId": "flashlight",
+    "itemName": "Flashlight",
+    "roomId": "classroomA",
+    "tileX": 16.0,
+    "tileY": 18.0,
+    "description": "",
+    "active": true
+  }
+]

@@ -10,6 +10,11 @@ public class FirstAidKit extends Item {
 
     @Override
     public String getUseMessage() {
-        return "First aid restored your confidence.";
+        return "Used First Aid Kit! Bandaged wounds and restored 2 Life Hearts (up to max 5)!";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "Sterile medical emergency kit containing bandages and antiseptics that restores 2 Life Hearts.";
     }
 }

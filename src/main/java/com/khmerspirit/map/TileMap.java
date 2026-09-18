@@ -2,7 +2,9 @@ package com.khmerspirit.map;
 
 import com.khmerspirit.config.Constants;
 import com.khmerspirit.player.Camera;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -17,6 +19,10 @@ public class TileMap {
     private final int rows;
     private final List<Room> rooms;
     private final List<Door> doors;
+    private final List<Rectangle2D> collisionBoxes = new ArrayList<>();
+    private Image backgroundImage;
+    private Image doorClosedImage;
+    private boolean debugCollision = false;
 
     public TileMap(int columns, int rows) {
         this.columns = columns;
@@ -25,22 +31,194 @@ public class TileMap {
         this.rooms = new ArrayList<>();
         this.doors = new ArrayList<>();
         fill(Tile.FLOOR);
+        try {
+            var stream = getClass().getResourceAsStream("/images/environment/door_closed.png");
+            if (stream != null) {
+                this.doorClosedImage = new Image(stream);
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     public static TileMap createSchoolMap() {
         return new MapLoader().loadAbandonedSchool();
     }
 
+    public static TileMap createClassroomMap() {
+        return new MapLoader().loadBigClassroom();
+    }
+
+    public void setBackgroundImage(Image backgroundImage) {
+        this.backgroundImage = backgroundImage;
+    }
+
+    public Image getBackgroundImage() {
+        return backgroundImage;
+    }
+
+    public void addCollisionBox(Rectangle2D box) {
+        if (box != null) {
+            collisionBoxes.add(box);
+        }
+    }
+
+    public void setCollisionBoxes(List<Rectangle2D> boxes) {
+        collisionBoxes.clear();
+        if (boxes != null) {
+            collisionBoxes.addAll(boxes);
+        }
+    }
+
+    public List<Rectangle2D> getCollisionBoxes() {
+        return Collections.unmodifiableList(collisionBoxes);
+    }
+
+    public boolean hasPreciseCollision() {
+        return !collisionBoxes.isEmpty();
+    }
+
+    public void toggleDebugCollision() {
+        this.debugCollision = !this.debugCollision;
+    }
+
+    public boolean isDebugCollision() {
+        return debugCollision;
+    }
+
+    public Image getDoorClosedImage() {
+        return doorClosedImage;
+    }
+
+    public void setDoorClosedImage(Image doorClosedImage) {
+        this.doorClosedImage = doorClosedImage;
+    }
+
+    public void initializeDoorCollisions() {
+        for (Door door : doors) {
+            if (!door.isOpen() && door.getCollisionBox() != null) {
+                Rectangle2D box = door.getCollisionBox();
+                boolean exists = collisionBoxes.stream().anyMatch(b ->
+                        Math.abs(b.getMinX() - box.getMinX()) < 1.0 &&
+                        Math.abs(b.getMinY() - box.getMinY()) < 1.0 &&
+                        Math.abs(b.getWidth() - box.getWidth()) < 1.0 &&
+                        Math.abs(b.getHeight() - box.getHeight()) < 1.0
+                );
+                if (!exists) {
+                    collisionBoxes.add(box);
+                }
+            }
+        }
+    }
+
+    public void setDoorOpen(Door door, boolean open) {
+        door.setOpen(open);
+        Rectangle2D box = door.getCollisionBox();
+        if (box != null) {
+            if (open) {
+                collisionBoxes.removeIf(b ->
+                        Math.abs(b.getMinX() - box.getMinX()) < 1.0 &&
+                        Math.abs(b.getMinY() - box.getMinY()) < 1.0 &&
+                        Math.abs(b.getWidth() - box.getWidth()) < 1.0 &&
+                        Math.abs(b.getHeight() - box.getHeight()) < 1.0
+                );
+            } else {
+                boolean exists = collisionBoxes.stream().anyMatch(b ->
+                        Math.abs(b.getMinX() - box.getMinX()) < 1.0 &&
+                        Math.abs(b.getMinY() - box.getMinY()) < 1.0 &&
+                        Math.abs(b.getWidth() - box.getWidth()) < 1.0 &&
+                        Math.abs(b.getHeight() - box.getHeight()) < 1.0
+                );
+                if (!exists) {
+                    collisionBoxes.add(box);
+                }
+            }
+        }
+    }
+
     public void render(GraphicsContext graphics, Camera camera) {
         int tileSize = Constants.TILE_SIZE;
-        int startColumn = Math.max(0, (int) (camera.getX() / tileSize) - 1);
-        int endColumn = Math.min(columns - 1, (int) ((camera.getX() + camera.getViewportWidth()) / tileSize) + 1);
-        int startRow = Math.max(0, (int) (camera.getY() / tileSize) - 1);
-        int endRow = Math.min(rows - 1, (int) ((camera.getY() + camera.getViewportHeight()) / tileSize) + 1);
 
-        for (int row = startRow; row <= endRow; row++) {
-            for (int column = startColumn; column <= endColumn; column++) {
-                renderTile(graphics, camera, column, row, tiles[row][column]);
+        if (backgroundImage != null) {
+            // Render high-res concept artwork directly scaled to map world coordinates
+            graphics.drawImage(
+                    backgroundImage,
+                    -camera.getX(),
+                    -camera.getY(),
+                    getPixelWidth(),
+                    getPixelHeight()
+            );
+
+            // Render closed doors and wall patches on top of background image
+            for (Door door : doors) {
+                if (!door.isOpen()) {
+                    // Draw wall patch over swung-open leaf if configured
+                    if (door.getWallPatchBounds() != null && door.getWallPatchSource() != null) {
+                        Rectangle2D wp = door.getWallPatchBounds();
+                        Rectangle2D src = door.getWallPatchSource();
+                        graphics.drawImage(
+                                backgroundImage,
+                                src.getMinX(), src.getMinY(), src.getWidth(), src.getHeight(),
+                                wp.getMinX() - camera.getX(), wp.getMinY() - camera.getY(), wp.getWidth(), wp.getHeight()
+                        );
+                    }
+                    // Draw closed door sprite overlay
+                    if (door.getBounds() != null && doorClosedImage != null) {
+                        Rectangle2D b = door.getBounds();
+                        graphics.drawImage(
+                                doorClosedImage,
+                                b.getMinX() - camera.getX(),
+                                b.getMinY() - camera.getY(),
+                                b.getWidth(),
+                                b.getHeight()
+                        );
+                    }
+                }
+            }
+
+            // If debug collision is enabled, draw exact collision outlines on objects and walls
+            if (debugCollision) {
+                if (hasPreciseCollision()) {
+                    for (Rectangle2D box : collisionBoxes) {
+                        double sx = box.getMinX() - camera.getX();
+                        double sy = box.getMinY() - camera.getY();
+                        graphics.setFill(Color.rgb(255, 40, 40, 0.35));
+                        graphics.fillRect(sx, sy, box.getWidth(), box.getHeight());
+                        graphics.setStroke(Color.rgb(255, 140, 140, 0.90));
+                        graphics.setLineWidth(2.0);
+                        graphics.strokeRect(sx + 0.5, sy + 0.5, box.getWidth() - 1.0, box.getHeight() - 1.0);
+                    }
+                    graphics.setLineWidth(1.0);
+                } else {
+                    int startColumn = Math.max(0, (int) (camera.getX() / tileSize) - 1);
+                    int endColumn = Math.min(columns - 1, (int) ((camera.getX() + camera.getViewportWidth()) / tileSize) + 1);
+                    int startRow = Math.max(0, (int) (camera.getY() / tileSize) - 1);
+                    int endRow = Math.min(rows - 1, (int) ((camera.getY() + camera.getViewportHeight()) / tileSize) + 1);
+
+                    for (int row = startRow; row <= endRow; row++) {
+                        for (int column = startColumn; column <= endColumn; column++) {
+                            Tile t = tiles[row][column];
+                            if (t.isSolid()) {
+                                double sx = column * tileSize - camera.getX();
+                                double sy = row * tileSize - camera.getY();
+                                graphics.setFill(Color.rgb(255, 60, 60, 0.28));
+                                graphics.fillRect(sx, sy, tileSize, tileSize);
+                                graphics.setStroke(Color.rgb(255, 120, 120, 0.65));
+                                graphics.strokeRect(sx + 0.5, sy + 0.5, tileSize - 1.0, tileSize - 1.0);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            int startColumn = Math.max(0, (int) (camera.getX() / tileSize) - 1);
+            int endColumn = Math.min(columns - 1, (int) ((camera.getX() + camera.getViewportWidth()) / tileSize) + 1);
+            int startRow = Math.max(0, (int) (camera.getY() / tileSize) - 1);
+            int endRow = Math.min(rows - 1, (int) ((camera.getY() + camera.getViewportHeight()) / tileSize) + 1);
+
+            for (int row = startRow; row <= endRow; row++) {
+                for (int column = startColumn; column <= endColumn; column++) {
+                    renderTile(graphics, camera, column, row, tiles[row][column]);
+                }
             }
         }
 

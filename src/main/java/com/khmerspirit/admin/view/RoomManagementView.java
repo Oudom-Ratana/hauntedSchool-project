@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Room Management View featuring TableView, CRUD operations, and configuration for required questions and rewards.
+ * Room & Story Guide Management View featuring TableView, CRUD operations,
+ * and direct editing of in-game Story Guide Panel information (Title, Lore, Next-Steps).
  */
 public class RoomManagementView extends VBox {
 
@@ -39,11 +40,11 @@ public class RoomManagementView extends VBox {
     }
 
     private void buildHeader() {
-        VBox header = new VBox(4);
-        Label title = new Label("ROOM MANAGEMENT SYSTEM");
-        title.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 24px; -fx-font-weight: 900; -fx-text-fill: #f8fafc; -fx-letter-spacing: 1px; -fx-effect: dropshadow(gaussian, rgba(225, 29, 72, 0.5), 10, 0.3, 0, 0);");
-        Label subtitle = new Label("Configure haunted map locations, required quiz counts, room progression, and unlocked rewards");
-        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-font-weight: bold;");
+        VBox header = new VBox(2);
+        Label title = new Label("🏠  Rooms & Story Guides");
+        title.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #f8fafc;");
+        Label subtitle = new Label("Configure haunted chambers, question quotas, key locks, and in-game guide narratives");
+        subtitle.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-text-fill: #94a3b8;");
         header.getChildren().addAll(title, subtitle);
         getChildren().add(header);
     }
@@ -51,23 +52,24 @@ public class RoomManagementView extends VBox {
     private void buildToolbar() {
         HBox actionRow = new HBox(12);
         actionRow.setAlignment(Pos.CENTER_LEFT);
-        actionRow.setPadding(new Insets(14));
-        actionRow.setStyle("-fx-background-color: rgba(15, 23, 42, 0.9); -fx-border-color: rgba(255, 255, 255, 0.08); -fx-border-width: 1px; -fx-background-radius: 8px;");
+        actionRow.setPadding(new Insets(12, 14, 12, 14));
+        actionRow.getStyleClass().add("admin-card-container");
 
-        Button addBtn = new Button("+ ADD ROOM");
-        addBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #35572F, #1E351C); -fx-text-fill: #E6D3A7; -fx-font-weight: bold; -fx-border-color: #76A14D; -fx-cursor: hand;");
+        Button addBtn = new Button("➕  Add Chamber");
+        addBtn.getStyleClass().add("btn-modern-primary");
         addBtn.setOnAction(e -> showAddDialog());
 
-        Button editBtn = new Button("✏ EDIT ROOM");
-        editBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #7A6135, #4A3A1F); -fx-text-fill: #F0DFB7; -fx-font-weight: bold; -fx-border-color: #D4AF37; -fx-cursor: hand;");
+        Button editBtn = new Button("✏️  Edit Chamber & Guide");
+        editBtn.getStyleClass().add("btn-modern-secondary");
         editBtn.setOnAction(e -> showEditDialog());
 
-        Button deleteBtn = new Button("🗑 DELETE ROOM");
-        deleteBtn.setStyle("-fx-background-color: linear-gradient(to bottom, #7F2020, #4A1212); -fx-text-fill: #FFB3B3; -fx-font-weight: bold; -fx-border-color: #FF4D4D; -fx-cursor: hand;");
+        Button deleteBtn = new Button("🗑️  Delete Chamber");
+        deleteBtn.getStyleClass().add("btn-modern-secondary");
+        deleteBtn.setStyle("-fx-text-fill: #f87171;");
         deleteBtn.setOnAction(e -> handleDelete());
 
-        Button refreshBtn = new Button("🔄 REFRESH");
-        refreshBtn.setStyle("-fx-background-color: #2E3E50; -fx-text-fill: #C9D6DF; -fx-font-weight: bold; -fx-cursor: hand;");
+        Button refreshBtn = new Button("🔄  Refresh Repository");
+        refreshBtn.getStyleClass().add("btn-modern-secondary");
         refreshBtn.setOnAction(e -> loadData());
 
         actionRow.getChildren().addAll(addBtn, editBtn, deleteBtn, refreshBtn);
@@ -76,38 +78,38 @@ public class RoomManagementView extends VBox {
 
     @SuppressWarnings("unchecked")
     private void buildTableView() {
-        tableView.setStyle("-fx-background-color: rgba(12, 18, 26, 0.95); -fx-border-color: #2E3E50; -fx-border-width: 1px;");
+        tableView.setStyle("-fx-background-color: #0c1322; -fx-border-color: #1e293b; -fx-border-width: 1px; -fx-border-radius: 8px;");
         VBox.setVgrow(tableView, Priority.ALWAYS);
 
         TableColumn<RoomModel, String> idCol = new TableColumn<>("Room ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        idCol.setPrefWidth(120);
+        idCol.setPrefWidth(110);
 
         TableColumn<RoomModel, String> nameCol = new TableColumn<>("Room Name");
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        nameCol.setPrefWidth(180);
-
-        TableColumn<RoomModel, String> descCol = new TableColumn<>("Description");
-        descCol.setCellValueFactory(new PropertyValueFactory<>("description"));
-        descCol.setPrefWidth(260);
+        nameCol.setPrefWidth(160);
 
         TableColumn<RoomModel, Integer> reqCol = new TableColumn<>("Required Qs");
         reqCol.setCellValueFactory(new PropertyValueFactory<>("requiredQs"));
-        reqCol.setPrefWidth(110);
+        reqCol.setPrefWidth(95);
 
-        TableColumn<RoomModel, String> rewardCol = new TableColumn<>("Reward");
-        rewardCol.setCellValueFactory(new PropertyValueFactory<>("reward"));
-        rewardCol.setPrefWidth(150);
+        TableColumn<RoomModel, String> guideTitleCol = new TableColumn<>("Story Guide Panel Title");
+        guideTitleCol.setCellValueFactory(new PropertyValueFactory<>("guideTitle"));
+        guideTitleCol.setPrefWidth(260);
+
+        TableColumn<RoomModel, String> keyCol = new TableColumn<>("Key Reward");
+        keyCol.setCellValueFactory(new PropertyValueFactory<>("keyReward"));
+        keyCol.setPrefWidth(110);
 
         TableColumn<RoomModel, String> nextCol = new TableColumn<>("Next Room");
         nextCol.setCellValueFactory(new PropertyValueFactory<>("nextRoomId"));
-        nextCol.setPrefWidth(120);
+        nextCol.setPrefWidth(110);
 
         TableColumn<RoomModel, Boolean> activeCol = new TableColumn<>("Active");
         activeCol.setCellValueFactory(new PropertyValueFactory<>("active"));
-        activeCol.setPrefWidth(80);
+        activeCol.setPrefWidth(70);
 
-        tableView.getColumns().addAll(idCol, nameCol, descCol, reqCol, rewardCol, nextCol, activeCol);
+        tableView.getColumns().addAll(idCol, nameCol, reqCol, guideTitleCol, keyCol, nextCol, activeCol);
         getChildren().add(tableView);
     }
 
@@ -143,7 +145,7 @@ public class RoomManagementView extends VBox {
             }
             roomFileService.saveRooms(roomList);
             loadData();
-            showInfo("Success", "Room updated successfully!");
+            showInfo("Success", "Room and Story Guide info updated successfully!");
         });
     }
 
@@ -184,38 +186,45 @@ public class RoomManagementView extends VBox {
         alert.showAndWait();
     }
 
-    // Dialog for Room Creation & Editing
+    // Dialog for Room & Story Guide Creation & Editing
     private static class RoomFormDialog extends Dialog<RoomModel> {
 
         private final TextField idField = new TextField();
         private final TextField nameField = new TextField();
         private final TextArea descArea = new TextArea();
         private final Spinner<Integer> reqQsSpinner = new Spinner<>(1, 20, 5);
-        private final ComboBox<String> rewardBox = new ComboBox<>();
         private final ComboBox<String> nextRoomBox = new ComboBox<>();
+        private final ComboBox<String> keyRewardBox = new ComboBox<>();
         private final CheckBox activeCheckBox = new CheckBox("Active");
 
+        // Story Guide panel inputs
+        private final TextField guideTitleField = new TextField();
+        private final TextArea guideNarrativeArea = new TextArea();
+        private final TextArea guideNextStepArea = new TextArea();
+
         public RoomFormDialog(RoomModel existing, List<RoomModel> allRooms, List<RewardModel> rewards) {
-            setTitle(existing == null ? "Add New Room" : "Edit Room " + existing.getId());
-            setHeaderText(existing == null ? "Configure room properties and requirements." : "Modify room properties.");
+            setTitle(existing == null ? "Add New Chamber" : "Edit Chamber: " + existing.getName());
+            setHeaderText(existing == null ? "Configure chamber properties, questions required, and Story Guide." : "Modify chamber parameters and narrative directions.");
 
             DialogPane pane = getDialogPane();
-            pane.setStyle("-fx-background-color: #0E1622; -fx-text-fill: #E8D2A0;");
             pane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            pane.setPrefWidth(600);
+
+            // Apply modern input classes
+            idField.getStyleClass().add("modern-form-input");
+            nameField.getStyleClass().add("modern-form-input");
+            descArea.getStyleClass().add("modern-form-input");
+            reqQsSpinner.getStyleClass().add("modern-form-input");
+            nextRoomBox.getStyleClass().add("modern-form-input");
+            keyRewardBox.getStyleClass().add("modern-form-input");
+            guideTitleField.getStyleClass().add("modern-form-input");
+            guideNarrativeArea.getStyleClass().add("modern-form-input");
+            guideNextStepArea.getStyleClass().add("modern-form-input");
 
             GridPane grid = new GridPane();
-            grid.setHgap(10);
+            grid.setHgap(14);
             grid.setVgap(10);
             grid.setPadding(new Insets(16));
-
-            // Populate rewards
-            for (RewardModel r : rewards) {
-                rewardBox.getItems().add(r.getName());
-            }
-            if (rewardBox.getItems().isEmpty()) {
-                rewardBox.getItems().addAll("High-Power Flashlight", "Extra Batteries", "Ancient Holy Charm", "Master Key");
-            }
-            rewardBox.getSelectionModel().selectFirst();
 
             // Populate next room candidates
             nextRoomBox.getItems().add("None (Final Room)");
@@ -225,16 +234,60 @@ public class RoomManagementView extends VBox {
                 }
             }
             nextRoomBox.getSelectionModel().selectFirst();
+            nextRoomBox.setMaxWidth(Double.MAX_VALUE);
 
-            descArea.setPrefRowCount(3);
+            // Populate Key Reward options
+            keyRewardBox.getItems().addAll("key", "master_key", "none");
+            keyRewardBox.getSelectionModel().selectFirst();
+            keyRewardBox.setMaxWidth(Double.MAX_VALUE);
 
-            grid.add(new Label("Room ID:"), 0, 0); grid.add(idField, 1, 0);
-            grid.add(new Label("Room Name:"), 0, 1); grid.add(nameField, 1, 1);
-            grid.add(new Label("Description:"), 0, 2); grid.add(descArea, 1, 2);
-            grid.add(new Label("Required Qs (Default: 5):"), 0, 3); grid.add(reqQsSpinner, 1, 3);
-            grid.add(new Label("Reward:"), 0, 4); grid.add(rewardBox, 1, 4);
-            grid.add(new Label("Next Room ID:"), 0, 5); grid.add(nextRoomBox, 1, 5);
-            grid.add(new Label("Active Status:"), 0, 6); grid.add(activeCheckBox, 1, 6);
+            descArea.setPrefRowCount(2);
+            guideNarrativeArea.setPrefRowCount(3);
+            guideNextStepArea.setPrefRowCount(3);
+
+            int row = 0;
+            grid.add(createFormLabel("Chamber ID:"), 0, row); grid.add(idField, 1, row);
+            grid.add(createFormLabel("Active Status:"), 2, row); grid.add(activeCheckBox, 3, row);
+            row++;
+
+            grid.add(createFormLabel("Chamber Name:"), 0, row); grid.add(nameField, 1, row, 3, 1);
+            row++;
+
+            grid.add(createFormLabel("Description:"), 0, row); grid.add(descArea, 1, row, 3, 1);
+            row++;
+
+            grid.add(createFormLabel("Required Questions:"), 0, row); grid.add(reqQsSpinner, 1, row);
+            grid.add(createFormLabel("Next Chamber:"), 2, row); grid.add(nextRoomBox, 3, row);
+            row++;
+
+            grid.add(createFormLabel("Key Given:"), 0, row); grid.add(keyRewardBox, 1, row, 3, 1);
+            row++;
+
+            // Story Guide Section Separator
+            VBox guideHeaderCard = new VBox(2);
+            guideHeaderCard.setPadding(new Insets(10, 12, 10, 12));
+            guideHeaderCard.setStyle("-fx-background-color: rgba(37, 99, 235, 0.15); -fx-border-color: #2563eb; -fx-border-width: 1px; -fx-border-radius: 6px; -fx-background-radius: 6px;");
+
+            Label guideHeader = new Label("❖  IN-GAME STORY GUIDE CONFIGURATION");
+            guideHeader.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-font-weight: 900; -fx-text-fill: #60a5fa;");
+            Label guideHeaderSub = new Label("Controls the lore popup and directions shown to player upon chamber purification");
+            guideHeaderSub.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 11px; -fx-text-fill: #94a3b8;");
+            guideHeaderCard.getChildren().addAll(guideHeader, guideHeaderSub);
+
+            grid.add(guideHeaderCard, 0, row, 4, 1);
+            row++;
+
+            grid.add(createFormLabel("Guide Title:"), 0, row); grid.add(guideTitleField, 1, row, 3, 1);
+            guideTitleField.setPromptText("e.g. CLASSROOM A PURIFIED: SPIRIT OF SOTHEA");
+            row++;
+
+            grid.add(createFormLabel("Lore Narrative:"), 0, row); grid.add(guideNarrativeArea, 1, row, 3, 1);
+            guideNarrativeArea.setPromptText("Story and lore explaining what occurred when this chamber was purified...");
+            row++;
+
+            grid.add(createFormLabel("Next Objectives:"), 0, row); grid.add(guideNextStepArea, 1, row, 3, 1);
+            guideNextStepArea.setPromptText("Clear directives telling the player what to do next and where to proceed...");
+            row++;
 
             if (existing != null) {
                 idField.setText(existing.getId());
@@ -242,12 +295,20 @@ public class RoomManagementView extends VBox {
                 nameField.setText(existing.getName());
                 descArea.setText(existing.getDescription());
                 reqQsSpinner.getValueFactory().setValue(existing.getRequiredQs());
-                if (existing.getReward() != null) rewardBox.setValue(existing.getReward());
                 if (existing.getNextRoomId() != null) nextRoomBox.setValue(existing.getNextRoomId());
+                if (existing.getKeyReward() != null) keyRewardBox.setValue(existing.getKeyReward());
                 activeCheckBox.setSelected(existing.isActive());
+
+                guideTitleField.setText(existing.getGuideTitle() != null ? existing.getGuideTitle() : "");
+                guideNarrativeArea.setText(existing.getGuideNarrative() != null ? existing.getGuideNarrative() : "");
+                guideNextStepArea.setText(existing.getGuideNextStep() != null ? existing.getGuideNextStep() : "");
             } else {
                 idField.setText("room_" + (allRooms.size() + 1));
                 activeCheckBox.setSelected(true);
+                keyRewardBox.setValue("key");
+                guideTitleField.setText("NEW CHAMBER PURIFIED");
+                guideNarrativeArea.setText("The ancient spirits of this chamber rest peacefully at last.");
+                guideNextStepArea.setText("WHAT TO DO NEXT & WHERE TO GO:\n• Door Key acquired! Step out and explore the next chamber.");
             }
 
             pane.setContent(grid);
@@ -258,11 +319,14 @@ public class RoomManagementView extends VBox {
                     String name = nameField.getText().trim();
                     String desc = descArea.getText().trim();
                     int req = reqQsSpinner.getValue();
-                    String reward = rewardBox.getValue();
                     String next = nextRoomBox.getValue();
+                    String keyRew = keyRewardBox.getValue();
+                    String gTitle = guideTitleField.getText().trim();
+                    String gNarr = guideNarrativeArea.getText().trim();
+                    String gNext = guideNextStepArea.getText().trim();
 
-                    if (id.isEmpty() || name.isEmpty() || desc.isEmpty()) {
-                        showFormError("Validation Error", "Room ID, Name, and Description cannot be empty.");
+                    if (id.isEmpty() || name.isEmpty()) {
+                        showFormError("Validation Error", "Room ID and Name cannot be empty.");
                         return null;
                     }
 
@@ -271,7 +335,12 @@ public class RoomManagementView extends VBox {
                         return null;
                     }
 
-                    return new RoomModel(id, name, desc, req, reward, "None (Final Room)".equalsIgnoreCase(next) ? "" : next, activeCheckBox.isSelected());
+                    return new RoomModel(
+                            id, name, desc, req, keyRew,
+                            "None (Final Room)".equalsIgnoreCase(next) ? "" : next,
+                            activeCheckBox.isSelected(),
+                            gTitle, gNarr, gNext, keyRew
+                    );
                 }
                 return null;
             });
@@ -283,6 +352,12 @@ public class RoomManagementView extends VBox {
             alert.setHeaderText(null);
             alert.setContentText(msg);
             alert.showAndWait();
+        }
+
+        private static Label createFormLabel(String text) {
+            Label lbl = new Label(text);
+            lbl.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;");
+            return lbl;
         }
     }
 }

@@ -1,27 +1,34 @@
 package com.khmerspirit.audio;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 /**
- * AudioManager handles all synthesized audio playback in the game.
- * 
- * This singleton manages:
- * - Looping background sounds (rain, wind, menu music, ambience)
- * - One-shot sound effects (footsteps, door, ghost, heartbeat, puzzle complete)
- * - Independent volume control for master, ambience, SFX, and music
- * 
- * All audio is synthesized in real-time using PCM waveform generation,
- * requiring no external audio files.
- * 
+ * AudioManager handles all sound effects, voice lines, and background music in the game.
+ *
+ * Capabilities:
+ * - Low-latency WAV clip playback via javax.sound.sampled for SFX and voice lines.
+ * - Hardware-accelerated background MP3 playback via JavaFX MediaPlayer (background streaming, zero lag).
+ * - Automatic switching between ambient exploration music ("Tili Tili Bom") and room-specific music ("music&art").
+ * - Fallback real-time PCM waveform synthesis if audio files are missing.
+ * - Master, Ambience, SFX, and Music volume controls.
+ *
  * @author Khmer Spirit Dev Team
- * @version 1.0
+ * @version 3.0
  */
 public class AudioManager {
 
@@ -30,6 +37,12 @@ public class AudioManager {
 
     private final Map<String, byte[]> samples = new HashMap<>();
     private final Map<String, Clip> loopingClips = new HashMap<>();
+
+    // Dedicated JavaFX MediaPlayers for streaming MP3 tracks
+    private MediaPlayer homeMusicPlayer = null;
+    private MediaPlayer gameMusicPlayer = null;
+    private MediaPlayer artMusicPlayer = null;
+    private String currentGameMusicTrack = null;
 
     private double masterVolume = 0.35;
     private double ambienceVolume = 0.35;
@@ -40,16 +53,12 @@ public class AudioManager {
         preload();
     }
 
-    /**
-     * Returns the singleton AudioManager instance.
-     * @return AudioManager singleton
-     */
     public static AudioManager getInstance() {
         return INSTANCE;
     }
 
     /**
-     * Pre-generates all audio samples on initialization.
+     * Pre-generates synthesized fallback audio samples on initialization.
      */
     public void preload() {
         register("rain", 1.2f);
@@ -63,26 +72,319 @@ public class AudioManager {
         register("ambience", 1.8f);
     }
 
-    /**
-     * Registers a sound sample by generating audio and caching it.
-     * @param key Unique identifier for the sound
-     * @param durationSeconds How long the sound lasts
-     */
     private void register(String key, float durationSeconds) {
         samples.put(key, generateSample(key, durationSeconds));
     }
 
+    // ==========================================
+    // MP3 MUSIC PLAYBACK (JAVAFX MEDIAPLAYER)
+    // ==========================================
+
+    /**
+     * Resolves the file URI string for a music file in /audio/music/ or filesystem.
+     */
+    private String resolveMusicUri(String fileName) {
+        try {
+            // 1. Direct file on disk in resources
+            File directFile = new File("src/main/resources/audio/music/" + fileName);
+            if (directFile.exists()) {
+                return directFile.toURI().toString();
+            }
+
+            File runtimeFile = new File("audio/music/" + fileName);
+            if (runtimeFile.exists()) {
+                return runtimeFile.toURI().toString();
+            }
+
+            // 2. Classpath resource
+            URL res = getClass().getResource("/audio/music/" + fileName);
+            if (res != null) {
+                return res.toExternalForm();
+            }
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Error finding music URI for " + fileName + ": " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Plays the Home Screen music ("at the home game.mp3").
+     * Replaces the video background sound with this soundtrack.
+     */
+    public void playHomeMusic() {
+        stopGameMusic();
+        stopArtMusic();
+
+        if (homeMusicPlayer != null) {
+            homeMusicPlayer.play();
+            updateHomeMusicVolume();
+            return;
+        }
+
+        String uri = resolveMusicUri("at the home game.mp3");
+        if (uri == null) {
+            System.err.println("[AudioManager] Could not find 'at the home game.mp3'");
+            return;
+        }
+
+        try {
+            Media media = new Media(uri);
+            homeMusicPlayer = new MediaPlayer(media);
+            homeMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            updateHomeMusicVolume();
+            homeMusicPlayer.play();
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Failed to play home music: " + e.getMessage());
+        }
+    }
+
+    public void stopHomeMusic() {
+        if (homeMusicPlayer != null) {
+            try {
+                homeMusicPlayer.stop();
+                homeMusicPlayer.dispose();
+            } catch (Exception ignored) {}
+            homeMusicPlayer = null;
+        }
+    }
+
+    /**
+     * Plays the main in-game background music ("Tili Tili Bom").
+     * Played at a subtle, non-intrusive volume (scaled by 0.50) as requested.
+     */
+    public void playGameMusic() {
+        stopHomeMusic();
+        stopArtMusic();
+
+        if (gameMusicPlayer != null && "tili".equals(currentGameMusicTrack)) {
+            gameMusicPlayer.play();
+            updateGameMusicVolume();
+            return;
+        }
+
+        stopGameMusic();
+
+        // Exact name from music folder
+        String fileName = "Tili Tili Bom (Spooky Russian Lullaby) English Version [LYRICS].mp3";
+        String uri = resolveMusicUri(fileName);
+        if (uri == null) {
+            System.err.println("[AudioManager] Could not find '" + fileName + "'");
+            return;
+        }
+
+        try {
+            Media media = new Media(uri);
+            gameMusicPlayer = new MediaPlayer(media);
+            gameMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            currentGameMusicTrack = "tili";
+            updateGameMusicVolume();
+            gameMusicPlayer.play();
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Failed to play game music: " + e.getMessage());
+        }
+    }
+
+    public void pauseGameMusic() {
+        if (gameMusicPlayer != null) {
+            try {
+                gameMusicPlayer.pause();
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public void resumeGameMusic() {
+        if (gameMusicPlayer != null) {
+            try {
+                gameMusicPlayer.play();
+                updateGameMusicVolume();
+            } catch (Exception ignored) {}
+        } else {
+            playGameMusic();
+        }
+    }
+
+    public void stopGameMusic() {
+        if (gameMusicPlayer != null) {
+            try {
+                gameMusicPlayer.stop();
+                gameMusicPlayer.dispose();
+            } catch (Exception ignored) {}
+            gameMusicPlayer = null;
+            currentGameMusicTrack = null;
+        }
+    }
+
+    /**
+     * Plays the dedicated Music & Art Room track ("music&art.mp3").
+     * Automatically pauses Tili Tili Bom while playing.
+     */
+    public void playArtRoomMusic() {
+        pauseGameMusic();
+
+        if (artMusicPlayer != null) {
+            artMusicPlayer.play();
+            updateArtMusicVolume();
+            return;
+        }
+
+        String uri = resolveMusicUri("music&art.mp3");
+        if (uri == null) {
+            System.err.println("[AudioManager] Could not find 'music&art.mp3'");
+            return;
+        }
+
+        try {
+            Media media = new Media(uri);
+            artMusicPlayer = new MediaPlayer(media);
+            artMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            updateArtMusicVolume();
+            artMusicPlayer.play();
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Failed to play art room music: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Stops the Music & Art Room track and resumes the main ambient game music.
+     */
+    public void stopArtRoomMusic() {
+        stopArtMusic();
+        resumeGameMusic();
+    }
+
+    private void stopArtMusic() {
+        if (artMusicPlayer != null) {
+            try {
+                artMusicPlayer.stop();
+                artMusicPlayer.dispose();
+            } catch (Exception ignored) {}
+            artMusicPlayer = null;
+        }
+    }
+
+    /**
+     * Called by Game whenever the player changes rooms or enters a new area.
+     */
+    public void updateRoomMusic(String roomId) {
+        if (roomId == null) return;
+        String rid = roomId.toLowerCase().trim();
+        boolean isArtRoom = rid.contains("music") || rid.contains("art") || rid.equals("computer");
+        if (isArtRoom) {
+            playArtRoomMusic();
+        } else {
+            if (artMusicPlayer != null) {
+                stopArtRoomMusic();
+            } else if (gameMusicPlayer == null || !gameMusicPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+                resumeGameMusic();
+            }
+        }
+    }
+
+    // ==========================================
+    // WAV CLIP LOADING & PLAYBACK (SFX / VOICE)
+    // ==========================================
+
+    public Clip loadClipFromResource(String relativePath) {
+        String cleanPath = relativePath.startsWith("/") ? relativePath : "/" + relativePath;
+        try (InputStream in = getClass().getResourceAsStream(cleanPath)) {
+            if (in != null) {
+                try (BufferedInputStream buf = new BufferedInputStream(in);
+                     AudioInputStream ais = AudioSystem.getAudioInputStream(buf)) {
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(ais);
+                    return clip;
+                }
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            File file = new File("src/main/resources" + cleanPath);
+            if (!file.exists()) {
+                file = new File(cleanPath.substring(1));
+            }
+            if (file.exists()) {
+                try (AudioInputStream ais = AudioSystem.getAudioInputStream(file)) {
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(ais);
+                    return clip;
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return null;
+    }
+
+    private Clip createClipForKey(String key) {
+        // First check directly mapped mixkit filenames
+        String mappedFile = mapKeyToFilename(key);
+        if (mappedFile != null) {
+            Clip c = loadClipFromResource("/audio/sfx/" + mappedFile);
+            if (c != null) return c;
+        }
+
+        // Check standard subdirectories: sfx, voice, music
+        String[] subdirs = { "/audio/sfx/", "/audio/voice/", "/audio/music/" };
+        for (String subdir : subdirs) {
+            Clip c = loadClipFromResource(subdir + key + ".wav");
+            if (c != null) return c;
+        }
+        return null;
+    }
+
+    /**
+     * Maps logical sound keys to the renamed mixkit sound files in /audio/sfx/.
+     */
+    private String mapKeyToFilename(String key) {
+        return switch (key) {
+            case "start_game", "startgame" -> "mixkit-startGame.wav";
+            case "key", "getKey", "get_key", "claim_key" -> "mixkit-getKey.wav";
+            case "bell", "bell_ring", "church_bell" -> "mixkit-church-bell-loop-621.wav";
+            case "heartbeat", "heart" -> "mixkit-human-single-heart-beat-490.wav";
+            case "footsteps", "walk" -> "mixkit-footsteps-in-a-tunnel-loop-543.wav";
+            case "sprint", "run", "running" -> "mixkit-running-through-the-forest-1232.wav";
+            case "rain", "light_rain" -> "mixkit-light-rain-loop-2393.wav";
+            default -> null;
+        };
+    }
+
+    /**
+     * Plays a sound effect once.
+     * The clip auto-disposes after completion.
+     */
+    public void playOneShot(String key) {
+        Clip clip = createClipForKey(key);
+        if (clip == null) {
+            byte[] data = samples.get(key);
+            if (data != null) {
+                clip = createClip(data);
+            }
+        }
+        if (clip == null) return;
+
+        final Clip finalClip = clip;
+        applyVolume(finalClip, key);
+        finalClip.addLineListener(event -> {
+            if (event.getType() == LineEvent.Type.STOP) {
+                finalClip.close();
+            }
+        });
+        finalClip.setFramePosition(0);
+        finalClip.start();
+    }
+
     /**
      * Starts looping a registered sound indefinitely.
-     * @param key Sound identifier to loop
      */
     public void playLoop(String key) {
-        byte[] data = samples.get(key);
-        if (data == null) return;
-
         Clip clip = loopingClips.get(key);
         if (clip == null) {
-            clip = createClip(data);
+            clip = createClipForKey(key);
+            if (clip == null) {
+                byte[] data = samples.get(key);
+                if (data != null) {
+                    clip = createClip(data);
+                }
+            }
             if (clip == null) return;
             loopingClips.put(key, clip);
         }
@@ -93,10 +395,6 @@ public class AudioManager {
         clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
-    /**
-     * Stops a currently looping sound.
-     * @param key Sound identifier to stop
-     */
     public void stopLoop(String key) {
         Clip clip = loopingClips.remove(key);
         if (clip != null) {
@@ -105,62 +403,114 @@ public class AudioManager {
         }
     }
 
-    /**
-     * Plays a sound effect once.
-     * The clip auto-disposes after completion.
-     * @param key Sound identifier to play
-     */
-    public void playOneShot(String key) {
-        byte[] data = samples.get(key);
-        if (data == null) return;
+    // ==========================================
+    // CONVENIENCE EVENT METHODS
+    // ==========================================
 
-        Clip clip = createClip(data);
-        if (clip == null) return;
+    public void playSfx(String name) { playOneShot(name); }
+    public void playVoice(String name) { playOneShot(name); }
 
-        applyVolume(clip, key);
-        clip.addLineListener(event -> {
-            if (event.getType() == LineEvent.Type.STOP) {
-                clip.close();
-            }
-        });
-        clip.setFramePosition(0);
-        clip.start();
+    public void playStartGame() {
+        playOneShot("start_game");
     }
 
-    /**
-     * Sets the master volume level (affects all sounds).
-     * @param value Volume level 0.0-1.0
-     */
+    public void playGetKey() {
+        playOneShot("key");
+    }
+
+    public void playHeartbeat() {
+        playOneShot("heartbeat");
+    }
+
+    public void playFootstep() {
+        playOneShot("footsteps");
+    }
+
+    public void playSprintFootstep() {
+        playOneShot("sprint");
+    }
+
+    public void playBellRing() {
+        playOneShot("bell_ring");
+    }
+
+    public void playCorrectAnswer() {
+        playOneShot("correct_answer");
+    }
+
+    public void playWrongAnswer() {
+        playOneShot("wrong_answer");
+        playOneShot("wrong_answer_laugh");
+    }
+
+    public void playDoorUnlock() {
+        playOneShot("key");
+    }
+
+    public void playItemPickup() {
+        playOneShot("item_pickup");
+    }
+
+    public void playJumpscare() {
+        playOneShot("jumpscare");
+        playOneShot("ghost_whisper");
+    }
+
+    public void playFlashlight() {
+        playOneShot("flashlight_click");
+    }
+
+    public void playStoryIntro() {
+        playOneShot("sothea_story_intro");
+    }
+
+    // ==========================================
+    // VOLUME CONTROL
+    // ==========================================
+
     public void setMasterVolume(double value) {
         masterVolume = clamp(value);
         applyAllLoopVolumes();
+        updateHomeMusicVolume();
+        updateGameMusicVolume();
+        updateArtMusicVolume();
     }
 
-    /**
-     * Sets ambience volume (rain, wind, background sounds).
-     * @param value Volume level 0.0-1.0
-     */
     public void setAmbienceVolume(double value) {
         ambienceVolume = clamp(value);
         applyAllLoopVolumes();
     }
 
-    /**
-     * Sets SFX volume (effects like footsteps, door, ghost).
-     * @param value Volume level 0.0-1.0
-     */
     public void setSfxVolume(double value) {
         sfxVolume = clamp(value);
         applyAllLoopVolumes();
     }
 
-    /**
-     * Sets music volume (menu and game music).
-     * @param value Volume level 0.0-1.0
-     */
     public void setMusicVolume(double value) {
         musicVolume = clamp(value);
         applyAllLoopVolumes();
+        updateHomeMusicVolume();
+        updateGameMusicVolume();
+        updateArtMusicVolume();
+    }
+
+    private void updateHomeMusicVolume() {
+        if (homeMusicPlayer != null) {
+            homeMusicPlayer.setVolume(masterVolume * musicVolume);
+        }
+    }
+
+    private void updateGameMusicVolume() {
+        if (gameMusicPlayer != null) {
+            // Kept comfortably subtle (scaled by 0.50) so it works as background music
+            gameMusicPlayer.setVolume(masterVolume * musicVolume * 0.50);
+        }
+    }
+
+    private void updateArtMusicVolume() {
+        if (artMusicPlayer != null) {
+            artMusicPlayer.setVolume(masterVolume * musicVolume * 0.75);
+        }
     }
 
     public double getMasterVolume() { return masterVolume; }
@@ -168,13 +518,13 @@ public class AudioManager {
     public double getSfxVolume() { return sfxVolume; }
     public double getMusicVolume() { return musicVolume; }
 
-    /**
-     * Stops all currently playing sounds.
-     */
     public void stopAll() {
         for (String key : new HashMap<>(loopingClips).keySet()) {
             stopLoop(key);
         }
+        stopHomeMusic();
+        stopGameMusic();
+        stopArtMusic();
     }
 
     private void applyAllLoopVolumes() {
@@ -196,8 +546,8 @@ public class AudioManager {
 
     private double getVolumeFor(String key) {
         double base = switch (key) {
-            case "rain", "wind", "ambience" -> ambienceVolume;
-            case "menu_music" -> musicVolume;
+            case "rain", "wind", "ambience", "light_rain" -> ambienceVolume;
+            case "menu_music", "menu_theme" -> musicVolume;
             default -> sfxVolume;
         };
         return clamp(base * masterVolume);
@@ -213,13 +563,6 @@ public class AudioManager {
         }
     }
 
-    /**
-     * Generates PCM audio data for a given sound type.
-     * Uses simple waveform synthesis to create atmospheric and gameplay sounds.
-     * @param key Sound identifier
-     * @param durationSeconds Length of generated audio
-     * @return Raw PCM byte array ready for playback
-     */
     private byte[] generateSample(String key, float durationSeconds) {
         int frameCount = (int) (FORMAT.getSampleRate() * durationSeconds);
         byte[] data = new byte[frameCount * 2];

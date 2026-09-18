@@ -13,7 +13,18 @@ public class Main extends Application {
         primaryStage.setTitle(Constants.GAME_TITLE);
         primaryStage.setMinWidth(Constants.MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(Constants.MIN_WINDOW_HEIGHT);
-        primaryStage.setResizable(false);
+        primaryStage.setWidth(Constants.WINDOW_WIDTH);
+        primaryStage.setHeight(Constants.WINDOW_HEIGHT);
+        primaryStage.setResizable(true);
+
+        primaryStage.setFullScreenExitHint("Press F11 to Toggle Full Screen");
+        primaryStage.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == javafx.scene.input.KeyCode.F11) {
+                primaryStage.setFullScreen(!primaryStage.isFullScreen());
+                event.consume();
+            }
+        });
+
         SceneManager.showMainMenu();
         primaryStage.show();
     }

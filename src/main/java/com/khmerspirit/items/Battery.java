@@ -10,6 +10,11 @@ public class Battery extends Item {
 
     @Override
     public String getUseMessage() {
-        return "Battery charged the flashlight.";
+        return "Inserted fresh battery! Flashlight recharged to 100% power!";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "High-voltage alkaline battery that instantly recharges flashlight battery to 100% capacity.";
     }
 }

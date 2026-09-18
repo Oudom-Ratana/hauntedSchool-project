@@ -21,14 +21,26 @@ public class QuestionModel {
     private String rewardValue;   // e.g. "Flashlight", "Master Key", "First Aid Kit"
     private String explanation;   // Feedback or educational clue
     private boolean active;       // Whether question is available in active pool
+    private String questionType;  // "MCQ", "True / False", "Short Answer"
+    private int taskNumber;       // 1 to 5 (mapped to room tasks)
 
     public QuestionModel() {
         this.active = true;
+        this.questionType = "MCQ";
+        this.taskNumber = 1;
     }
 
     public QuestionModel(String id, String text, String optionA, String optionB, String optionC, String optionD,
                          String correctAnswer, String category, String room, String difficulty,
                          String rewardType, String rewardValue, String explanation, boolean active) {
+        this(id, text, optionA, optionB, optionC, optionD, correctAnswer, category, room, difficulty,
+             rewardType, rewardValue, explanation, active, "MCQ", 1);
+    }
+
+    public QuestionModel(String id, String text, String optionA, String optionB, String optionC, String optionD,
+                         String correctAnswer, String category, String room, String difficulty,
+                         String rewardType, String rewardValue, String explanation, boolean active,
+                         String questionType, int taskNumber) {
         this.id = id;
         this.text = text;
         this.optionA = optionA;
@@ -43,6 +55,8 @@ public class QuestionModel {
         this.rewardValue = rewardValue;
         this.explanation = explanation;
         this.active = active;
+        this.questionType = (questionType != null && !questionType.isBlank()) ? questionType : "MCQ";
+        this.taskNumber = taskNumber > 0 ? taskNumber : 1;
     }
 
     public String getId() {
@@ -155,6 +169,22 @@ public class QuestionModel {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getQuestionType() {
+        return (questionType != null && !questionType.isBlank()) ? questionType : "MCQ";
+    }
+
+    public void setQuestionType(String questionType) {
+        this.questionType = questionType;
+    }
+
+    public int getTaskNumber() {
+        return taskNumber > 0 ? taskNumber : 1;
+    }
+
+    public void setTaskNumber(int taskNumber) {
+        this.taskNumber = taskNumber > 0 ? taskNumber : 1;
     }
 
     @Override

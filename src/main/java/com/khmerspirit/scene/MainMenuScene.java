@@ -13,8 +13,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.Tooltip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -22,6 +24,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.effect.DropShadow;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,8 +52,12 @@ public class MainMenuScene {
         MediaView mediaView = createVideoBackground();
 
         Canvas backgroundCanvas = new Canvas(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+        backgroundCanvas.widthProperty().bind(root.widthProperty());
+        backgroundCanvas.heightProperty().bind(root.heightProperty());
+
         BorderPane content = new BorderPane();
-        content.setPrefSize(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+        content.prefWidthProperty().bind(root.widthProperty());
+        content.prefHeightProperty().bind(root.heightProperty());
 
         VBox titleBox = new VBox(8);
         titleBox.setAlignment(Pos.CENTER_LEFT);
@@ -62,77 +71,142 @@ public class MainMenuScene {
 
         titleBox.getChildren().addAll(title, subtitle);
 
-        VBox menu = new VBox(10);
-        menu.setAlignment(Pos.CENTER);
-        menu.getStyleClass().add("menu-panel");
+        StackPane menuContainer = new StackPane();
+        menuContainer.setMaxWidth(350);
+        menuContainer.setMaxHeight(522);
+        menuContainer.setPrefSize(350, 522);
+        menuContainer.setPickOnBounds(false);
 
-        Button newGameButton = createMenuButton("NEW GAME");
-        com.khmerspirit.save.SaveManager _sm = new com.khmerspirit.save.SaveManager();
-        newGameButton.setOnAction(event -> {
-            stopVideo();
-            _sm.deleteSave();
-            SceneManager.showCharacterSelection();
-        });
+        try {
+            var stream = getClass().getResourceAsStream("/images/ui/menu-home-panel-v2.png");
+            if (stream == null) {
+                stream = getClass().getResourceAsStream("/images/ui/menu_home_panel.png");
+            }
+            if (stream != null) {
+                ImageView bgView = new ImageView(new Image(stream));
+                bgView.setFitWidth(350);
+                bgView.setFitHeight(522);
+                bgView.setPreserveRatio(false);
+                bgView.setMouseTransparent(true);
+                bgView.setEffect(new DropShadow(26, Color.rgb(0, 0, 0, 0.92)));
+                menuContainer.getChildren().add(bgView);
+            }
+        } catch (Exception ignored) {}
 
-        Button continueButton = createMenuButton("CONTINUE");
+        Pane buttonLayer = new Pane();
+        buttonLayer.setPrefSize(350, 522);
+        buttonLayer.setMinSize(350, 522);
+        buttonLayer.setMaxSize(350, 522);
+        buttonLayer.setPickOnBounds(false);
+
         com.khmerspirit.save.SaveManager saveManager = new com.khmerspirit.save.SaveManager();
-        if (saveManager.hasSave()) {
-            continueButton.setDisable(false);
-            continueButton.setOnAction(event -> {
-                stopVideo();
-                com.khmerspirit.save.SaveData saveData = saveManager.load();
-                SceneManager.showGameWithSave(saveData);
-            });
-        } else {
-            continueButton.setDisable(true);
-        }
+        boolean hasSave = saveManager.hasSave();
 
-        Button characterButton = createMenuButton("CHARACTER");
-        characterButton.setOnAction(event -> {
-            stopVideo();
-            SceneManager.showCharacterSelection();
-        });
+        double btnW = 202;
+        double btnH = 53;
+        double btnX = 74;
 
-        Button teacherButton = createMenuButton("TEACHER ADMIN");
-        teacherButton.setOnAction(event -> {
-            stopVideo();
-            SceneManager.showTeacherAdmin();
-        });
+        Button newGameButton = createPanelMenuButton(
+                btnW, btnH,
+                () -> {
+                    AudioManager.getInstance().playStartGame();
+                    stopVideo();
+                    AudioManager.getInstance().stopHomeMusic();
+                    saveManager.deleteSave();
+                    SceneManager.showGame("piseth");
+                },
+                false,
+                "Start a new journey into the Haunted School"
+        );
+        newGameButton.setLayoutX(btnX);
+        newGameButton.setLayoutY(74);
 
-        Button settingsButton = createMenuButton("SETTINGS");
-        settingsButton.setOnAction(event -> showAudioSettings(root));
+        Button continueButton = createPanelMenuButton(
+                btnW, btnH,
+                () -> {
+                    AudioManager.getInstance().playStartGame();
+                    stopVideo();
+                    AudioManager.getInstance().stopHomeMusic();
+                    com.khmerspirit.save.SaveData saveData = saveManager.load();
+                    SceneManager.showGameWithSave(saveData);
+                },
+                !hasSave,
+                hasSave ? "Resume your saved progress" : "No saved journey found"
+        );
+        continueButton.setLayoutX(btnX);
+        continueButton.setLayoutY(138);
 
-        Button exitButton = createMenuButton("EXIT");
-        exitButton.setOnAction(event -> {
-            stopVideo();
-            SceneManager.exitGame();
-        });
+        Button characterButton = createPanelMenuButton(
+                btnW, btnH,
+                () -> {
+                    stopVideo();
+                    SceneManager.showCharacterSelection();
+                },
+                false,
+                "Choose your Khmer hero"
+        );
+        characterButton.setLayoutX(btnX);
+        characterButton.setLayoutY(203);
 
-        menu.getChildren().addAll(newGameButton, continueButton, characterButton, teacherButton, settingsButton, exitButton);
+        Button teacherButton = createPanelMenuButton(
+                btnW, btnH,
+                () -> {
+                    stopVideo();
+                    SceneManager.showTeacherAdmin();
+                },
+                false,
+                "Teacher Quiz Administration"
+        );
+        teacherButton.setLayoutX(btnX);
+        teacherButton.setLayoutY(269);
 
-        Label version = new Label("v1.0.0");
+        Button settingsButton = createPanelMenuButton(
+                btnW, btnH,
+                () -> showAudioSettings(root),
+                false,
+                "Audio & Volume Settings"
+        );
+        settingsButton.setLayoutX(btnX);
+        settingsButton.setLayoutY(334);
+
+        Button exitButton = createPanelMenuButton(
+                btnW, btnH,
+                () -> {
+                    stopVideo();
+                    SceneManager.exitGame();
+                },
+                false,
+                "Exit Game"
+        );
+        exitButton.setLayoutX(btnX);
+        exitButton.setLayoutY(398);
+
+        buttonLayer.getChildren().addAll(newGameButton, continueButton, characterButton, teacherButton, settingsButton, exitButton);
+        menuContainer.getChildren().add(buttonLayer);
+
+        Label version = new Label("v1.0.0 • Khmer Spirit OOP Project");
         version.getStyleClass().add("version-label");
 
-        StackPane center = new StackPane(menu);
+        StackPane center = new StackPane(menuContainer);
         center.setAlignment(Pos.CENTER_LEFT);
-        center.setPadding(new Insets(210, 0, 0, 78));
+        center.setPadding(new Insets(10, 0, 0, 72));
 
         content.setTop(titleBox);
         content.setCenter(center);
         content.setBottom(version);
-        BorderPane.setMargin(titleBox, new Insets(36, 0, 0, 58));
+        BorderPane.setMargin(titleBox, new Insets(24, 0, 0, 58));
         BorderPane.setMargin(version, new Insets(0, 0, 14, 18));
 
         if (mediaView != null) {
+            mediaView.fitWidthProperty().bind(root.widthProperty());
+            mediaView.fitHeightProperty().bind(root.heightProperty());
             root.getChildren().add(mediaView);
         }
         root.getChildren().addAll(backgroundCanvas, content);
         AudioManager audio = AudioManager.getInstance();
         audio.stopAll();
-        if (mediaView == null) {
-            audio.playLoop("menu_music");
-            audio.playLoop("ambience");
-        }
+        audio.playHomeMusic();
+        audio.playLoop("rain");
         startRainAnimation(backgroundCanvas, mediaView != null);
 
         return new Scene(root, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
@@ -152,13 +226,12 @@ public class MainMenuScene {
             mediaPlayer = new MediaPlayer(media);
             mediaPlayer.setOnError(() -> System.err.println("MediaPlayer Error: " + mediaPlayer.getError()));
             mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-            mediaPlayer.setMute(false);
+            mediaPlayer.setMute(true);
+            mediaPlayer.setVolume(0.0);
             mediaPlayer.setAutoPlay(true);
             
             mediaPlayer.setOnReady(() -> {
-                System.out.println("MediaPlayer ready. Playing video sound & track.");
-                double volume = AudioManager.getInstance().getMasterVolume() * AudioManager.getInstance().getMusicVolume();
-                mediaPlayer.setVolume(volume);
+                System.out.println("MediaPlayer ready. Playing video background (muted).");
                 mediaPlayer.play();
             });
             
@@ -339,10 +412,151 @@ public class MainMenuScene {
         timer.start();
     }
 
-    private Button createMenuButton(String text) {
-        Button button = new Button(text);
-        button.getStyleClass().add("menu-button");
-        button.setMaxWidth(Double.MAX_VALUE);
+    private Button createImageMenuButton(String normalRes, String hoverRes, Runnable action, boolean disabled) {
+        Button button = new Button();
+        button.setStyle("-fx-background-color: transparent; -fx-padding: 0; -fx-cursor: hand; -fx-border-width: 0;");
+        button.setPickOnBounds(true);
+
+        Image normalImg = null;
+        Image hoverImg = null;
+        try {
+            var nStream = getClass().getResourceAsStream(normalRes);
+            if (nStream != null) normalImg = new Image(nStream);
+            var hStream = getClass().getResourceAsStream(hoverRes);
+            if (hStream != null) hoverImg = new Image(hStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (normalImg != null) {
+            ImageView iv = new ImageView(normalImg);
+            iv.setFitWidth(260);
+            iv.setFitHeight(46);
+            iv.setPreserveRatio(false);
+            button.setGraphic(iv);
+
+            final Image fNormal = normalImg;
+            final Image fHover = hoverImg != null ? hoverImg : normalImg;
+
+            button.setOnMouseEntered(e -> {
+                if (!button.isDisable()) {
+                    iv.setImage(fHover);
+                    button.setEffect(new DropShadow(18, Color.rgb(255, 215, 0, 0.65)));
+                }
+            });
+            button.setOnMouseExited(e -> {
+                if (!button.isDisable()) {
+                    iv.setImage(fNormal);
+                    button.setEffect(null);
+                }
+            });
+        }
+
+        if (disabled) {
+            button.setDisable(true);
+            button.setOpacity(0.42);
+        }
+
+        button.setOnAction(e -> {
+            if (!button.isDisable() && action != null) {
+                action.run();
+            }
+        });
+
+        return button;
+    }
+
+    private Button createPanelMenuButton(double width, double height, Runnable action, boolean disabled, String tooltipText) {
+        Button button = new Button();
+        button.setPrefSize(width, height);
+        button.setMinSize(width, height);
+        button.setMaxSize(width, height);
+        button.setPickOnBounds(true);
+
+        String normalStyle = "-fx-background-color: transparent; "
+                + "-fx-border-color: transparent; "
+                + "-fx-border-width: 2px; "
+                + "-fx-border-radius: 14px; "
+                + "-fx-background-radius: 14px; "
+                + "-fx-cursor: hand;";
+
+        String hoverStyle = "-fx-background-color: rgba(255, 215, 60, 0.18); "
+                + "-fx-border-color: rgba(255, 225, 120, 0.90); "
+                + "-fx-border-width: 2px; "
+                + "-fx-border-radius: 14px; "
+                + "-fx-background-radius: 14px; "
+                + "-fx-cursor: hand;";
+
+        String pressedStyle = "-fx-background-color: rgba(255, 180, 0, 0.35); "
+                + "-fx-border-color: #ffd700; "
+                + "-fx-border-width: 2px; "
+                + "-fx-border-radius: 14px; "
+                + "-fx-background-radius: 14px; "
+                + "-fx-cursor: hand;";
+
+        String disabledStyle = "-fx-background-color: rgba(0, 0, 0, 0.52); "
+                + "-fx-border-color: rgba(80, 80, 80, 0.40); "
+                + "-fx-border-width: 1.5px; "
+                + "-fx-border-radius: 14px; "
+                + "-fx-background-radius: 14px; "
+                + "-fx-cursor: default;";
+
+        if (disabled) {
+            button.setStyle(disabledStyle);
+            button.setDisable(true);
+            button.setOpacity(0.55);
+        } else {
+            button.setStyle(normalStyle);
+
+            DropShadow hoverGlow = new DropShadow(22, Color.rgb(255, 210, 0, 0.80));
+            hoverGlow.setSpread(0.32);
+
+            button.setOnMouseEntered(e -> {
+                if (!button.isDisable()) {
+                    button.setStyle(hoverStyle);
+                    button.setEffect(hoverGlow);
+                    button.setScaleX(1.03);
+                    button.setScaleY(1.03);
+                }
+            });
+
+            button.setOnMouseExited(e -> {
+                if (!button.isDisable()) {
+                    button.setStyle(normalStyle);
+                    button.setEffect(null);
+                    button.setScaleX(1.0);
+                    button.setScaleY(1.0);
+                }
+            });
+
+            button.setOnMousePressed(e -> {
+                if (!button.isDisable()) {
+                    button.setStyle(pressedStyle);
+                    button.setScaleX(0.97);
+                    button.setScaleY(0.97);
+                }
+            });
+
+            button.setOnMouseReleased(e -> {
+                if (!button.isDisable()) {
+                    button.setStyle(hoverStyle);
+                    button.setScaleX(1.03);
+                    button.setScaleY(1.03);
+                }
+            });
+
+            button.setOnAction(e -> {
+                if (!button.isDisable() && action != null) {
+                    AudioManager.getInstance().playOneShot("door");
+                    action.run();
+                }
+            });
+        }
+
+        if (tooltipText != null && !tooltipText.isEmpty()) {
+            button.setTooltip(new Tooltip(tooltipText));
+        }
+
         return button;
     }
 }

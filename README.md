@@ -39,7 +39,26 @@ A JavaFX-based educational adventure game where players explore a haunted school
 
 ## 🚀 Building & Running
 
-### Maven (Recommended)
+### ⚡ 1-Click Automation Suite (Windows)
+Double-click `automate.bat` in the project root or run via PowerShell:
+```powershell
+# Full Auto: Sync Assets + Build Fat JAR + Launch Game
+.\automate.ps1 -Auto
+
+# Fast Launch: Start game immediately using existing JAR
+.\automate.ps1 -Fast
+
+# Asset Sync: Synchronize & verify sprites, dimensions, and cards
+.\automate.ps1 -Sync
+
+# Build Fat JAR: Package shaded JAR with all dependencies
+.\automate.ps1 -Build
+
+# Interactive Menu: Choose options from interactive CLI
+.\automate.ps1
+```
+
+### Maven (Terminal)
 ```bash
 mvn clean compile
 mvn javafx:run

@@ -4,11 +4,20 @@ target/
 !**/src/test/**/target/
 .kotlin
 
+### Large Executable Artifacts (Rebuilt on pull via automate.ps1 or mvn) ###
+*.jar
+dependency-reduced-pom.xml
+
+### Crash logs & temp dumps ###
+hs_err_pid*.log
+replay_pid*.log
+
+### Temporary debug screenshots in root only ###
+/debug_*.png
+/btn*.png
+
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -35,5 +44,6 @@ build/
 ### VS Code ###
 .vscode/
 
-### Mac OS ###
+### Mac & Windows OS ###
 .DS_Store
+Thumbs.db

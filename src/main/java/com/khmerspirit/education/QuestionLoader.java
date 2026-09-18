@@ -28,7 +28,7 @@ public class QuestionLoader {
             if (adminQuestions != null && !adminQuestions.isEmpty()) {
                 List<Question> roomQuestions = new ArrayList<>();
                 for (QuestionModel qm : adminQuestions) {
-                    if (qm.isActive() && (roomId == null || roomId.equalsIgnoreCase(qm.getRoom()) || "all".equalsIgnoreCase(qm.getRoom()))) {
+                    if (qm.isActive() && (roomId == null || matchesRoom(qm.getRoom(), roomId) || "all".equalsIgnoreCase(qm.getRoom()))) {
                         List<String> options = new ArrayList<>();
                         if (qm.getOptionA() != null && !qm.getOptionA().isBlank()) options.add(qm.getOptionA());
                         if (qm.getOptionB() != null && !qm.getOptionB().isBlank()) options.add(qm.getOptionB());
@@ -197,5 +197,22 @@ public class QuestionLoader {
         }
         if (cur.length() > 0) result.add(cur.toString().trim());
         return result;
+    }
+
+    private boolean matchesRoom(String r1, String r2) {
+        if (r1 == null || r2 == null) return false;
+        String a = r1.trim().toLowerCase();
+        String b = r2.trim().toLowerCase();
+        if (a.equals(b)) return true;
+        if ((a.equals("classrooma") || a.equals("classroom")) && (b.equals("classrooma") || b.equals("classroom"))) return true;
+        if ((a.equals("classroomb") || a.equals("teachers_lounge")) && (b.equals("classroomb") || b.equals("teachers_lounge"))) return true;
+        if ((a.equals("computer") || a.equals("music_art_room")) && (b.equals("computer") || b.equals("music_art_room"))) return true;
+        if ((a.equals("laboratory") || a.equals("science_lab")) && (b.equals("laboratory") || b.equals("science_lab"))) return true;
+        if ((a.equals("teacher") || a.equals("principal_office")) && (b.equals("teacher") || b.equals("principal_office"))) return true;
+        if ((a.equals("dormitory") || a.equals("infirmary")) && (b.equals("dormitory") || b.equals("infirmary"))) return true;
+        if ((a.equals("basement") || a.equals("storage_room")) && (b.equals("basement") || b.equals("storage_room"))) return true;
+        if ((a.equals("entrance") || a.equals("restroom")) && (b.equals("entrance") || b.equals("restroom"))) return true;
+        if ((a.equals("hall") || a.equals("main_hall") || a.equals("school")) && (b.equals("hall") || b.equals("main_hall") || b.equals("school"))) return true;
+        return false;
     }
 }

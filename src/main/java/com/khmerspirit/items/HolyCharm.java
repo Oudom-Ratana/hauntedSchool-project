@@ -10,6 +10,11 @@ public class HolyCharm extends Item {
 
     @Override
     public String getUseMessage() {
-        return "The holy charm warms your hand and pushes fear away.";
+        return "Holy Charm flared with divine light! Spirits shrieked and fled for 8 seconds!";
+    }
+
+    @Override
+    public String getAbilityDescription() {
+        return "Angkorian protective amulet that bursts with holy solar light, terrifying all spirits within 500px and forcing them to flee for 8s.";
     }
 }
