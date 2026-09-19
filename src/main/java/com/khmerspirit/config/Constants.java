@@ -12,7 +12,7 @@ public final class Constants {
     public static final int TILE_SIZE = 48;
     public static final int MAP_COLUMNS = 90;
     public static final int MAP_ROWS = 58;
-    public static final double PLAYER_SPEED = 190.0;
+    public static final double PLAYER_SPEED = 150.0;
     public static final int PLAYER_WIDTH = 32;
     public static final int PLAYER_HEIGHT = 44;
     public static final String MALE_PLAYER_SPRITE = "/images/player/male/player.png";

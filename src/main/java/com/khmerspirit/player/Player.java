@@ -45,7 +45,7 @@ public class Player {
 
         if (length > 0.0) {
             footstepAccumulator += deltaSeconds;
-            double stepInterval = controller.isSprinting() ? 0.28 : 0.42;
+            double stepInterval = controller.isSprinting() ? 0.28 : 0.44;
             if (footstepAccumulator >= stepInterval) {
                 if (controller.isSprinting()) {
                     AudioManager.getInstance().playSprintFootstep();

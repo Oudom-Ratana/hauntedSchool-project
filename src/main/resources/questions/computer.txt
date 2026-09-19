@@ -1,4 +1,4 @@
-Q: What does CPU stand for?
+    Q: What does CPU stand for?
 A: Central Processing Unit
 B: Computer Personal Unit
 C: Central Power Unit

@@ -67,6 +67,9 @@ public class MapLoader {
         boxes.add(new Rectangle2D(590 * sx, 370 * sy, 75 * sx, 55 * sy)); // Bottom-Left table
         boxes.add(new Rectangle2D(720 * sx, 370 * sy, 75 * sx, 55 * sy)); // Bottom-Right table
 
+        // Bottom doorway barrier (prevents walking past the door frame onto bottom border)
+        boxes.add(new Rectangle2D(640 * sx, 665 * sy, 78 * sx, 103 * sy));
+
         return boxes;
     }
 
@@ -154,82 +157,101 @@ public class MapLoader {
         double sx = map.getPixelWidth() / 1376.0;
         double sy = map.getPixelHeight() / 768.0;
 
-        // West Wing Doors (Left Column)
-        // 1. Classroom A (Top-Left)
-        Rectangle2D doorClassroom = new Rectangle2D(100 * sx, 90 * sy, 110 * sx, 130 * sy);
-        Door doorA = new Door("hall_door_classroomA", 8, 4, "classroomA", "hall", false, false, null, doorClassroom);
-        doorA.setCollisionBox(doorClassroom);
-        map.addDoor(doorA);
+        // West Wing Doors (Left Column) - aligned precisely to main_hall_map.png
+        // 1. Principal's Office (Top-Left, "HEADMASTER'S OFFICE (W)")
+        Rectangle2D doorPrincipal = new Rectangle2D(158 * sx, 84 * sy, 60 * sx, 96 * sy);
+        Door doorPrin = new Door("hall_door_principal", 8, 4, "teacher", "hall", false, false, null, doorPrincipal);
+        doorPrin.setCollisionBox(doorPrincipal);
+        doorPrin.setDrawClosedSprite(false);
+        doorPrin.setDrawOpenOverlay(true);
+        map.addDoor(doorPrin);
 
-        // 2. Science Lab (Upper-Mid-Left)
-        Rectangle2D doorSci = new Rectangle2D(100 * sx, 270 * sy, 110 * sx, 130 * sy);
+        // 2. Science Lab (Upper-Mid-Left, "SPELLS & POTIONS (W)")
+        Rectangle2D doorSci = new Rectangle2D(158 * sx, 250 * sy, 60 * sx, 96 * sy);
         Door doorSciLab = new Door("hall_door_scilab", 8, 10, "laboratory", "hall", false, false, null, doorSci);
         doorSciLab.setCollisionBox(doorSci);
+        doorSciLab.setDrawClosedSprite(false);
+        doorSciLab.setDrawOpenOverlay(true);
         map.addDoor(doorSciLab);
 
-        // 3. Teacher's Lounge (Lower-Mid-Left)
-        Rectangle2D doorLounge = new Rectangle2D(100 * sx, 460 * sy, 110 * sx, 130 * sy);
-        Door doorB = new Door("hall_door_lounge", 8, 16, "classroomB", "hall", false, false, null, doorLounge);
-        doorB.setCollisionBox(doorLounge);
-        map.addDoor(doorB);
+        // 3. Classroom A (Lower-Mid-Left, "OCCULT STUDY (W)")
+        Rectangle2D doorClassroom = new Rectangle2D(158 * sx, 416 * sy, 60 * sx, 96 * sy);
+        Door doorA = new Door("hall_door_classroomA", 8, 16, "classroomA", "hall", false, false, null, doorClassroom);
+        doorA.setCollisionBox(doorClassroom);
+        doorA.setDrawClosedSprite(false);
+        doorA.setDrawOpenOverlay(true);
+        map.addDoor(doorA);
 
-        // 4. Music & Art Room (Bottom-Left)
-        Rectangle2D doorMusic = new Rectangle2D(100 * sx, 635 * sy, 110 * sx, 130 * sy);
+        // 4. Music & Art Room (Bottom-Left, "ART STUDIO (W)")
+        Rectangle2D doorMusic = new Rectangle2D(158 * sx, 582 * sy, 60 * sx, 96 * sy);
         Door doorC = new Door("hall_door_music", 8, 22, "computer", "hall", false, false, null, doorMusic);
         doorC.setCollisionBox(doorMusic);
+        doorC.setDrawClosedSprite(false);
+        doorC.setDrawOpenOverlay(true);
         map.addDoor(doorC);
 
-        // East Wing Doors (Right Column)
-        // 5. School Infirmary (Top-Right)
-        Rectangle2D doorInfirmary = new Rectangle2D(1160 * sx, 90 * sy, 110 * sx, 130 * sy);
+        // East Wing Doors (Right Column) - aligned precisely to main_hall_map.png
+        // 5. School Infirmary (Top-Right, "STUDENT DORM (A) (E)")
+        Rectangle2D doorInfirmary = new Rectangle2D(1158 * sx, 84 * sy, 60 * sx, 96 * sy);
         Door doorInf = new Door("hall_door_infirmary", 40, 4, "dormitory", "hall", false, false, null, doorInfirmary);
         doorInf.setCollisionBox(doorInfirmary);
+        doorInf.setDrawClosedSprite(false);
+        doorInf.setDrawOpenOverlay(true);
         map.addDoor(doorInf);
 
-        // 6. Storage Vault (Upper-Mid-Right)
-        Rectangle2D doorStorage = new Rectangle2D(1160 * sx, 270 * sy, 110 * sx, 130 * sy);
+        // 6. Storage Vault (Upper-Mid-Right, "STUDENT DORM (B) (E)")
+        Rectangle2D doorStorage = new Rectangle2D(1158 * sx, 250 * sy, 60 * sx, 96 * sy);
         Door doorStg = new Door("hall_door_storage", 40, 10, "basement", "hall", false, false, null, doorStorage);
         doorStg.setCollisionBox(doorStorage);
+        doorStg.setDrawClosedSprite(false);
+        doorStg.setDrawOpenOverlay(true);
         map.addDoor(doorStg);
 
-        // 7. Principal's Office (Lower-Mid-Right)
-        Rectangle2D doorPrincipal = new Rectangle2D(1160 * sx, 460 * sy, 110 * sx, 130 * sy);
-        Door doorD = new Door("hall_door_principal", 40, 16, "teacher", "hall", false, false, null, doorPrincipal);
-        doorD.setCollisionBox(doorPrincipal);
-        map.addDoor(doorD);
+        // 7. Teachers' Lounge (Lower-Mid-Right, "MUSIC HALL (E)")
+        Rectangle2D doorLounge = new Rectangle2D(1158 * sx, 416 * sy, 60 * sx, 96 * sy);
+        Door doorB = new Door("hall_door_lounge", 40, 16, "classroomB", "hall", false, false, null, doorLounge);
+        doorB.setCollisionBox(doorLounge);
+        doorB.setDrawClosedSprite(false);
+        doorB.setDrawOpenOverlay(true);
+        map.addDoor(doorB);
 
-        // 8. Restroom & Mirror (Bottom-Right)
-        Rectangle2D doorRestroom = new Rectangle2D(1160 * sx, 635 * sy, 110 * sx, 130 * sy);
+        // 8. Restroom & Mirror (Bottom-Right, "DANCING PARLOR (E)")
+        Rectangle2D doorRestroom = new Rectangle2D(1158 * sx, 582 * sy, 60 * sx, 96 * sy);
         Door doorRest = new Door("hall_door_restroom", 40, 22, "entrance", "hall", false, false, null, doorRestroom);
         doorRest.setCollisionBox(doorRestroom);
+        doorRest.setDrawClosedSprite(false);
+        doorRest.setDrawOpenOverlay(true);
         map.addDoor(doorRest);
 
         // North Center: Lore Library
-        Rectangle2D doorNorth = new Rectangle2D(620 * sx, 40 * sy, 135 * sx, 130 * sy);
+        Rectangle2D doorNorth = new Rectangle2D(645 * sx, 95 * sy, 85 * sx, 110 * sy);
         Door doorN = new Door("hall_corridor_north", 24, 2, "library", "hall", false, false, null, doorNorth);
         doorN.setCollisionBox(doorNorth);
+        doorN.setDrawClosedSprite(false);
+        doorN.setDrawOpenOverlay(false);
         map.addDoor(doorN);
 
         // South Center: Grand School Exit Gate
-        Rectangle2D doorSouth = new Rectangle2D(550 * sx, 670 * sy, 276 * sx, 98 * sy);
+        Rectangle2D doorSouth = new Rectangle2D(548 * sx, 650 * sy, 280 * sx, 105 * sy);
         Door doorS = new Door("hall_corridor_south", 24, 25, "exit", "hall", false, true, "master_key", doorSouth);
         doorS.setCollisionBox(doorSouth);
+        doorS.setDrawClosedSprite(false);
+        doorS.setDrawOpenOverlay(false);
         map.addDoor(doorS);
 
         // Hallway boundaries and stone colonnades
         List<Rectangle2D> boxes = new ArrayList<>();
         // Outer boundaries
-        boxes.add(new Rectangle2D(0, 0, 80 * sx, 768 * sy));
-        boxes.add(new Rectangle2D(1296 * sx, 0, 80 * sx, 768 * sy));
-        boxes.add(new Rectangle2D(0, 0, 610 * sx, 40 * sy));
-        boxes.add(new Rectangle2D(765 * sx, 0, 611 * sx, 40 * sy));
+        boxes.add(new Rectangle2D(0, 0, 150 * sx, 768 * sy));
+        boxes.add(new Rectangle2D(1226 * sx, 0, 150 * sx, 768 * sy));
+        boxes.add(new Rectangle2D(0, 0, 640 * sx, 80 * sy));
+        boxes.add(new Rectangle2D(735 * sx, 0, 641 * sx, 80 * sy));
 
-        // West-side pillar line
-        boxes.add(new Rectangle2D(480 * sx, 180 * sy, 65 * sx, 120 * sy));
-        boxes.add(new Rectangle2D(480 * sx, 480 * sy, 65 * sx, 140 * sy));
-        // East-side pillar line
-        boxes.add(new Rectangle2D(830 * sx, 180 * sy, 65 * sx, 120 * sy));
-        boxes.add(new Rectangle2D(830 * sx, 480 * sy, 65 * sx, 140 * sy));
+        // Stone pillars
+        boxes.add(new Rectangle2D(365 * sx, 160 * sy, 55 * sx, 110 * sy));
+        boxes.add(new Rectangle2D(365 * sx, 460 * sy, 55 * sx, 110 * sy));
+        boxes.add(new Rectangle2D(595 * sx, 160 * sy, 55 * sx, 110 * sy));
+        boxes.add(new Rectangle2D(595 * sx, 460 * sy, 55 * sx, 110 * sy));
 
         map.setCollisionBoxes(boxes);
         map.initializeDoorCollisions();
@@ -256,13 +278,19 @@ public class MapLoader {
         // Bottom doorway bounds
         Rectangle2D doorVisualBounds = new Rectangle2D(643 * sx, 626 * sy, 71 * sx, 142 * sy);
         Rectangle2D doorCollisionBox = new Rectangle2D(648 * sx, 665 * sy, 62 * sx, 103 * sy);
+        Rectangle2D wallPatchBounds = new Rectangle2D(713 * sx, 626 * sy, 57 * sx, 142 * sy);
+        Rectangle2D wallPatchSource = new Rectangle2D(713, 485, 57, 142);
 
-        // In detailed rooms, the exit door back to hallway is initially open
-        Door exitDoor = new Door(roomId + "_exit", 24, 25, roomId, "hall", true, false, null, doorVisualBounds);
+        // In detailed rooms, the exit door back to hallway starts closed so player stays behind it
+        Door exitDoor = new Door(roomId + "_exit", 24, 25, roomId, "hall", false, false, null, doorVisualBounds);
         exitDoor.setCollisionBox(doorCollisionBox);
+        exitDoor.setWallPatchBounds(wallPatchBounds);
+        exitDoor.setWallPatchSource(wallPatchSource);
+        exitDoor.setDrawClosedSprite(true);
         map.addDoor(exitDoor);
 
         map.setCollisionBoxes(buildStandardRoomCollisionBoxes(map.getPixelWidth(), map.getPixelHeight()));
+        map.initializeDoorCollisions();
         return map;
     }
 
@@ -277,6 +305,9 @@ public class MapLoader {
         boxes.add(new Rectangle2D(1335 * sx, 0 * sy, 41 * sx, 768 * sy));   // Right wall
         boxes.add(new Rectangle2D(0 * sx, 665 * sy, 648 * sx, 103 * sy));   // Bottom left wall
         boxes.add(new Rectangle2D(710 * sx, 665 * sy, 666 * sx, 103 * sy)); // Bottom right wall
+
+        // Bottom doorway barrier (prevents walking past the door frame onto bottom border)
+        boxes.add(new Rectangle2D(640 * sx, 665 * sy, 78 * sx, 103 * sy));
 
         // Center room furniture / workstation cluster (leaving wide corridors on all sides)
         boxes.add(new Rectangle2D(580 * sx, 280 * sy, 220 * sx, 160 * sy));

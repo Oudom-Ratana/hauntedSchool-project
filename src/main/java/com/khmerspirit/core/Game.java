@@ -887,7 +887,7 @@ public class Game {
         // In Main Hall: interact with room doors
         if (currentMapId.equalsIgnoreCase("hall") || currentMapId.equalsIgnoreCase("school") || currentMapId.equalsIgnoreCase("main_hall")) {
             for (Door door : tileMap.getDoors()) {
-                if (door.isNear(px, py, 90.0)) {
+                if (door.isNear(px, py, 75.0)) {
                     String target = door.getFromRoomId();
                     String name = getEnglishRoomName(target);
 
@@ -963,7 +963,7 @@ public class Game {
                             door.setLocked(false);
                             tileMap.setDoorOpen(door, true);
                             playSound("door");
-                            showNotification("You unlocked the door with the Key! The door opens.");
+                            showNotification("Unlocked and opened the door! [Press E to Exit to Main Hall | C to Close]");
                             saveNow();
                             return true;
                         } else {
@@ -974,15 +974,13 @@ public class Game {
                     } else {
                         tileMap.setDoorOpen(door, true);
                         playSound("door");
-                        showNotification("You opened the door.");
+                        showNotification("Opened the door! [Press E to Exit to Main Hall | C to Close]");
                         saveNow();
                         return true;
                     }
                 } else {
-                    tileMap.setDoorOpen(door, false);
-                    playSound("door");
-                    showNotification("You closed the door.");
-                    saveNow();
+                    // When door is open: Pressing E exits smoothly back to Main Hall!
+                    exitToMainHallFromCurrentRoom();
                     return true;
                 }
             }
@@ -994,7 +992,7 @@ public class Game {
         double px = player.getCenterX();
         double py = player.getCenterY();
         for (Door door : tileMap.getDoors()) {
-            if (door.isOpen() && door.isNear(px, py, 90.0)) {
+            if (door.isOpen() && door.isNear(px, py, 75.0)) {
                 tileMap.setDoorOpen(door, false);
                 playSound("door");
                 String name = getEnglishRoomName(door.getFromRoomId());
@@ -1025,9 +1023,7 @@ public class Game {
     }
 
     private void renderDoorLabels(GraphicsContext g, Camera cam) {
-        if (!currentMapId.equalsIgnoreCase("hall") && !currentMapId.equalsIgnoreCase("school") && !currentMapId.equalsIgnoreCase("main_hall")) {
-            return;
-        }
+        boolean isHall = currentMapId.equalsIgnoreCase("hall") || currentMapId.equalsIgnoreCase("school") || currentMapId.equalsIgnoreCase("main_hall");
 
         double px = player.getCenterX();
         double py = player.getCenterY();
@@ -1041,14 +1037,19 @@ public class Game {
             double sx = doorCenterX - cam.getX();
             double sy = doorTopY - cam.getY();
 
-            // English Room Title
-            String target = door.getFromRoomId();
-            String englishName = getEnglishRoomName(target).toUpperCase();
+            // English Room Title / Exit Title
+            String englishName;
+            if (isHall) {
+                String target = door.getFromRoomId();
+                englishName = getEnglishRoomName(target).toUpperCase();
+            } else {
+                englishName = "EXIT TO MAIN HALL";
+            }
 
             double plaqueW = Math.max(130.0, englishName.length() * 8.0 + 28.0);
             double plaqueH = 24.0;
             double plaqueX = sx - plaqueW / 2.0;
-            double plaqueY = sy - 28.0;
+            double plaqueY = isHall ? (sy - 28.0) : (sy - 32.0);
 
             // Stone plaque background
             g.setFill(Color.rgb(15, 12, 16, 0.90));
@@ -1067,26 +1068,26 @@ public class Game {
             g.setFill(Color.web("#ffeaa7"));
             g.fillText(englishName, plaqueX + 14, plaqueY + 16);
 
-            // Proximity interaction hint banner
-            if (door.isNear(px, py, 90.0)) {
+            // Proximity interaction hint banner (stay safely behind the door)
+            if (door.isNear(px, py, 80.0)) {
                 String prompt;
                 Color statusColor;
                 if (!door.isOpen()) {
                     if (door.isLocked()) {
-                        prompt = "[E] Unlock (Requires Master Key)";
+                        prompt = isHall ? "[E] Unlock (Requires Master Key)" : "[E] Unlock Door (Requires Key)";
                         statusColor = Color.web("#ff7675");
                     } else {
                         prompt = "[E] Open Door";
                         statusColor = Color.web("#ffeaa7");
                     }
                 } else {
-                    prompt = "[E] Enter Room   |   [C] Close Door";
+                    prompt = isHall ? "[E] Enter Room   |   [C] Close Door" : "[E] Exit to Main Hall   |   [C] Close Door";
                     statusColor = Color.web("#55efc4");
                 }
 
                 double promptW = prompt.length() * 7.2 + 24.0;
                 double prX = sx - promptW / 2.0;
-                double prY = sy + bounds.getHeight() + 8.0;
+                double prY = isHall ? (sy + bounds.getHeight() + 8.0) : (sy - 62.0);
 
                 g.setFill(Color.rgb(10, 8, 12, 0.92));
                 g.fillRoundRect(prX, prY, promptW, 22.0, 5, 5);
@@ -1147,27 +1148,32 @@ public class Game {
         saveNow();
     }
 
+    public void exitToMainHallFromCurrentRoom() {
+        playSound("door");
+        // Return smoothly to the Main Hall right in front of the corresponding room doorway
+        switch (currentMapId.toLowerCase()) {
+            case "teacher", "principal_office" -> transitionToRoom("hall", 390.0, 223.0);
+            case "laboratory", "science_lab" -> transitionToRoom("hall", 390.0, 503.0);
+            case "classrooma", "classroom" -> transitionToRoom("hall", 390.0, 783.0);
+            case "computer", "music_art_room" -> transitionToRoom("hall", 390.0, 1063.0);
+            case "dormitory", "infirmary" -> transitionToRoom("hall", 1900.0, 223.0);
+            case "basement", "storage_room" -> transitionToRoom("hall", 1900.0, 503.0);
+            case "classroomb", "teachers_lounge" -> transitionToRoom("hall", 1900.0, 783.0);
+            case "entrance", "restroom" -> transitionToRoom("hall", 1900.0, 1063.0);
+            case "library" -> transitionToRoom("hall", 1151.0, 375.0);
+            default -> transitionToRoom("hall", 1152.0, 648.0);
+        }
+    }
+
     private void checkDoorTransitions() {
         if (currentMapId.equalsIgnoreCase("hall") || currentMapId.equalsIgnoreCase("school") || currentMapId.equalsIgnoreCase("main_hall")) {
             return;
         }
 
-        // Inside a detailed room: check if player is walking out through the bottom door
+        // Inside a detailed room: check if player steps into the open doorway threshold
         for (Door door : tileMap.getDoors()) {
-            if (door.isOpen() && player.getCenterY() >= (tileMap.getPixelHeight() - 110.0)) {
-                // Return smoothly to the Main Hall right in front of the corresponding room doorway
-                switch (currentMapId.toLowerCase()) {
-                    case "classrooma", "classroom" -> transitionToRoom("hall", 330.0, 215.0);
-                    case "laboratory", "science_lab" -> transitionToRoom("hall", 330.0, 520.0);
-                    case "classroomb", "teachers_lounge" -> transitionToRoom("hall", 330.0, 840.0);
-                    case "computer", "music_art_room" -> transitionToRoom("hall", 330.0, 1130.0);
-                    case "dormitory", "infirmary" -> transitionToRoom("hall", 1800.0, 215.0);
-                    case "basement", "storage_room" -> transitionToRoom("hall", 1800.0, 520.0);
-                    case "teacher", "principal_office" -> transitionToRoom("hall", 1800.0, 840.0);
-                    case "entrance", "restroom" -> transitionToRoom("hall", 1800.0, 1130.0);
-                    case "library" -> transitionToRoom("hall", 1152.0, 230.0);
-                    default -> transitionToRoom("hall", 1152.0, 648.0);
-                }
+            if (door.isOpen() && player.getCenterY() >= 1065.0 && Math.abs(player.getCenterX() - 1136.0) <= 65.0) {
+                exitToMainHallFromCurrentRoom();
                 return;
             }
         }

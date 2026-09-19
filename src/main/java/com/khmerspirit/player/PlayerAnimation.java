@@ -11,9 +11,9 @@ public class PlayerAnimation {
         RUN
     }
 
-    private static final double FRAME_DURATION_WALK = 0.14;
-    private static final double FRAME_DURATION_RUN = 0.08;
-    private static final double RUN_THRESHOLD = 180.0;
+    private static final double FRAME_DURATION_WALK = 0.22;
+    private static final double FRAME_DURATION_RUN = 0.10;
+    private static final double RUN_THRESHOLD = 200.0;
 
     private State state = State.IDLE;
     private int directionRow;

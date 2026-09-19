@@ -148,10 +148,10 @@ public class TileMap {
                     getPixelHeight()
             );
 
-            // Render closed doors and wall patches on top of background image
+            // Render closed doors, open doorway overlays, and wall patches
             for (Door door : doors) {
                 if (!door.isOpen()) {
-                    // Draw wall patch over swung-open leaf if configured
+                    // Draw wall patch over swung-open leaf if configured (e.g. detailed rooms)
                     if (door.getWallPatchBounds() != null && door.getWallPatchSource() != null) {
                         Rectangle2D wp = door.getWallPatchBounds();
                         Rectangle2D src = door.getWallPatchSource();
@@ -161,8 +161,8 @@ public class TileMap {
                                 wp.getMinX() - camera.getX(), wp.getMinY() - camera.getY(), wp.getWidth(), wp.getHeight()
                         );
                     }
-                    // Draw closed door sprite overlay
-                    if (door.getBounds() != null && doorClosedImage != null) {
+                    // Draw closed door sprite overlay only if door enables it
+                    if (door.isDrawClosedSprite() && door.getBounds() != null && doorClosedImage != null) {
                         Rectangle2D b = door.getBounds();
                         graphics.drawImage(
                                 doorClosedImage,
@@ -172,6 +172,31 @@ public class TileMap {
                                 b.getHeight()
                         );
                     }
+                } else if (door.isDrawOpenOverlay() && door.getBounds() != null) {
+                    // Draw open dark doorway void with atmospheric backlight and swung door leaf
+                    Rectangle2D b = door.getBounds();
+                    double dx = b.getMinX() - camera.getX();
+                    double dy = b.getMinY() - camera.getY();
+                    double dw = b.getWidth();
+                    double dh = b.getHeight();
+
+                    // Dark gothic doorway interior void
+                    graphics.setFill(Color.rgb(10, 8, 14, 0.95));
+                    graphics.fillRect(dx, dy, dw, dh);
+
+                    // Soft ambient warm backlight from inside the room
+                    graphics.setFill(Color.rgb(245, 185, 70, 0.16));
+                    graphics.fillRect(dx + 4, dy + dh * 0.4, dw - 8, dh * 0.6);
+
+                    // Swung open door leaf on the side
+                    boolean isLeftDoor = b.getMinX() < getPixelWidth() / 2.0;
+                    double leafW = dw * 0.32;
+                    double leafX = isLeftDoor ? dx : dx + dw - leafW;
+                    graphics.setFill(Color.rgb(45, 30, 22, 0.96));
+                    graphics.fillRect(leafX, dy + 2, leafW, dh - 4);
+                    graphics.setStroke(Color.rgb(20, 14, 10, 0.95));
+                    graphics.setLineWidth(1.2);
+                    graphics.strokeRect(leafX, dy + 2, leafW, dh - 4);
                 }
             }
 

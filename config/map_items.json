@@ -220,12 +220,62 @@
     "active": true
   },
   {
-    "id": "ITEM_025",
-    "itemId": "flashlight",
-    "itemName": "Flashlight",
+    "id": "ITEM_023",
+    "itemId": "first_aid_kit",
+    "itemName": "First Aid Kit",
     "roomId": "classroomA",
-    "tileX": 16.0,
-    "tileY": 18.0,
+    "tileX": 17.0,
+    "tileY": 13.5,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_024",
+    "itemId": "holy_charm",
+    "itemName": "Holy Charm",
+    "roomId": "classroomA",
+    "tileX": 20.5,
+    "tileY": 17.0,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_025",
+    "itemId": "acid_bottle",
+    "itemName": "Acid Bottle",
+    "roomId": "classroomA",
+    "tileX": 31.0,
+    "tileY": 17.5,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_026",
+    "itemId": "bronze_bell",
+    "itemName": "Bronze Bell",
+    "roomId": "classroomA",
+    "tileX": 36.5,
+    "tileY": 20.0,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_027",
+    "itemId": "electric_fuse",
+    "itemName": "Electric Fuse",
+    "roomId": "classroomA",
+    "tileX": 36.0,
+    "tileY": 14.5,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_028",
+    "itemId": "night_vision",
+    "itemName": "Night Vision Goggles",
+    "roomId": "classroomA",
+    "tileX": 12.5,
+    "tileY": 19.0,
     "description": "",
     "active": true
   }

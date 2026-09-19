@@ -16,6 +16,8 @@ public class Door {
     private Rectangle2D collisionBox;
     private Rectangle2D wallPatchBounds;
     private Rectangle2D wallPatchSource;
+    private boolean drawClosedSprite = true;
+    private boolean drawOpenOverlay = false;
 
     public Door(int column, int row, String fromRoomId, String toRoomId) {
         this("door_" + column + "_" + row, column, row, fromRoomId, toRoomId, false, true, "key", null);
@@ -128,5 +130,21 @@ public class Door {
         double dx = worldX - cx;
         double dy = worldY - cy;
         return (dx * dx + dy * dy) <= (maxDistance * maxDistance);
+    }
+
+    public boolean isDrawClosedSprite() {
+        return drawClosedSprite;
+    }
+
+    public void setDrawClosedSprite(boolean drawClosedSprite) {
+        this.drawClosedSprite = drawClosedSprite;
+    }
+
+    public boolean isDrawOpenOverlay() {
+        return drawOpenOverlay;
+    }
+
+    public void setDrawOpenOverlay(boolean drawOpenOverlay) {
+        this.drawOpenOverlay = drawOpenOverlay;
     }
 }
