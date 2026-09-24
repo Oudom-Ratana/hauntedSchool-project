@@ -13,14 +13,14 @@ public final class GameSaveHelper {
     public static SaveData buildFrom(Game game) {
         String character = game.getPlayer().getCharacterName();
         Map<String, Integer> items = game.getInventory().getItemCounts();
-        String currentRoomId = game.getCurrentRoomId();
+        String currentRoomId = game.getCurrentMapId();
         List<String> completed = game.getEducationCompletedRooms();
         int hearts = game.getPlayer().getHearts();
         String currentTaskRoom = game.getEducationActiveRoomId() == null ? "" : game.getEducationActiveRoomId();
         int taskCorrect = game.getEducationActiveCorrectCount();
         double playTime = game.getPlayTimeSeconds();
-        double px = game.getPlayer().getCenterX();
-        double py = game.getPlayer().getCenterY();
+        double px = game.getPlayer().getX();
+        double py = game.getPlayer().getY();
         return new SaveData(character, items, currentRoomId == null ? "" : currentRoomId, completed, hearts, currentTaskRoom, taskCorrect, playTime, px, py);
     }
 }

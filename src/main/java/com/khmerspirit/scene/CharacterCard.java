@@ -25,11 +25,11 @@ public final class CharacterCard extends StackPane {
     public static final double CARD_HEIGHT = 804.0;
 
     private static final DropShadow SELECTED_GLOW = new DropShadow(
-            BlurType.GAUSSIAN, Color.rgb(255, 215, 80, 0.95), 36, 0.55, 0, 0);
+            BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.88), 28, 0.42, 0, 6);
     private static final DropShadow HOVER_GLOW = new DropShadow(
-            BlurType.GAUSSIAN, Color.rgb(255, 210, 70, 0.65), 22, 0.38, 0, 0);
+            BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.72), 20, 0.35, 0, 4);
     private static final DropShadow UNSELECTED_SHADOW = new DropShadow(
-            BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.75), 16, 0.3, 0, 6);
+            BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.60), 14, 0.25, 0, 4);
 
     private final CharacterType character;
     private final ImageView cardImageView;
@@ -67,6 +67,7 @@ public final class CharacterCard extends StackPane {
         highlightBorder.setMinSize(CARD_WIDTH, CARD_HEIGHT);
         highlightBorder.setMaxSize(CARD_WIDTH, CARD_HEIGHT);
         highlightBorder.setMouseTransparent(true);
+        highlightBorder.setStyle("-fx-border-color: transparent;");
         highlightBorder.getStyleClass().add("character-card-highlight");
 
         getChildren().addAll(cardImageView, highlightBorder);
@@ -76,7 +77,7 @@ public final class CharacterCard extends StackPane {
                 animateScale(1.025);
                 setOpacity(0.96);
                 setEffect(HOVER_GLOW);
-                highlightBorder.setStyle("-fx-border-color: rgba(255, 215, 80, 0.65); -fx-border-width: 3px; -fx-border-radius: 10px;");
+                highlightBorder.setStyle("-fx-border-color: transparent;");
             }
         });
 
@@ -115,7 +116,7 @@ public final class CharacterCard extends StackPane {
             }
             setOpacity(1.0);
             setEffect(SELECTED_GLOW);
-            highlightBorder.setStyle("-fx-border-color: #ffd700; -fx-border-width: 4px; -fx-border-radius: 10px;");
+            highlightBorder.setStyle("-fx-border-color: transparent;");
             getStyleClass().add("character-card-active");
         } else {
             if (animate) {

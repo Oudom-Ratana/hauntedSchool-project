@@ -21,6 +21,11 @@ public class PlayerController {
         pressedKeys.remove(keyCode);
     }
 
+    public void resetKeys() {
+        pressedKeys.clear();
+        justPressedKeys.clear();
+    }
+
     public boolean isSprinting() {
         return pressedKeys.contains(KeyCode.SHIFT);
     }

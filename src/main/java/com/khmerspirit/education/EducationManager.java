@@ -65,6 +65,8 @@ public class EducationManager {
 
     private final List<Ghost> ghosts = new ArrayList<>();
     private final List<String> completedRooms = new ArrayList<>();
+    private String currentRoomId = "classroomA";
+    private final Map<String, List<Ghost>> roomGhosts = new HashMap<>();
     private double ambientGhostTimer = 0.0;
     private double lifeTime = 0.0;
     private Image questionPanelImage = null;
@@ -185,16 +187,82 @@ public class EducationManager {
         ghosts.add(new Ghost(hallX, hallY));
     }
 
+    public int getMaxGhostsForRoom(String roomId) {
+        if (roomId == null) return 999;
+        String rid = roomId.toLowerCase().trim();
+        return switch (rid) {
+            // Level 1 (Easy): First 3 rooms -> max 3 ghosts
+            case "classrooma", "classroom", "classroomb", "teachers_lounge", "computer", "music_art_room" -> 3;
+            // Level 2 (Medium): Next 3 rooms -> max 6 ghosts
+            case "entrance", "restroom", "dormitory", "infirmary", "basement", "storage_room" -> 6;
+            // Level 3 (Hard): Last 3 rooms -> max 10 ghosts
+            case "laboratory", "science_lab", "library", "teacher", "principal_office" -> 10;
+            // Central Hallway: Not strict
+            default -> 999;
+        };
+    }
+
     public void onPlayerRoomChanged(String roomDisplayName, double playerX, double playerY) {
-        tileMap.getRooms().stream()
-                .filter(r -> r.getDisplayName().equals(roomDisplayName))
-                .findFirst()
-                .ifPresent(r -> {
-                    ensureRoomTask(r.getId());
-                    if (!completedRooms.contains(r.getId()) && !r.getId().equals("entrance") && ghosts.size() < 3 && rng.nextDouble() < 0.40) {
-                        spawnGhostNearPlayer();
-                    }
-                });
+        String newRoomId = game.getCurrentMapId();
+        if (newRoomId == null || newRoomId.isBlank()) {
+            newRoomId = tileMap.getRooms().stream()
+                    .filter(r -> r.getDisplayName().equals(roomDisplayName))
+                    .findFirst()
+                    .map(Room::getId)
+                    .orElse("classroomA");
+        }
+
+        // Save previous room's ghosts and restore current room's ghosts
+        if (currentRoomId != null && !currentRoomId.equalsIgnoreCase(newRoomId)) {
+            roomGhosts.put(currentRoomId.toLowerCase(), new ArrayList<>(ghosts));
+            ghosts.clear();
+            if (roomGhosts.containsKey(newRoomId.toLowerCase())) {
+                ghosts.addAll(roomGhosts.get(newRoomId.toLowerCase()));
+            }
+        }
+        currentRoomId = newRoomId;
+
+        final String activeRid = newRoomId;
+        ensureRoomTask(activeRid);
+
+        int maxGhosts = getMaxGhostsForRoom(activeRid);
+        if (!completedRooms.contains(activeRid.toLowerCase()) && !activeRid.equalsIgnoreCase("hall")
+                && ghosts.size() < maxGhosts && rng.nextDouble() < 0.40) {
+            spawnGhostFarInRoom(playerX, playerY);
+        }
+    }
+
+    public Ghost spawnGhostFarInRoom(double px, double py) {
+        double mapW = tileMap != null ? tileMap.getPixelWidth() : 1376.0;
+        double mapH = tileMap != null ? tileMap.getPixelHeight() : 768.0;
+
+        // Keep inside room walls
+        double minX = 160.0;
+        double maxX = Math.max(minX + 100.0, mapW - 160.0);
+        double minY = 180.0;
+        double maxY = Math.max(minY + 100.0, mapH - 180.0);
+
+        double bestX = px + 220.0;
+        double bestY = py;
+        double maxDistFound = 0.0;
+
+        // Try several random angles at distance 210 - 320 to place ghost a bit far from player but strictly within the room
+        for (int i = 0; i < 14; i++) {
+            double angle = rng.nextDouble() * Math.PI * 2.0;
+            double dist = 210.0 + rng.nextDouble() * 110.0;
+            double candX = Math.max(minX, Math.min(maxX, px + Math.cos(angle) * dist));
+            double candY = Math.max(minY, Math.min(maxY, py + Math.sin(angle) * dist));
+            double d = Math.hypot(candX - px, candY - py);
+            if (d > maxDistFound) {
+                maxDistFound = d;
+                bestX = candX;
+                bestY = candY;
+            }
+        }
+
+        Ghost g = new Ghost(bestX, bestY);
+        ghosts.add(g);
+        return g;
     }
 
     private void ensureRoomTask(String roomId) {
@@ -223,7 +291,8 @@ public class EducationManager {
         ambientGhostTimer += deltaSeconds;
         if (ambientGhostTimer >= 50.0) {
             ambientGhostTimer = 0.0;
-            if (ghosts.size() < 3) {
+            int maxGhosts = getMaxGhostsForRoom(currentRoomId);
+            if (ghosts.size() < maxGhosts) {
                 spawnAmbientGhost(player);
             }
         }
@@ -389,32 +458,43 @@ public class EducationManager {
         Question q = activeTask.getCurrentQuestion();
         if (q == null) return;
 
-        double panelW = Math.min(740.0, canvasWidth - 40.0);
-        double panelH = 410.0;
+        // Dim background overlay for cinematic focus on exam
+        g.setFill(Color.rgb(3, 4, 8, 0.65));
+        g.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        double panelW = Math.min(980.0, canvasWidth - 40.0);
+        double panelH = Math.min(610.0, canvasHeight - 24.0);
         double panelX = (canvasWidth - panelW) / 2.0;
-        double panelY = canvasHeight - panelH - 12.0;
+        double panelY = (canvasHeight - panelH) / 2.0;
 
         // 1. Draw Transparent Ornate Khmer Image Frame
         if (questionPanelImage != null) {
             g.drawImage(questionPanelImage, panelX, panelY, panelW, panelH);
         } else {
-            g.setFill(Color.rgb(16, 12, 18, 0.94));
-            g.fillRoundRect(panelX, panelY, panelW, panelH, 14, 14);
+            g.setFill(Color.rgb(16, 12, 18, 0.96));
+            g.fillRoundRect(panelX, panelY, panelW, panelH, 16, 16);
             g.setStroke(Color.web("#c49a45"));
             g.setLineWidth(2.5);
-            g.strokeRoundRect(panelX, panelY, panelW, panelH, 14, 14);
+            g.strokeRoundRect(panelX, panelY, panelW, panelH, 16, 16);
         }
 
-        // 2. Strict Inner Parchment Safe Area (Comfortably shifted downwards to fit inside parchment)
-        double insetX = panelX + panelW * 0.145;
-        double insetW = panelW * 0.71;
-        double insetY = panelY + panelH * 0.245;
+        // 2. Strict Inner Parchment Safe Area
+        double insetX = panelX + panelW * 0.125;
+        double insetW = panelW * 0.75;
+        double insetY = panelY + panelH * 0.165;
 
-        // Header: Room Title
-        g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 13));
-        g.setFill(Color.web("#ffe082"));
+        // Header: Room Title (Haunted / Horror Font)
+        Font horrorHeaderFont = Font.font("Chiller", FontWeight.BOLD, 26);
+        if (horrorHeaderFont.getFamily().equals("System") || !horrorHeaderFont.getName().toLowerCase().contains("chiller")) {
+            horrorHeaderFont = Font.font("Copperplate Gothic Bold", FontWeight.BOLD, 17);
+        }
+        g.setFont(horrorHeaderFont);
+        g.setFill(Color.rgb(0, 0, 0, 0.95));
         String roomName = (activeRoomId != null ? activeRoomId.toUpperCase() : "HAUNTED ROOM");
-        g.fillText("✦ ANCIENT EXAM: " + roomName + " ✦", insetX, insetY + 16);
+        String headerTitle = "✦ ANCIENT EXAM: " + roomName + " ✦";
+        g.fillText(headerTitle, insetX + 1.5, insetY + 16.5);
+        g.setFill(Color.web("#ffe082"));
+        g.fillText(headerTitle, insetX, insetY + 15);
 
         int correct = activeTask.getCorrectCount();
         int remaining = Math.max(0, 5 - correct);
@@ -424,7 +504,7 @@ public class EducationManager {
         double progW = 142.0;
         double progH = 40.0;
         double progX = insetX + insetW - progW;
-        double progY = insetY - 4.0;
+        double progY = insetY - 10.0;
 
         if (quizProgressBarImage != null) {
             g.drawImage(quizProgressBarImage, progX, progY, progW, progH);
@@ -454,9 +534,9 @@ public class EducationManager {
         }
 
         // "Answers Left" or "Finished" Button Badge
-        double btnW = 105.0;
+        double btnW = 115.0;
         double btnH = 26.0;
-        double btnX = progX - btnW - 10.0;
+        double btnX = progX - btnW - 12.0;
         double btnY = progY + 7.0;
 
         if (isFinished) {
@@ -468,7 +548,7 @@ public class EducationManager {
 
             g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 11));
             g.setFill(Color.web("#73d13d"));
-            g.fillText("✔ FINISHED 🔑", btnX + 11, btnY + 17);
+            g.fillText("✔ FINISHED 🔑", btnX + 13, btnY + 17);
         } else {
             g.setFill(Color.rgb(28, 20, 14, 0.92));
             g.fillRoundRect(btnX, btnY, btnW, btnH, 6, 6);
@@ -478,40 +558,37 @@ public class EducationManager {
 
             g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 11));
             g.setFill(Color.web("#ffd591"));
-            g.fillText("⏳ " + remaining + " LEFT (" + correct + "/5)", btnX + 10, btnY + 17);
+            g.fillText("⏳ " + remaining + " LEFT (" + correct + "/5)", btnX + 11, btnY + 17);
         }
 
-        // Question Text (Strictly wrapped inside insetW)
-        g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
-        List<String> qLines = wrapText(q.getText(), insetW, 14);
+        // Question Text (Crisp 15px font, comfortably wrapped across full insetW)
+        g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 15));
+        List<String> qLines = wrapText(q.getText(), insetW - 12, 15);
         double curY = insetY + 48.0;
         for (String ql : qLines) {
             g.setFill(Color.rgb(0, 0, 0, 0.95));
             g.fillText(ql, insetX + 1, curY + 1);
             g.setFill(Color.web("#fff6de"));
             g.fillText(ql, insetX, curY);
-            curY += 20.0;
+            curY += 22.0;
         }
 
-        // 4 Option Bars (Neatly arranged in 2x2 grid inside parchment)
+        // 4 Full-Width Option Cards (Vertical Stack Layout)
         List<String> options = q.getOptions();
-        double optGapX = 12.0;
         double optGapY = 8.0;
-        double colW = (insetW - optGapX) / 2.0;
-        double boxH = 46.0;
-        double optStartY = Math.max(insetY + 98.0, curY + 10.0);
+        double colW = insetW;
+        double boxH = 48.0;
+        double optStartY = Math.max(insetY + 136.0, curY + 12.0);
 
         for (int i = 0; i < Math.min(4, options.size()); i++) {
-            int col = i % 2;
-            int row = i / 2;
-            double bx = insetX + col * (colW + optGapX);
-            double by = optStartY + row * (boxH + optGapY);
+            double bx = insetX;
+            double by = optStartY + i * (boxH + optGapY);
 
-            // Draw Ornate Option Bar PNG
+            // Draw Option Bar background
             if (quizOptionBarImage != null) {
                 g.drawImage(quizOptionBarImage, bx, by, colW, boxH);
             } else {
-                g.setFill(Color.rgb(18, 14, 18, 0.90));
+                g.setFill(Color.rgb(18, 14, 20, 0.92));
                 g.fillRoundRect(bx, by, colW, boxH, 6, 6);
                 g.setStroke(Color.rgb(185, 140, 55, 0.88));
                 g.setLineWidth(1.5);
@@ -519,32 +596,47 @@ public class EducationManager {
             }
 
             // Gold Number Badge [ 1 ], [ 2 ], [ 3 ], [ 4 ]
-            double badgeX = bx + 7.0;
-            double badgeY = by + 9.0;
-            double badgeSize = 28.0;
+            double badgeX = bx + 10.0;
+            double badgeY = by + (boxH - 30.0) / 2.0;
+            double badgeSize = 30.0;
             g.setFill(Color.rgb(212, 160, 23, 0.95));
-            g.fillRoundRect(badgeX, badgeY, badgeSize, badgeSize, 5, 5);
-            g.setStroke(Color.rgb(255, 235, 150, 0.85));
-            g.setLineWidth(1.0);
-            g.strokeRoundRect(badgeX, badgeY, badgeSize, badgeSize, 5, 5);
+            g.fillRoundRect(badgeX, badgeY, badgeSize, badgeSize, 6, 6);
+            g.setStroke(Color.rgb(255, 235, 150, 0.88));
+            g.setLineWidth(1.2);
+            g.strokeRoundRect(badgeX, badgeY, badgeSize, badgeSize, 6, 6);
 
             g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
             g.setFill(Color.web("#140d02"));
-            g.fillText(String.valueOf(i + 1), badgeX + 9, badgeY + 19);
+            g.fillText(String.valueOf(i + 1), badgeX + 11, badgeY + 20);
 
-            // Option text (carefully truncated and positioned on inner card)
-            g.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 12));
-            String optText = truncate(options.get(i), 26);
-            double textX = bx + 42.0;
-            double textY = by + 28.0;
-            g.setFill(Color.rgb(0, 0, 0, 0.98));
-            g.fillText(optText, textX + 1, textY + 1);
-            g.setFill(Color.web("#fff6de"));
-            g.fillText(optText, textX, textY);
+            // Option text (generous width up to ~670px, wrapping up to 2 lines without any truncation)
+            String optText = options.get(i);
+            double textW = colW - 65.0;
+            List<String> optLines = wrapText(optText, textW, 13);
+            g.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 13));
+
+            double textX = bx + 52.0;
+            if (optLines.size() <= 1) {
+                double textY = by + (boxH / 2.0) + 5.0;
+                g.setFill(Color.rgb(0, 0, 0, 0.98));
+                g.fillText(optText, textX + 1, textY + 1);
+                g.setFill(Color.web("#fff6de"));
+                g.fillText(optText, textX, textY);
+            } else {
+                double textY = by + 19.0;
+                for (int l = 0; l < Math.min(2, optLines.size()); l++) {
+                    String line = optLines.get(l);
+                    g.setFill(Color.rgb(0, 0, 0, 0.98));
+                    g.fillText(line, textX + 1, textY + 1);
+                    g.setFill(Color.web("#fff6de"));
+                    g.fillText(line, textX, textY);
+                    textY += 16.5;
+                }
+            }
         }
 
         // Footer Guidance
-        double footY = optStartY + boxH * 2 + optGapY + 22.0;
+        double footY = optStartY + 4 * (boxH + optGapY) + 16.0;
         g.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 11));
         g.setFill(Color.rgb(225, 205, 155, 0.95));
         g.fillText("Press [1]-[4] or Click Option Bar to Answer • Move away to flee and pause", insetX, footY);
@@ -560,30 +652,27 @@ public class EducationManager {
         Question q = activeTask.getCurrentQuestion();
         if (q == null) return false;
 
-        double panelW = Math.min(740.0, canvasWidth - 40.0);
-        double panelH = 410.0;
+        double panelW = Math.min(980.0, canvasWidth - 40.0);
+        double panelH = Math.min(610.0, canvasHeight - 24.0);
         double panelX = (canvasWidth - panelW) / 2.0;
-        double panelY = canvasHeight - panelH - 12.0;
+        double panelY = (canvasHeight - panelH) / 2.0;
 
-        double insetX = panelX + panelW * 0.145;
-        double insetW = panelW * 0.71;
-        double insetY = panelY + panelH * 0.245;
+        double insetX = panelX + panelW * 0.125;
+        double insetW = panelW * 0.75;
+        double insetY = panelY + panelH * 0.165;
 
-        List<String> qLines = wrapText(q.getText(), insetW, 14);
-        double curY = insetY + 48.0 + qLines.size() * 20.0;
-        double optStartY = Math.max(insetY + 98.0, curY + 10.0);
+        List<String> qLines = wrapText(q.getText(), insetW - 12, 15);
+        double curY = insetY + 48.0 + qLines.size() * 22.0;
+        double optStartY = Math.max(insetY + 136.0, curY + 12.0);
 
         List<String> options = q.getOptions();
-        double optGapX = 12.0;
         double optGapY = 8.0;
-        double colW = (insetW - optGapX) / 2.0;
-        double boxH = 46.0;
+        double colW = insetW;
+        double boxH = 48.0;
 
         for (int i = 0; i < Math.min(4, options.size()); i++) {
-            int col = i % 2;
-            int row = i / 2;
-            double bx = insetX + col * (colW + optGapX);
-            double by = optStartY + row * (boxH + optGapY);
+            double bx = insetX;
+            double by = optStartY + i * (boxH + optGapY);
 
             if (mouseX >= bx && mouseX <= bx + colW && mouseY >= by && mouseY <= by + boxH) {
                 submitAnswer(i);
@@ -650,8 +739,29 @@ public class EducationManager {
         } else {
             AudioManager.getInstance().playWrongAnswer();
             game.playSound("ghost");
-            game.showNotification("Wrong answer! A vengeful ghost spawned nearby!");
-            spawnGhostNearPlayer();
+            handleWrongAnswerGhostSpawn();
+        }
+    }
+
+    private void handleWrongAnswerGhostSpawn() {
+        Player player = game.getPlayer();
+        String rid = activeRoomId != null ? activeRoomId : (currentRoomId != null ? currentRoomId : game.getCurrentMapId());
+        int maxCap = getMaxGhostsForRoom(rid);
+
+        // 1. If under max cap for this room, spawn 1 ghost a bit far from player, but inside the room!
+        if (ghosts.size() < maxCap) {
+            Ghost newGhost = spawnGhostFarInRoom(player.getCenterX(), player.getCenterY());
+            if (newGhost != null) {
+                newGhost.triggerChase();
+            }
+            game.showNotification("Wrong answer! A vengeful ghost appeared in the room! (" + ghosts.size() + "/" + maxCap + ")");
+        } else {
+            game.showNotification("Wrong answer! The spirits in this room are enraged! (" + ghosts.size() + "/" + maxCap + " max)");
+        }
+
+        // 2. Make all other ghosts in this room immediately chase the player!
+        for (Ghost g : ghosts) {
+            g.triggerChase();
         }
     }
 
@@ -694,78 +804,93 @@ public class EducationManager {
             case "classrooma", "classroom" -> {
                 this.storyGuideTitle = "✦ CLASSROOM A PURIFIED: SPIRIT OF SOTHEA ✦";
                 this.storyGuideNarrative = "By reciting the ancient scripts, the restless student spirit Sothea has found peace.\n"
-                        + "Her spectral tears crystallize into the Bronze Door Key. She whispers:\n"
+                        + "Her spectral tears crystallize into the Teachers' Lounge Key. She whispers:\n"
                         + "\"The Headmaster conducted a forbidden dark ritual to seal our souls forever.\n"
-                        + "He locked the final school exit with the Master Key...\"";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "The Classroom Door is now unlocked! Step into the Central Main Hall.\n"
-                        + "Head north to the Lore Library or enter the Teacher's Lounge on the East Corridor!";
+                        + "Cleanse each room step-by-step to reach his sanctum...\"";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• The Classroom Door is now unlocked! Step out into the Central Main Hall.\n"
+                        + "• Head across to the Teachers' Lounge on the East Wing (Lower-Mid).\n"
+                        + "• Press [E] at the door to unlock it with your Teachers' Lounge Key!";
             }
             case "classroomb", "teachers_lounge" -> {
-                this.storyGuideTitle = "✦ TEACHER'S LOUNGE PURIFIED: FACULTY ARCHIVE ✦";
+                this.storyGuideTitle = "✦ TEACHERS' LOUNGE PURIFIED: FACULTY ARCHIVE ✦";
                 this.storyGuideNarrative = "The ancient faculty attendance ledger reveals the teachers' desperate attempt\n"
                         + "to barricade the school gates before the curse overtook them.\n"
-                        + "Among the papers, you discovered the door key!";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Room door unlocked! Proceed to the Music & Art Room or the Lore Library in the North Wing!";
+                        + "Among the papers, you discovered the Music & Art Key!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Room door unlocked! Step back out into the Central Main Hall.\n"
+                        + "• Head across to the Music & Art Studio on the West Wing (Bottom).\n"
+                        + "• Press [E] at the door to unlock it with your Music & Art Key!";
             }
             case "computer", "music_art_room" -> {
                 this.storyGuideTitle = "✦ MUSIC & ART STUDIO PURIFIED: HAUNTED HARMONY ✦";
-                this.storyGuideNarrative = "The piano echoes its final peaceful chord. A student sketch on the easel\n"
-                        + "reveals the location of the Night Vision Goggles locked in the Storage Vault!";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Head across to the East Wing and search the Storage Vault and School Infirmary!";
+                this.storyGuideNarrative = "The grand piano echoes its final peaceful chord.\n"
+                        + "From inside the piano strings, you retrieve the Restroom Key!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Studio door unlocked! Return to the Central Main Hall.\n"
+                        + "• Head to the Restroom & Haunted Mirror on the East Wing (Bottom).\n"
+                        + "• Press [E] at the door to unlock it with your Restroom Key!";
             }
-            case "library" -> {
-                this.storyGuideTitle = "✦ LORE ARCHIVE PURIFIED: ANCIENT SCRIPTURES ✦";
-                this.storyGuideNarrative = "The palm-leaf manuscripts describe how Angkorian relics counteract the demonic realm.\n"
-                        + "The Headmaster holds the Master Key inside his private office.";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Proceed to the Science Lab to brew the spirit solvent, then enter\n"
-                        + "the Principal's Office on the East Wing to claim the Master Key!";
+            case "entrance", "restroom" -> {
+                this.storyGuideTitle = "✦ HAUNTED MIRROR PURIFIED: CLEAR REFLECTION ✦";
+                this.storyGuideNarrative = "The blood on the cracked mirror dissolves into pure crystal water.\n"
+                        + "The mirror phantom bows in gratitude, presenting the School Infirmary Key.";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Restroom door unlocked! Return to the Central Main Hall.\n"
+                        + "• Head up to the School Infirmary on the East Wing (Top).\n"
+                        + "• Press [E] at the door to unlock it with your Infirmary Key!";
+            }
+            case "dormitory", "infirmary" -> {
+                this.storyGuideTitle = "✦ SCHOOL INFIRMARY PURIFIED: HEALING WARD ✦";
+                this.storyGuideNarrative = "The gentle spirit of the school nurse blesses you with restorative energy.\n"
+                        + "Inside the emergency medical locker, you find the Storage Vault Key!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Infirmary door unlocked! Return to the Central Main Hall.\n"
+                        + "• Head down to the Storage Vault on the East Wing (Upper-Mid).\n"
+                        + "• Press [E] at the door to unlock it with your Storage Vault Key!";
+            }
+            case "basement", "storage_room" -> {
+                this.storyGuideTitle = "✦ STORAGE VAULT PURIFIED: VAULT UNLOCKED ✦";
+                this.storyGuideNarrative = "The heavy vault chains shatter as the dark spirits disperse.\n"
+                        + "Behind a row of dusty crates, you discover the Science Lab Key!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Storage Vault unlocked! Pick up the Night Vision Goggles inside.\n"
+                        + "• Cross over to the Science Lab on the West Wing (Upper-Mid).\n"
+                        + "• Press [E] at the door to unlock it with your Science Lab Key!";
             }
             case "laboratory", "science_lab" -> {
                 this.storyGuideTitle = "✦ SCIENCE LAB PURIFIED: ALCHEMICAL ESSENCE ✦";
                 this.storyGuideNarrative = "The alchemical distillers glow with soothing emerald fire.\n"
-                        + "The way forward is revealed.";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Confront the Headmaster in the Principal's Office to claim the Master Key!";
+                        + "Crystallized within the condensation tube is the Lore Library Key!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Science Lab unlocked! Return to the Central Main Hall.\n"
+                        + "• Head up to the Lore Library at the North Center Hallway.\n"
+                        + "• Press [E] at the archway to unlock it with your Lore Library Key!";
+            }
+            case "library" -> {
+                this.storyGuideTitle = "✦ LORE ARCHIVE PURIFIED: ALL 8 ROOMS CLEANSED ✦";
+                this.storyGuideNarrative = "The ancient Angkorian manuscripts illuminate with brilliant golden light!\n"
+                        + "All 8 preparatory seals are broken. The scriptures manifest the Headmaster's Key!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• Lore Archive unlocked! Return to the Central Main Hall.\n"
+                        + "• Proceed to the Principal's Office on the West Wing (Top).\n"
+                        + "• Press [E] at the heavy door to confront the Headmaster!";
             }
             case "teacher", "principal_office" -> {
                 this.storyGuideTitle = "✦ PRINCIPAL'S SANCTUM PURIFIED: MASTER KEY CLAIMED ✦";
                 this.storyGuideNarrative = "The Headmaster's spirit sheds tears of remorse for trapping everyone in darkness.\n"
                         + "He places the heavy golden MASTER KEY into your trembling hands.\n"
                         + "\"Go, child... Break the chains and escape back to the living world!\"";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "You possess the MASTER KEY! Return to the Central Main Hall and unlock\n"
-                        + "the Grand South Exit Iron Gates to ESCAPE AND WIN THE GAME!";
-            }
-            case "dormitory", "infirmary" -> {
-                this.storyGuideTitle = "✦ SCHOOL INFIRMARY PURIFIED: HEALING WARD ✦";
-                this.storyGuideNarrative = "The gentle spirit of the school nurse blesses you with restorative energy.\n"
-                        + "The sanctuary has been cleansed of evil.";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "With renewed vitality, explore the remaining wings and secure the Master Key!";
-            }
-            case "basement", "storage_room" -> {
-                this.storyGuideTitle = "✦ STORAGE VAULT PURIFIED: VAULT UNLOCKED ✦";
-                this.storyGuideNarrative = "The heavy chains rattle loose as the spirits depart.\n"
-                        + "Explore the shelves and corners to find valuable survival equipment!";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Search for items placed in this room, then return to the Main Hall.";
-            }
-            case "entrance", "restroom" -> {
-                this.storyGuideTitle = "✦ HAUNTED MIRROR PURIFIED: CLEAR REFLECTION ✦";
-                this.storyGuideNarrative = "The blood on the cracked mirror dissolves into pure crystal water.\n"
-                        + "The mirror phantom bows in gratitude before dissolving.";
-                this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Return to the corridor to finish purifying the remaining rooms!";
+                this.storyGuideNextStep = "✦ WHAT TO DO NEXT & WHERE TO GO:\n"
+                        + "• YOU POSSESS THE MASTER KEY!\n"
+                        + "• Return to the Central Main Hall and approach the South Exit Iron Gates.\n"
+                        + "• Press [E] to unlock the Grand Gate and ESCAPE TO VICTORY!";
             }
             default -> {
                 this.storyGuideTitle = "✦ SACRED SANCTUM PURIFIED ✦";
                 this.storyGuideNarrative = "Ancient divine energy radiates across the room, purifying the haunting.";
                 this.storyGuideNextStep = "✦ WHAT TO DO NEXT:\n"
-                        + "Return to the Main Hall and make your way to the Grand South Exit!";
+                        + "Return to the Main Hall and make your way to the next room!";
             }
         }
     }
@@ -949,6 +1074,7 @@ public class EducationManager {
                     door.setLocked(false);
                     tileMap.setDoorOpen(door, true);
                     tileMap.setTile(door.getColumn(), door.getRow(), Tile.FLOOR);
+                    game.addUnlockedDoor(door.getId());
                 });
 
         game.playSound("door");
@@ -956,13 +1082,31 @@ public class EducationManager {
 
         String rid = roomId != null ? roomId.toLowerCase().trim() : "";
 
-        // Determine key reward from Admin RoomModel or fallback
-        String keyToGive = null;
+        // Determine specific key reward in step-by-step progression chain
+        String keyToGive = switch (rid) {
+            case "classrooma", "classroom" -> "key_classroomB";
+            case "classroomb", "teachers_lounge" -> "key_computer";
+            case "computer", "music_art_room" -> "key_entrance";
+            case "entrance", "restroom" -> "key_dormitory";
+            case "dormitory", "infirmary" -> "key_basement";
+            case "basement", "storage_room" -> "key_laboratory";
+            case "laboratory", "science_lab" -> "key_library";
+            case "library" -> "key_principal";
+            case "teacher", "principal_office" -> "master_key";
+            default -> {
+                if (completedRooms.size() >= 8) {
+                    yield "key_principal";
+                }
+                yield "key";
+            }
+        };
+
+        // If Admin RoomModel has a specific customized key reward (not generic "key"), honor it
         try {
             List<RoomModel> rooms = roomFileService.loadRooms();
             if (rooms != null) {
                 for (RoomModel rm : rooms) {
-                    if (matchesRoom(rm.getId(), rid)) {
+                    if (matchesRoom(rm.getId(), rid) && rm.getKeyReward() != null && !rm.getKeyReward().isBlank() && !rm.getKeyReward().equalsIgnoreCase("key")) {
                         keyToGive = rm.getKeyReward();
                         break;
                     }
@@ -970,23 +1114,12 @@ public class EducationManager {
             }
         } catch (Exception ignored) {}
 
-        if (keyToGive == null || keyToGive.isBlank()) {
-            if (rid.contains("principal") || rid.equals("teacher")) {
-                keyToGive = "master_key";
-            } else {
-                keyToGive = "key";
-            }
-        }
-
-        // Automatic key reward to open new doors / places (NO extra random item rewards)
+        // Spawn the key on the map in this room at the location configured in Map Item Spawner!
         final String finalKey = keyToGive;
-        ItemRegistry.findById(finalKey).ifPresent(item -> {
-            game.getInventory().addItem(item);
-            AudioManager.getInstance().playGetKey();
-        });
+        game.spawnRoomKeyOnMap(rid, finalKey);
 
-        String keyName = "master_key".equalsIgnoreCase(finalKey) ? "Master Key" : "Room Key";
-        game.showNotification("Quiz Solved! " + keyName + " added to inventory & exit door unlocked!");
+        String keyName = game.getKeyDisplayName(finalKey);
+        game.showNotification("✦ Quiz Solved! " + keyName + " appeared in this room! Find and pick it up! 🗝️");
     }
 
     private boolean matchesRoom(String r1, String r2) {
@@ -1008,6 +1141,16 @@ public class EducationManager {
 
     public List<String> getCompletedRooms() {
         return new ArrayList<>(completedRooms);
+    }
+
+    public void restoreCompletedRooms(List<String> rooms) {
+        if (rooms != null) {
+            for (String r : rooms) {
+                if (r != null && !r.isBlank() && !completedRooms.contains(r.toLowerCase())) {
+                    completedRooms.add(r.toLowerCase());
+                }
+            }
+        }
     }
 
     public String getActiveRoomId() {

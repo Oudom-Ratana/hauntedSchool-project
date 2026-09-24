@@ -34,7 +34,7 @@ public class QuestionPreviewDialog {
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(0, 0, 16, 0));
 
-        Label previewTitle = new Label("❖  IN-GAME PLAYER QUIZ PREVIEW  ❖");
+        Label previewTitle = new Label("IN-GAME PLAYER QUIZ PREVIEW");
         previewTitle.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 15px; -fx-font-weight: 900; -fx-text-fill: #ffd591; -fx-letter-spacing: 1px;");
         HBox.setHgrow(previewTitle, Priority.ALWAYS);
 
@@ -73,7 +73,7 @@ public class QuestionPreviewDialog {
         explanationBox.setPadding(new Insets(12));
         explanationBox.setStyle("-fx-background-color: rgba(16, 185, 129, 0.1); -fx-border-color: rgba(52, 211, 153, 0.3); -fx-border-width: 1px; -fx-background-radius: 6px;");
 
-        Label expTitle = new Label("💡 Educational Clue & Explanation:");
+        Label expTitle = new Label("Educational Clue & Explanation:");
         expTitle.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #34d399;");
         Label expText = new Label(question.getExplanation() != null && !question.getExplanation().isBlank() ? question.getExplanation() : "No explanation provided.");
         expText.setWrapText(true);
@@ -92,7 +92,7 @@ public class QuestionPreviewDialog {
         ruleBanner.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 11.5px; -fx-text-fill: #f87171; -fx-font-weight: bold;");
         HBox.setHgrow(ruleBanner, Priority.ALWAYS);
 
-        Button closeBtn = new Button("✕  Close Preview");
+        Button closeBtn = new Button("Close Preview");
         closeBtn.getStyleClass().add("btn-modern-secondary");
         closeBtn.setOnAction(e -> stage.close());
 
@@ -132,7 +132,7 @@ public class QuestionPreviewDialog {
         card.getChildren().addAll(keyBadge, optionText);
 
         if (isCorrect) {
-            Label correctTag = new Label("✓ CORRECT ANSWER");
+            Label correctTag = new Label("[CORRECT ANSWER]");
             correctTag.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #6BCB77;");
             card.getChildren().add(correctTag);
         }

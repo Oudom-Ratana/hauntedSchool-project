@@ -44,6 +44,16 @@ public class AudioManager {
     private MediaPlayer artMusicPlayer = null;
     private String currentGameMusicTrack = null;
 
+    // Ghost chase voice and ambient suffering MediaPlayers
+    private MediaPlayer currentGhostChasePlayer = null;
+    private MediaPlayer currentGhostAmbientPlayer = null;
+    private final String[] AMBIENT_GHOST_TRACKS = {
+        "female-ghost-whispers-430175.mp3",
+        "ghost-tgo.mp3",
+        "ghost_scream.mp3",
+        "vovo.mp3"
+    };
+
     private double masterVolume = 0.35;
     private double ambienceVolume = 0.35;
     private double sfxVolume = 0.55;
@@ -281,6 +291,154 @@ public class AudioManager {
     }
 
     // ==========================================
+    // GHOST AUDIO PLAYBACK (SFX & AMBIENCE)
+    // ==========================================
+
+    public String resolveGhostAudioUri(String fileName) {
+        try {
+            File directFile = new File("src/main/resources/audio/sfx/ghost/" + fileName);
+            if (directFile.exists()) {
+                return directFile.toURI().toString();
+            }
+
+            File runtimeFile = new File("audio/sfx/ghost/" + fileName);
+            if (runtimeFile.exists()) {
+                return runtimeFile.toURI().toString();
+            }
+
+            URL res = getClass().getResource("/audio/sfx/ghost/" + fileName);
+            if (res != null) {
+                return res.toExternalForm();
+            }
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Error finding ghost audio URI for " + fileName + ": " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Plays female ghost chase voice ("followme.mp3").
+     */
+    public void playGhostChaseFemale() {
+        playGhostVoiceTrack("followme.mp3", 1.25);
+    }
+
+    /**
+     * Plays male ghost chase scream/laugh ("hahascreaming.mp3").
+     */
+    public void playGhostChaseMale() {
+        playGhostVoiceTrack("hahascreaming.mp3", 1.25);
+    }
+
+    private void playGhostVoiceTrack(String fileName, double volumeScale) {
+        String uri = resolveGhostAudioUri(fileName);
+        if (uri == null) {
+            System.err.println("[AudioManager] Could not find ghost chase audio: " + fileName);
+            return;
+        }
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                if (currentGhostChasePlayer != null) {
+                    try {
+                        currentGhostChasePlayer.stop();
+                        currentGhostChasePlayer.dispose();
+                    } catch (Exception ignored) {}
+                    currentGhostChasePlayer = null;
+                }
+
+                Media media = new Media(uri);
+                MediaPlayer player = new MediaPlayer(media);
+                currentGhostChasePlayer = player;
+                player.setVolume(masterVolume * sfxVolume * volumeScale);
+                player.setOnEndOfMedia(() -> {
+                    try {
+                        player.dispose();
+                    } catch (Exception ignored) {}
+                    if (currentGhostChasePlayer == player) {
+                        currentGhostChasePlayer = null;
+                    }
+                });
+                player.setOnError(() -> {
+                    try {
+                        player.dispose();
+                    } catch (Exception ignored) {}
+                    if (currentGhostChasePlayer == player) {
+                        currentGhostChasePlayer = null;
+                    }
+                });
+                player.play();
+            } catch (Exception e) {
+                System.err.println("[AudioManager] Failed to play ghost chase sound (" + fileName + "): " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Shuffles and plays one of the ambient ghost suffering sounds ("the others")
+     * in /audio/sfx/ghost/ (whispers, ghost-tgo, ghost_scream, vovo) once every 15-20s.
+     */
+    public void playRandomAmbientGhostSuffering() {
+        if (AMBIENT_GHOST_TRACKS.length == 0) return;
+        String chosenTrack = AMBIENT_GHOST_TRACKS[new Random().nextInt(AMBIENT_GHOST_TRACKS.length)];
+        String uri = resolveGhostAudioUri(chosenTrack);
+        if (uri == null) return;
+
+        javafx.application.Platform.runLater(() -> {
+            try {
+                if (currentGhostAmbientPlayer != null) {
+                    try {
+                        currentGhostAmbientPlayer.stop();
+                        currentGhostAmbientPlayer.dispose();
+                    } catch (Exception ignored) {}
+                    currentGhostAmbientPlayer = null;
+                }
+
+                Media media = new Media(uri);
+                MediaPlayer player = new MediaPlayer(media);
+                currentGhostAmbientPlayer = player;
+                player.setVolume(masterVolume * ambienceVolume * 0.90);
+                player.setOnEndOfMedia(() -> {
+                    try {
+                        player.dispose();
+                    } catch (Exception ignored) {}
+                    if (currentGhostAmbientPlayer == player) {
+                        currentGhostAmbientPlayer = null;
+                    }
+                });
+                player.setOnError(() -> {
+                    try {
+                        player.dispose();
+                    } catch (Exception ignored) {}
+                    if (currentGhostAmbientPlayer == player) {
+                        currentGhostAmbientPlayer = null;
+                    }
+                });
+                player.play();
+            } catch (Exception e) {
+                System.err.println("[AudioManager] Failed to play ambient ghost sound (" + chosenTrack + "): " + e.getMessage());
+            }
+        });
+    }
+
+    public void stopGhostSounds() {
+        if (currentGhostChasePlayer != null) {
+            try {
+                currentGhostChasePlayer.stop();
+                currentGhostChasePlayer.dispose();
+            } catch (Exception ignored) {}
+            currentGhostChasePlayer = null;
+        }
+        if (currentGhostAmbientPlayer != null) {
+            try {
+                currentGhostAmbientPlayer.stop();
+                currentGhostAmbientPlayer.dispose();
+            } catch (Exception ignored) {}
+            currentGhostAmbientPlayer = null;
+        }
+    }
+
+    // ==========================================
     // WAV CLIP LOADING & PLAYBACK (SFX / VOICE)
     // ==========================================
 
@@ -290,12 +448,12 @@ public class AudioManager {
             if (in != null) {
                 try (BufferedInputStream buf = new BufferedInputStream(in);
                      AudioInputStream ais = AudioSystem.getAudioInputStream(buf)) {
-                    Clip clip = AudioSystem.getClip();
-                    clip.open(ais);
-                    return clip;
+                    return openClipFromStream(ais);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Error reading resource " + cleanPath + ": " + e.getMessage());
+        }
 
         try {
             File file = new File("src/main/resources" + cleanPath);
@@ -304,14 +462,44 @@ public class AudioManager {
             }
             if (file.exists()) {
                 try (AudioInputStream ais = AudioSystem.getAudioInputStream(file)) {
-                    Clip clip = AudioSystem.getClip();
-                    clip.open(ais);
-                    return clip;
+                    return openClipFromStream(ais);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Error reading file " + cleanPath + ": " + e.getMessage());
+        }
 
         return null;
+    }
+
+    private Clip openClipFromStream(AudioInputStream ais) {
+        try {
+            AudioFormat format = ais.getFormat();
+            if (format.getSampleSizeInBits() > 16 || format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
+                AudioFormat targetFormat = new AudioFormat(
+                        AudioFormat.Encoding.PCM_SIGNED,
+                        format.getSampleRate(),
+                        16,
+                        format.getChannels(),
+                        format.getChannels() * 2,
+                        format.getSampleRate(),
+                        false
+                );
+                if (AudioSystem.isConversionSupported(targetFormat, format)) {
+                    try (AudioInputStream convertedAis = AudioSystem.getAudioInputStream(targetFormat, ais)) {
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(convertedAis);
+                        return clip;
+                    }
+                }
+            }
+            Clip clip = AudioSystem.getClip();
+            clip.open(ais);
+            return clip;
+        } catch (Exception e) {
+            System.err.println("[AudioManager] Failed to open audio clip: " + e.getMessage());
+            return null;
+        }
     }
 
     private Clip createClipForKey(String key) {
@@ -474,16 +662,19 @@ public class AudioManager {
         updateHomeMusicVolume();
         updateGameMusicVolume();
         updateArtMusicVolume();
+        updateGhostVolumes();
     }
 
     public void setAmbienceVolume(double value) {
         ambienceVolume = clamp(value);
         applyAllLoopVolumes();
+        updateGhostVolumes();
     }
 
     public void setSfxVolume(double value) {
         sfxVolume = clamp(value);
         applyAllLoopVolumes();
+        updateGhostVolumes();
     }
 
     public void setMusicVolume(double value) {
@@ -492,6 +683,15 @@ public class AudioManager {
         updateHomeMusicVolume();
         updateGameMusicVolume();
         updateArtMusicVolume();
+    }
+
+    private void updateGhostVolumes() {
+        if (currentGhostChasePlayer != null) {
+            currentGhostChasePlayer.setVolume(masterVolume * sfxVolume * 1.25);
+        }
+        if (currentGhostAmbientPlayer != null) {
+            currentGhostAmbientPlayer.setVolume(masterVolume * ambienceVolume * 0.90);
+        }
     }
 
     private void updateHomeMusicVolume() {
@@ -525,6 +725,7 @@ public class AudioManager {
         stopHomeMusic();
         stopGameMusic();
         stopArtMusic();
+        stopGhostSounds();
     }
 
     private void applyAllLoopVolumes() {

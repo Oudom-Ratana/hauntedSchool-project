@@ -73,7 +73,7 @@ public class TeacherAdminScene {
         card.setAlignment(Pos.CENTER);
         card.setStyle("-fx-background-color: rgba(15, 23, 42, 0.96); -fx-border-color: #ef4444; -fx-border-width: 2px; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 20, 0.5, 0, 0);");
 
-        Label title = new Label("⚠️ Admin Panel Error");
+        Label title = new Label("Admin Panel Error");
         title.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #f87171;");
 
         Label desc = new Label("An unexpected error occurred while loading the admin interface:");

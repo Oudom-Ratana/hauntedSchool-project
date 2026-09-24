@@ -109,14 +109,12 @@ public class MainMenuScene {
         Button newGameButton = createPanelMenuButton(
                 btnW, btnH,
                 () -> {
-                    AudioManager.getInstance().playStartGame();
                     stopVideo();
-                    AudioManager.getInstance().stopHomeMusic();
                     saveManager.deleteSave();
-                    SceneManager.showGame("piseth");
+                    SceneManager.showCharacterSelection();
                 },
                 false,
-                "Start a new journey into the Haunted School"
+                "Start a new journey - Choose your Character"
         );
         newGameButton.setLayoutX(btnX);
         newGameButton.setLayoutY(74);
@@ -475,46 +473,37 @@ public class MainMenuScene {
 
         String normalStyle = "-fx-background-color: transparent; "
                 + "-fx-border-color: transparent; "
-                + "-fx-border-width: 2px; "
-                + "-fx-border-radius: 14px; "
+                + "-fx-border-width: 0px; "
                 + "-fx-background-radius: 14px; "
                 + "-fx-cursor: hand;";
 
-        String hoverStyle = "-fx-background-color: rgba(255, 215, 60, 0.18); "
-                + "-fx-border-color: rgba(255, 225, 120, 0.90); "
-                + "-fx-border-width: 2px; "
-                + "-fx-border-radius: 14px; "
+        String hoverStyle = "-fx-background-color: rgba(255, 255, 255, 0.08); "
+                + "-fx-border-color: transparent; "
+                + "-fx-border-width: 0px; "
                 + "-fx-background-radius: 14px; "
                 + "-fx-cursor: hand;";
 
-        String pressedStyle = "-fx-background-color: rgba(255, 180, 0, 0.35); "
-                + "-fx-border-color: #ffd700; "
-                + "-fx-border-width: 2px; "
-                + "-fx-border-radius: 14px; "
+        String pressedStyle = "-fx-background-color: rgba(255, 255, 255, 0.18); "
+                + "-fx-border-color: transparent; "
+                + "-fx-border-width: 0px; "
                 + "-fx-background-radius: 14px; "
                 + "-fx-cursor: hand;";
 
-        String disabledStyle = "-fx-background-color: rgba(0, 0, 0, 0.52); "
-                + "-fx-border-color: rgba(80, 80, 80, 0.40); "
-                + "-fx-border-width: 1.5px; "
-                + "-fx-border-radius: 14px; "
-                + "-fx-background-radius: 14px; "
+        String disabledStyle = "-fx-background-color: transparent; "
+                + "-fx-border-color: transparent; "
+                + "-fx-border-width: 0px; "
                 + "-fx-cursor: default;";
 
         if (disabled) {
             button.setStyle(disabledStyle);
             button.setDisable(true);
-            button.setOpacity(0.55);
+            button.setOpacity(0.40);
         } else {
             button.setStyle(normalStyle);
-
-            DropShadow hoverGlow = new DropShadow(22, Color.rgb(255, 210, 0, 0.80));
-            hoverGlow.setSpread(0.32);
 
             button.setOnMouseEntered(e -> {
                 if (!button.isDisable()) {
                     button.setStyle(hoverStyle);
-                    button.setEffect(hoverGlow);
                     button.setScaleX(1.03);
                     button.setScaleY(1.03);
                 }

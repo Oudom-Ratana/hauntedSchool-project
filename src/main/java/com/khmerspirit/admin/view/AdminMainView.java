@@ -30,12 +30,14 @@ public class AdminMainView extends BorderPane {
     private final QuestionManagementView questionManagementView = new QuestionManagementView();
     private final RoomManagementView roomManagementView = new RoomManagementView();
     private final MapItemManagementView mapItemManagementView = new MapItemManagementView();
+    private final RoomBarrierManagementView roomBarrierManagementView = new RoomBarrierManagementView();
     private final RewardManagementView rewardManagementView = new RewardManagementView();
     private final DashboardView dashboardView = new DashboardView();
 
     private Button btnQuestions;
     private Button btnRooms;
     private Button btnGameSettings;
+    private Button btnRoomBarriers;
     private Button btnSaveData;
     private Button btnOverview;
 
@@ -100,13 +102,11 @@ public class AdminMainView extends BorderPane {
         // 3. Admin Panel Title & Subtitle
         HBox panelTitleRow = new HBox(6);
         panelTitleRow.setAlignment(Pos.CENTER_LEFT);
-        Label cogIcon = new Label("⚙");
-        cogIcon.setStyle("-fx-text-fill: #38bdf8; -fx-font-size: 15px;");
         Label panelTitle = new Label("Admin Panel");
         panelTitle.getStyleClass().add("admin-header-panel-title");
-        panelTitleRow.getChildren().addAll(cogIcon, panelTitle);
+        panelTitleRow.getChildren().add(panelTitle);
 
-        Label panelSubtitle = new Label("Manage Questions & Tasks");
+        Label panelSubtitle = new Label("Manage Questions, Rooms & Barriers");
         panelSubtitle.getStyleClass().add("admin-header-panel-sub");
 
         VBox panelInfoBox = new VBox(2);
@@ -133,13 +133,14 @@ public class AdminMainView extends BorderPane {
         }
         Label adminName = new Label("Admin");
         adminName.setStyle("-fx-text-fill: #f1f5f9; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12.5px; -fx-font-weight: bold;");
-        Label dropdownArrow = new Label("▾");
+        Label dropdownArrow = new Label("v");
         dropdownArrow.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
         profilePill.getChildren().addAll(avatarImg, adminName, dropdownArrow);
 
-        // 6. Settings Gear Button
-        Button btnSettings = new Button("⚙");
+        // 6. Settings Button
+        Button btnSettings = new Button("Settings");
         btnSettings.getStyleClass().add("admin-settings-btn");
+        btnSettings.setStyle("-fx-font-size: 11px; -fx-padding: 5 10;");
         btnSettings.setOnAction(e -> {
             dashboardView.refreshDashboard();
             showView(dashboardView, btnOverview);
@@ -157,11 +158,12 @@ public class AdminMainView extends BorderPane {
         sidebar.setPrefWidth(210);
         sidebar.getStyleClass().add("admin-modern-sidebar");
 
-        btnQuestions = createNavButton("📋  Questions");
-        btnRooms = createNavButton("🏠  Rooms & Tasks");
-        btnGameSettings = createNavButton("⚙️  Game Settings");
-        btnSaveData = createNavButton("💾  Save Data");
-        btnOverview = createNavButton("🏛️  Overview");
+        btnQuestions = createNavButton("Questions");
+        btnRooms = createNavButton("Rooms & Tasks");
+        btnGameSettings = createNavButton("Game Settings");
+        btnRoomBarriers = createNavButton("Room Barriers");
+        btnSaveData = createNavButton("Save Data");
+        btnOverview = createNavButton("Overview");
 
         btnQuestions.setOnAction(e -> {
             questionManagementView.loadData();
@@ -178,6 +180,11 @@ public class AdminMainView extends BorderPane {
             showView(mapItemManagementView, btnGameSettings);
         });
 
+        btnRoomBarriers.setOnAction(e -> {
+            roomBarrierManagementView.loadData();
+            showView(roomBarrierManagementView, btnRoomBarriers);
+        });
+
         btnSaveData.setOnAction(e -> {
             rewardManagementView.loadData();
             showView(rewardManagementView, btnSaveData);
@@ -188,7 +195,7 @@ public class AdminMainView extends BorderPane {
             showView(dashboardView, btnOverview);
         });
 
-        sidebar.getChildren().addAll(btnQuestions, btnRooms, btnGameSettings, btnSaveData, btnOverview);
+        sidebar.getChildren().addAll(btnQuestions, btnRooms, btnGameSettings, btnRoomBarriers, btnSaveData, btnOverview);
 
         // Spacer pushing logout to bottom
         Region spacer = new Region();
@@ -196,26 +203,26 @@ public class AdminMainView extends BorderPane {
         sidebar.getChildren().add(spacer);
 
         // Logout Button
-        Button btnLogout = new Button("🚪  Logout");
+        Button btnLogout = new Button("Logout");
         btnLogout.setMaxWidth(Double.MAX_VALUE);
         btnLogout.getStyleClass().add("admin-draft-nav-btn");
         btnLogout.setStyle("-fx-text-fill: #f87171; -fx-alignment: center-left; -fx-padding: 9 14;");
         btnLogout.setOnAction(e -> handleLogout());
         sidebar.getChildren().add(btnLogout);
 
-        // Bottom Khmer Lore Watermark (as shown in draftDesign.png)
+        // Bottom Lore Watermark
         VBox loreBox = new VBox(4);
         loreBox.setAlignment(Pos.CENTER);
         loreBox.setPadding(new Insets(14, 6, 8, 6));
         loreBox.setStyle("-fx-border-color: rgba(30, 41, 59, 0.6) transparent transparent transparent; -fx-border-width: 1px;");
 
-        Label khmerLogo = new Label("វិញ្ញាណសាលា");
-        khmerLogo.setStyle("-fx-font-family: 'Khmer OS', 'Georgia', serif; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #60a5fa; -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.5), 8, 0.3, 0, 0);");
+        Label brandLogo = new Label("HAUNTED SCHOOL");
+        brandLogo.setStyle("-fx-font-family: 'Segoe UI', 'Georgia', serif; -fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #60a5fa; -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.5), 8, 0.3, 0, 0);");
 
         Label quote = new Label("Knowledge opens the door,\nbut not all doors should be opened...");
         quote.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 9.5px; -fx-font-style: italic; -fx-text-fill: #64748b; -fx-text-alignment: center;");
 
-        loreBox.getChildren().addAll(khmerLogo, quote);
+        loreBox.getChildren().addAll(brandLogo, quote);
         sidebar.getChildren().add(loreBox);
 
         return sidebar;
@@ -241,6 +248,7 @@ public class AdminMainView extends BorderPane {
         if (btnQuestions != null) btnQuestions.getStyleClass().removeAll("admin-draft-nav-btn-active");
         if (btnRooms != null) btnRooms.getStyleClass().removeAll("admin-draft-nav-btn-active");
         if (btnGameSettings != null) btnGameSettings.getStyleClass().removeAll("admin-draft-nav-btn-active");
+        if (btnRoomBarriers != null) btnRoomBarriers.getStyleClass().removeAll("admin-draft-nav-btn-active");
         if (btnSaveData != null) btnSaveData.getStyleClass().removeAll("admin-draft-nav-btn-active");
         if (btnOverview != null) btnOverview.getStyleClass().removeAll("admin-draft-nav-btn-active");
 

@@ -19,6 +19,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 public class GameScene {
 
@@ -29,6 +32,8 @@ public class GameScene {
     private Label roomLabel;
     private Label inventoryLabel;
     private AnimationTimer hudTimer;
+    private StackPane pauseOverlay;
+    private boolean isGameOver = false;
 
     public GameScene(String selectedCharacter) {
         this(selectedCharacter, null);
@@ -43,7 +48,6 @@ public class GameScene {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("game-root");
 
-        HBox hud = createHud();
         Canvas canvas = new Canvas(Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT - 96);
         StackPane playArea = new StackPane(canvas);
         if (saveData == null) {
@@ -52,6 +56,8 @@ public class GameScene {
             game = new Game(canvas, selectedCharacter, saveData);
         }
         game.setGameOverHandler(() -> showGameOverOverlay(playArea));
+
+        HBox hud = createHud(playArea);
 
         playArea.widthProperty().addListener((obs, oldV, newV) -> {
             double w = newV.doubleValue();
@@ -68,39 +74,41 @@ public class GameScene {
             }
         });
 
-        Button backButton = new Button("MENU");
-        backButton.getStyleClass().add("secondary-button");
-        backButton.setOnAction(event -> {
-            if (hudTimer != null) hudTimer.stop();
-            game.stop();
-            AudioManager.getInstance().stopAll();
-            SceneManager.showMainMenu();
-        });
-
-        HBox footer = new HBox(backButton);
-        footer.setAlignment(Pos.CENTER_RIGHT);
-        footer.setPadding(new Insets(6, 28, 8, 28));
-
         root.setTop(hud);
         root.setCenter(playArea);
-        root.setBottom(footer);
+        // Note: No bottom footer so UI is 100% visible on small / windowed displays
 
         Scene scene = new Scene(root, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
-        scene.setOnKeyPressed(event -> game.getPlayerController().press(event.getCode()));
-        scene.setOnKeyReleased(event -> game.getPlayerController().release(event.getCode()));
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.P) {
+                togglePause(playArea);
+                event.consume();
+                return;
+            }
+            if (game != null && !game.isPaused() && !isGameOver) {
+                game.getPlayerController().press(event.getCode());
+            }
+        });
+        scene.setOnKeyReleased(event -> {
+            if (game != null && !game.isPaused() && !isGameOver) {
+                game.getPlayerController().release(event.getCode());
+            }
+        });
+
         AudioManager audio = AudioManager.getInstance();
         audio.stopAll();
         audio.playGameMusic();
         audio.playLoop("rain");
+        audio.playStartGame();
         game.start();
         startHudUpdates();
         return scene;
     }
 
-    private HBox createHud() {
-        HBox hud = new HBox(16);
+    private HBox createHud(StackPane playArea) {
+        HBox hud = new HBox(14);
         hud.setAlignment(Pos.CENTER_LEFT);
-        hud.setPadding(new Insets(10, 28, 8, 28));
+        hud.setPadding(new Insets(8, 20, 8, 20));
         hud.getStyleClass().add("hud-bar");
 
         VBox titleBox = new VBox(2);
@@ -112,15 +120,124 @@ public class GameScene {
 
         heartsLabel = new Label("♥ 5");
         heartsLabel.getStyleClass().addAll("hud-card", "stat-pill");
+        heartsLabel.setStyle("-fx-background-color: rgba(180, 20, 30, 0.3); -fx-border-color: #e74c3c; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 4 10; -fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
 
         roomLabel = new Label("Room: Entrance");
         roomLabel.getStyleClass().addAll("hud-card", "stat-pill");
+        roomLabel.setStyle("-fx-background-color: rgba(41, 128, 185, 0.25); -fx-border-color: #3498db; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 4 10; -fx-text-fill: #85c1e9; -fx-font-weight: bold;");
 
         inventoryLabel = new Label("Inv: none");
         inventoryLabel.getStyleClass().addAll("hud-card", "inventory-chip");
+        inventoryLabel.setStyle("-fx-background-color: rgba(243, 156, 18, 0.2); -fx-border-color: #f39c12; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 4 10; -fx-text-fill: #f9e79f; -fx-font-weight: bold;");
 
-        hud.getChildren().addAll(titleBox, heartsLabel, roomLabel, inventoryLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button pauseButton = new Button("⏸ PAUSE");
+        pauseButton.getStyleClass().add("secondary-button");
+        pauseButton.setStyle("-fx-background-color: rgba(212, 175, 55, 0.18); -fx-border-color: #d4af37; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-text-fill: #f1c40f; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 6 14; -fx-cursor: hand;");
+        pauseButton.setOnAction(event -> togglePause(playArea));
+
+        Button homeButton = new Button("🏠 MENU");
+        homeButton.getStyleClass().add("secondary-button");
+        homeButton.setStyle("-fx-background-color: rgba(192, 57, 43, 0.28); -fx-border-color: #c0392b; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 6 14; -fx-cursor: hand;");
+        homeButton.setOnAction(event -> returnToMainMenu());
+
+        hud.getChildren().addAll(titleBox, heartsLabel, roomLabel, inventoryLabel, spacer, pauseButton, homeButton);
         return hud;
+    }
+
+    private void returnToMainMenu() {
+        if (hudTimer != null) hudTimer.stop();
+        if (game != null) {
+            game.saveNow();
+            game.stop();
+        }
+        AudioManager.getInstance().stopAll();
+        SceneManager.showMainMenu();
+    }
+
+    private void togglePause(StackPane playArea) {
+        if (isGameOver) return;
+        if (pauseOverlay != null) {
+            resumeGame(playArea);
+        } else {
+            pauseGame(playArea);
+        }
+    }
+
+    private void pauseGame(StackPane playArea) {
+        if (isGameOver || game == null || pauseOverlay != null) return;
+        game.pause();
+
+        pauseOverlay = new StackPane();
+        pauseOverlay.setStyle("-fx-background-color: rgba(5, 5, 10, 0.75);");
+        pauseOverlay.setPickOnBounds(true);
+
+        VBox card = new VBox(14);
+        card.setAlignment(Pos.CENTER);
+        card.setMaxSize(440, 420);
+        card.setPadding(new Insets(26, 32, 26, 32));
+        card.setStyle("-fx-background-color: linear-gradient(to bottom, #1d182b, #0f0c18); "
+                + "-fx-border-color: #d4af37; -fx-border-width: 2px; -fx-border-radius: 12px; "
+                + "-fx-background-radius: 12px; "
+                + "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.9), 24, 0.4, 0, 6);");
+
+        Label title = new Label("✦ GAME PAUSED ✦");
+        title.setStyle("-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #f1c40f; "
+                + "-fx-effect: dropshadow(gaussian, rgba(241, 196, 15, 0.5), 10, 0.3, 0, 0);");
+
+        Label subtitle = new Label("Take a breath... the spirits are waiting.");
+        subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #c9b994;");
+
+        Label statusMsg = new Label("");
+        statusMsg.setStyle("-fx-font-size: 13px; -fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+
+        Button resumeBtn = new Button("▶  RESUME GAME  [ESC]");
+        resumeBtn.setMaxWidth(Double.MAX_VALUE);
+        resumeBtn.setStyle("-fx-background-color: #1e824c; -fx-text-fill: #ffffff; -fx-font-size: 14px; "
+                + "-fx-font-weight: bold; -fx-padding: 10 20; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-cursor: hand;");
+        resumeBtn.setOnAction(e -> resumeGame(playArea));
+
+        Button saveBtn = new Button("💾  SAVE PROGRESS");
+        saveBtn.setMaxWidth(Double.MAX_VALUE);
+        saveBtn.setStyle("-fx-background-color: #2c3e50; -fx-border-color: #3498db; -fx-text-fill: #ecf0f1; -fx-font-size: 14px; "
+                + "-fx-font-weight: bold; -fx-padding: 9 20; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-cursor: hand;");
+        saveBtn.setOnAction(e -> {
+            game.saveNow();
+            statusMsg.setText("✓ Progress saved successfully!");
+            AudioManager.getInstance().playOneShot("puzzle_complete");
+        });
+
+        Button homeBtn = new Button("🏠  SAVE & RETURN TO MENU");
+        homeBtn.setMaxWidth(Double.MAX_VALUE);
+        homeBtn.setStyle("-fx-background-color: #5c2020; -fx-border-color: #c0392b; -fx-text-fill: #ffeaa7; -fx-font-size: 14px; "
+                + "-fx-font-weight: bold; -fx-padding: 9 20; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-cursor: hand;");
+        homeBtn.setOnAction(e -> returnToMainMenu());
+
+        Button exitBtn = new Button("❌  SAVE & QUIT TO DESKTOP");
+        exitBtn.setMaxWidth(Double.MAX_VALUE);
+        exitBtn.setStyle("-fx-background-color: #2b1111; -fx-border-color: #7f1d1d; -fx-text-fill: #fca5a5; -fx-font-size: 13px; "
+                + "-fx-font-weight: bold; -fx-padding: 8 20; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-cursor: hand;");
+        exitBtn.setOnAction(e -> {
+            if (game != null) game.saveNow();
+            SceneManager.exitGame();
+        });
+
+        card.getChildren().addAll(title, subtitle, statusMsg, resumeBtn, saveBtn, homeBtn, exitBtn);
+        pauseOverlay.getChildren().add(card);
+        playArea.getChildren().add(pauseOverlay);
+        resumeBtn.requestFocus();
+    }
+
+    private void resumeGame(StackPane playArea) {
+        if (pauseOverlay != null) {
+            playArea.getChildren().remove(pauseOverlay);
+            pauseOverlay = null;
+        }
+        if (game != null) {
+            game.resume();
+        }
     }
 
     private void startHudUpdates() {
@@ -143,8 +260,13 @@ public class GameScene {
 
     private void showGameOverOverlay(StackPane playArea) {
         javafx.application.Platform.runLater(() -> {
+            isGameOver = true;
             if (hudTimer != null) {
                 hudTimer.stop();
+            }
+            if (pauseOverlay != null) {
+                playArea.getChildren().remove(pauseOverlay);
+                pauseOverlay = null;
             }
 
             AudioManager.getInstance().playOneShot("ghost");

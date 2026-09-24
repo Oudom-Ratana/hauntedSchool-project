@@ -14,6 +14,14 @@ public final class ItemRegistry {
         register(new Battery());
         register(new Key());
         register(new MasterKey());
+        register(new Key("key_classroomB", "Teachers' Lounge Key"));
+        register(new Key("key_computer", "Music & Art Key"));
+        register(new Key("key_entrance", "Restroom Key"));
+        register(new Key("key_dormitory", "Infirmary Key"));
+        register(new Key("key_basement", "Storage Key"));
+        register(new Key("key_laboratory", "Science Lab Key"));
+        register(new Key("key_library", "Library Key"));
+        register(new Key("key_principal", "Headmaster's Key"));
         register(new HolyCharm());
         register(new FirstAidKit());
         register(new Notebook());
@@ -34,7 +42,21 @@ public final class ItemRegistry {
     }
 
     public static Optional<Item> findById(String id) {
-        return Optional.ofNullable(ITEMS.get(id));
+        if (id == null) return Optional.empty();
+        Item item = ITEMS.get(id);
+        if (item != null) return Optional.of(item);
+        for (Map.Entry<String, Item> entry : ITEMS.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(id)) {
+                return Optional.of(entry.getValue());
+            }
+        }
+        if (id.toLowerCase().startsWith("key_")) {
+            String roomPart = id.substring(4);
+            Key dynamicKey = new Key(id, roomPart.substring(0, 1).toUpperCase() + roomPart.substring(1) + " Key");
+            ITEMS.put(id, dynamicKey);
+            return Optional.of(dynamicKey);
+        }
+        return Optional.empty();
     }
 
     public static Collection<Item> getAllItems() {

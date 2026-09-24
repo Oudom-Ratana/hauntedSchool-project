@@ -37,7 +37,7 @@ public class RewardManagementView extends VBox {
 
     private void buildHeader() {
         VBox header = new VBox(2);
-        Label title = new Label("💾  Save Data & Relic Vault");
+        Label title = new Label("Save Data & Relic Vault");
         title.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #f8fafc;");
         Label subtitle = new Label("Configure mystical artifacts, chamber keys, charms, batteries, and health items awarded to players");
         subtitle.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-text-fill: #94a3b8;");
@@ -51,20 +51,20 @@ public class RewardManagementView extends VBox {
         actionRow.setPadding(new Insets(12, 14, 12, 14));
         actionRow.getStyleClass().add("admin-card-container");
 
-        Button addBtn = new Button("➕  Add Reward");
+        Button addBtn = new Button("+ Add Reward");
         addBtn.getStyleClass().add("btn-modern-primary");
         addBtn.setOnAction(e -> showAddDialog());
 
-        Button editBtn = new Button("✏️  Edit Reward");
+        Button editBtn = new Button("Edit Reward");
         editBtn.getStyleClass().add("btn-modern-secondary");
         editBtn.setOnAction(e -> showEditDialog());
 
-        Button deleteBtn = new Button("🗑️  Delete Reward");
+        Button deleteBtn = new Button("Delete Reward");
         deleteBtn.getStyleClass().add("btn-modern-secondary");
         deleteBtn.setStyle("-fx-text-fill: #f87171;");
         deleteBtn.setOnAction(e -> handleDelete());
 
-        Button refreshBtn = new Button("🔄  Refresh Repository");
+        Button refreshBtn = new Button("Refresh Repository");
         refreshBtn.getStyleClass().add("btn-modern-secondary");
         refreshBtn.setOnAction(e -> loadData());
 

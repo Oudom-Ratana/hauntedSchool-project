@@ -41,9 +41,9 @@ public class RoomManagementView extends VBox {
 
     private void buildHeader() {
         VBox header = new VBox(2);
-        Label title = new Label("🏠  Rooms & Story Guides");
+        Label title = new Label("Rooms & Story Guides");
         title.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #f8fafc;");
-        Label subtitle = new Label("Configure haunted chambers, question quotas, key locks, and in-game guide narratives");
+        Label subtitle = new Label("Configure haunted chambers, question quotas, next room progression, and in-game guide narratives");
         subtitle.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-text-fill: #94a3b8;");
         header.getChildren().addAll(title, subtitle);
         getChildren().add(header);
@@ -55,20 +55,20 @@ public class RoomManagementView extends VBox {
         actionRow.setPadding(new Insets(12, 14, 12, 14));
         actionRow.getStyleClass().add("admin-card-container");
 
-        Button addBtn = new Button("➕  Add Chamber");
+        Button addBtn = new Button("+ Add Chamber");
         addBtn.getStyleClass().add("btn-modern-primary");
         addBtn.setOnAction(e -> showAddDialog());
 
-        Button editBtn = new Button("✏️  Edit Chamber & Guide");
+        Button editBtn = new Button("Edit Chamber & Guide");
         editBtn.getStyleClass().add("btn-modern-secondary");
         editBtn.setOnAction(e -> showEditDialog());
 
-        Button deleteBtn = new Button("🗑️  Delete Chamber");
+        Button deleteBtn = new Button("Delete Chamber");
         deleteBtn.getStyleClass().add("btn-modern-secondary");
         deleteBtn.setStyle("-fx-text-fill: #f87171;");
         deleteBtn.setOnAction(e -> handleDelete());
 
-        Button refreshBtn = new Button("🔄  Refresh Repository");
+        Button refreshBtn = new Button("Refresh Repository");
         refreshBtn.getStyleClass().add("btn-modern-secondary");
         refreshBtn.setOnAction(e -> loadData());
 
@@ -97,19 +97,26 @@ public class RoomManagementView extends VBox {
         guideTitleCol.setCellValueFactory(new PropertyValueFactory<>("guideTitle"));
         guideTitleCol.setPrefWidth(260);
 
-        TableColumn<RoomModel, String> keyCol = new TableColumn<>("Key Reward");
-        keyCol.setCellValueFactory(new PropertyValueFactory<>("keyReward"));
-        keyCol.setPrefWidth(110);
-
         TableColumn<RoomModel, String> nextCol = new TableColumn<>("Next Room");
-        nextCol.setCellValueFactory(new PropertyValueFactory<>("nextRoomId"));
-        nextCol.setPrefWidth(110);
+        nextCol.setCellValueFactory(cellData -> {
+            String nextId = cellData.getValue().getNextRoomId();
+            if (nextId == null || nextId.isBlank() || nextId.equalsIgnoreCase("none") || nextId.equalsIgnoreCase("exit")) {
+                return new javafx.beans.property.SimpleStringProperty("School Exit Gate");
+            }
+            for (RoomModel r : roomList) {
+                if (r.getId().equalsIgnoreCase(nextId)) {
+                    return new javafx.beans.property.SimpleStringProperty(r.getName());
+                }
+            }
+            return new javafx.beans.property.SimpleStringProperty(nextId);
+        });
+        nextCol.setPrefWidth(150);
 
         TableColumn<RoomModel, Boolean> activeCol = new TableColumn<>("Active");
         activeCol.setCellValueFactory(new PropertyValueFactory<>("active"));
         activeCol.setPrefWidth(70);
 
-        tableView.getColumns().addAll(idCol, nameCol, reqCol, guideTitleCol, keyCol, nextCol, activeCol);
+        tableView.getColumns().addAll(idCol, nameCol, reqCol, guideTitleCol, nextCol, activeCol);
         getChildren().add(tableView);
     }
 
@@ -194,7 +201,6 @@ public class RoomManagementView extends VBox {
         private final TextArea descArea = new TextArea();
         private final Spinner<Integer> reqQsSpinner = new Spinner<>(1, 20, 5);
         private final ComboBox<String> nextRoomBox = new ComboBox<>();
-        private final ComboBox<String> keyRewardBox = new ComboBox<>();
         private final CheckBox activeCheckBox = new CheckBox("Active");
 
         // Story Guide panel inputs
@@ -216,7 +222,6 @@ public class RoomManagementView extends VBox {
             descArea.getStyleClass().add("modern-form-input");
             reqQsSpinner.getStyleClass().add("modern-form-input");
             nextRoomBox.getStyleClass().add("modern-form-input");
-            keyRewardBox.getStyleClass().add("modern-form-input");
             guideTitleField.getStyleClass().add("modern-form-input");
             guideNarrativeArea.getStyleClass().add("modern-form-input");
             guideNextStepArea.getStyleClass().add("modern-form-input");
@@ -226,20 +231,15 @@ public class RoomManagementView extends VBox {
             grid.setVgap(10);
             grid.setPadding(new Insets(16));
 
-            // Populate next room candidates
-            nextRoomBox.getItems().add("None (Final Room)");
+            // Populate next room candidates with friendly names
+            nextRoomBox.getItems().add("None (School Exit Gate)");
             for (RoomModel r : allRooms) {
                 if (existing == null || !r.getId().equalsIgnoreCase(existing.getId())) {
-                    nextRoomBox.getItems().add(r.getId());
+                    nextRoomBox.getItems().add(r.getName() + " [" + r.getId() + "]");
                 }
             }
             nextRoomBox.getSelectionModel().selectFirst();
             nextRoomBox.setMaxWidth(Double.MAX_VALUE);
-
-            // Populate Key Reward options
-            keyRewardBox.getItems().addAll("key", "master_key", "none");
-            keyRewardBox.getSelectionModel().selectFirst();
-            keyRewardBox.setMaxWidth(Double.MAX_VALUE);
 
             descArea.setPrefRowCount(2);
             guideNarrativeArea.setPrefRowCount(3);
@@ -260,15 +260,12 @@ public class RoomManagementView extends VBox {
             grid.add(createFormLabel("Next Chamber:"), 2, row); grid.add(nextRoomBox, 3, row);
             row++;
 
-            grid.add(createFormLabel("Key Given:"), 0, row); grid.add(keyRewardBox, 1, row, 3, 1);
-            row++;
-
             // Story Guide Section Separator
             VBox guideHeaderCard = new VBox(2);
             guideHeaderCard.setPadding(new Insets(10, 12, 10, 12));
             guideHeaderCard.setStyle("-fx-background-color: rgba(37, 99, 235, 0.15); -fx-border-color: #2563eb; -fx-border-width: 1px; -fx-border-radius: 6px; -fx-background-radius: 6px;");
 
-            Label guideHeader = new Label("❖  IN-GAME STORY GUIDE CONFIGURATION");
+            Label guideHeader = new Label("IN-GAME STORY GUIDE CONFIGURATION");
             guideHeader.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-font-weight: 900; -fx-text-fill: #60a5fa;");
             Label guideHeaderSub = new Label("Controls the lore popup and directions shown to player upon chamber purification");
             guideHeaderSub.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 11px; -fx-text-fill: #94a3b8;");
@@ -295,8 +292,16 @@ public class RoomManagementView extends VBox {
                 nameField.setText(existing.getName());
                 descArea.setText(existing.getDescription());
                 reqQsSpinner.getValueFactory().setValue(existing.getRequiredQs());
-                if (existing.getNextRoomId() != null) nextRoomBox.setValue(existing.getNextRoomId());
-                if (existing.getKeyReward() != null) keyRewardBox.setValue(existing.getKeyReward());
+
+                if (existing.getNextRoomId() != null && !existing.getNextRoomId().isBlank()) {
+                    String targetId = existing.getNextRoomId();
+                    for (String item : nextRoomBox.getItems()) {
+                        if (item.contains("[" + targetId + "]")) {
+                            nextRoomBox.setValue(item);
+                            break;
+                        }
+                    }
+                }
                 activeCheckBox.setSelected(existing.isActive());
 
                 guideTitleField.setText(existing.getGuideTitle() != null ? existing.getGuideTitle() : "");
@@ -305,7 +310,6 @@ public class RoomManagementView extends VBox {
             } else {
                 idField.setText("room_" + (allRooms.size() + 1));
                 activeCheckBox.setSelected(true);
-                keyRewardBox.setValue("key");
                 guideTitleField.setText("NEW CHAMBER PURIFIED");
                 guideNarrativeArea.setText("The ancient spirits of this chamber rest peacefully at last.");
                 guideNextStepArea.setText("WHAT TO DO NEXT & WHERE TO GO:\n• Door Key acquired! Step out and explore the next chamber.");
@@ -319,8 +323,12 @@ public class RoomManagementView extends VBox {
                     String name = nameField.getText().trim();
                     String desc = descArea.getText().trim();
                     int req = reqQsSpinner.getValue();
-                    String next = nextRoomBox.getValue();
-                    String keyRew = keyRewardBox.getValue();
+                    String selectedNext = nextRoomBox.getValue();
+                    String next = "";
+                    if (selectedNext != null && selectedNext.contains("[") && selectedNext.contains("]")) {
+                        next = selectedNext.substring(selectedNext.indexOf('[') + 1, selectedNext.indexOf(']')).trim();
+                    }
+                    String keyRew = existing != null ? existing.getKeyReward() : "key";
                     String gTitle = guideTitleField.getText().trim();
                     String gNarr = guideNarrativeArea.getText().trim();
                     String gNext = guideNextStepArea.getText().trim();
@@ -337,7 +345,7 @@ public class RoomManagementView extends VBox {
 
                     return new RoomModel(
                             id, name, desc, req, keyRew,
-                            "None (Final Room)".equalsIgnoreCase(next) ? "" : next,
+                            next,
                             activeCheckBox.isSelected(),
                             gTitle, gNarr, gNext, keyRew
                     );

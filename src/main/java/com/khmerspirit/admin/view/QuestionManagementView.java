@@ -95,11 +95,9 @@ public class QuestionManagementView extends HBox {
         // Header Title
         HBox headerBox = new HBox(8);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        Label iconLbl = new Label("🏠");
-        iconLbl.setStyle("-fx-font-size: 14px;");
         Label titleLbl = new Label("Rooms & Tasks");
         titleLbl.getStyleClass().add("admin-card-header-title");
-        headerBox.getChildren().addAll(iconLbl, titleLbl);
+        headerBox.getChildren().add(titleLbl);
 
         // Scrollable room cards
         ScrollPane scrollPane = new ScrollPane(roomCardsContainer);
@@ -121,9 +119,6 @@ public class QuestionManagementView extends HBox {
         // 1. Header with Task Title & Controls
         HBox headerRow = new HBox(12);
         headerRow.setAlignment(Pos.CENTER_LEFT);
-
-        Label screenIcon = new Label("📺");
-        screenIcon.setStyle("-fx-font-size: 18px;");
 
         VBox titleBox = new VBox(2);
         tableHeaderTitle = new Label("Classroom - Task 1");
@@ -152,11 +147,11 @@ public class QuestionManagementView extends HBox {
         searchField.textProperty().addListener((obs, oldV, newV) -> applyFilters());
 
         // Preview In-Game Quiz Button
-        Button btnPreview = new Button("👁️ Preview");
+        Button btnPreview = new Button("Preview Quiz");
         btnPreview.getStyleClass().add("btn-modern-secondary");
         btnPreview.setOnAction(e -> handlePreview());
 
-        headerRow.getChildren().addAll(screenIcon, titleBox, spacer, taskFilterBox, searchField, btnPreview);
+        headerRow.getChildren().addAll(titleBox, spacer, taskFilterBox, searchField, btnPreview);
 
         // 2. TableView matching draftDesign.png
         buildTableView();
@@ -232,8 +227,8 @@ public class QuestionManagementView extends HBox {
         actionCol.setPrefWidth(95);
         actionCol.setStyle("-fx-alignment: center;");
         actionCol.setCellFactory(col -> new TableCell<>() {
-            private final Button btnEdit = new Button("✏");
-            private final Button btnDelete = new Button("🗑");
+            private final Button btnEdit = new Button("Edit");
+            private final Button btnDelete = new Button("Del");
             private final HBox pane = new HBox(6, btnEdit, btnDelete);
 
             {
@@ -282,7 +277,7 @@ public class QuestionManagementView extends HBox {
         // Header
         HBox headerRow = new HBox(6);
         headerRow.setAlignment(Pos.CENTER_LEFT);
-        formHeaderTitle = new Label("➕ Add New Question");
+        formHeaderTitle = new Label("Add New Question");
         formHeaderTitle.getStyleClass().add("admin-card-header-title");
         headerRow.getChildren().add(formHeaderTitle);
 
@@ -394,13 +389,13 @@ public class QuestionManagementView extends HBox {
         HBox statusBox = new HBox(16, rbActive, rbInactive);
 
         // 8. Action Buttons (Save & Clear)
-        Button btnSave = new Button("💾 Save Question");
+        Button btnSave = new Button("Save Question");
         btnSave.getStyleClass().add("btn-modern-primary");
         HBox.setHgrow(btnSave, Priority.ALWAYS);
         btnSave.setMaxWidth(Double.MAX_VALUE);
         btnSave.setOnAction(e -> handleSaveForm());
 
-        Button btnClear = new Button("🔄 Clear");
+        Button btnClear = new Button("Clear Form");
         btnClear.getStyleClass().add("btn-modern-secondary");
         btnClear.setOnAction(e -> resetForm());
 
@@ -549,7 +544,7 @@ public class QuestionManagementView extends HBox {
 
     private void populateFormForEditing(QuestionModel q) {
         this.editingQuestion = q;
-        formHeaderTitle.setText("✏️ Edit Question: " + q.getId());
+        formHeaderTitle.setText("Edit Question: " + q.getId());
 
         // Room
         String curRoom = q.getRoom();
@@ -633,7 +628,7 @@ public class QuestionManagementView extends HBox {
 
     private void resetForm() {
         editingQuestion = null;
-        formHeaderTitle.setText("➕ Add New Question");
+        formHeaderTitle.setText("Add New Question");
         questionTextArea.clear();
         optAField.clear();
         optBField.clear();

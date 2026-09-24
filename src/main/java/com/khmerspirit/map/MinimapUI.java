@@ -270,7 +270,7 @@ public class MinimapUI {
         g.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         g.setFill(Color.web("#ffd972"));
         g.setTextAlign(TextAlignment.LEFT);
-        g.fillText("ARCHITECTURAL BLUEPRINT - KHMER HIGH SCHOOL (ជាន់ផ្ទាល់ដី)", padX + 24, padY + 36);
+        g.fillText("ARCHITECTURAL BLUEPRINT - KHMER HIGH SCHOOL (GROUND FLOOR)", padX + 24, padY + 36);
 
         g.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
         g.setFill(Color.web("#94a3b8"));
@@ -327,56 +327,56 @@ public class MinimapUI {
 
         // 4. Draw All 10 Distinct Rooms With Real Generated Artwork Previews
         // Top Row (North / West-to-East)
-        drawBlueprintRoom(g, "teacher", "Principal's Office (ការិយាល័យនាយក)",
+        drawBlueprintRoom(g, "teacher", "Principal's Office",
                 "Golden Master Key & Map | West Wing Top",
                 "/images/maps/principal_office/principal_office_map.png",
                 scX + scW * 0.02, scY, scW * 0.22, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "laboratory", "Science Lab (បន្ទប់ពិសោធន៍)",
+        drawBlueprintRoom(g, "laboratory", "Science Lab",
                 "Acid Bottle & Bunsen Lighter | West Wing Mid",
                 "/images/maps/science_lab/science_lab_map.png",
                 scX + scW * 0.26, scY, scW * 0.22, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "library", "Library (បណ្ណាល័យ)",
+        drawBlueprintRoom(g, "library", "Library",
                 "Ancient Grimoire & Lore | North Gate",
                 "/images/maps/library/library_map.png",
                 scX + scW * 0.50, scY, scW * 0.22, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "dormitory", "Infirmary (បន្ទប់សុខាភិបាល)",
+        drawBlueprintRoom(g, "dormitory", "Infirmary",
                 "First Aid Kit & Medicine | East Wing Top",
                 "/images/maps/infirmary/infirmary_map.png",
                 scX + scW * 0.74, scY, scW * 0.24, scH * 0.38,
                 currentMapId, pulseTimer);
 
         // Bottom Row (South / West-to-East)
-        drawBlueprintRoom(g, "computer", "Music & Art (បន្ទប់តន្ត្រី)",
+        drawBlueprintRoom(g, "computer", "Music & Art",
                 "Holy Charm & Bronze Bell | West Wing Bottom",
                 "/images/maps/music_art_room/music_art_room_map.png",
                 scX + scW * 0.02, scY + scH * 0.62, scW * 0.18, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "classroomA", "Classroom A (ថ្នាក់រៀន A)",
+        drawBlueprintRoom(g, "classroomA", "Classroom A",
                 "Occult Study & Notes | West Wing Lower-Mid",
                 "/images/maps/classroom_room.png",
                 scX + scW * 0.22, scY + scH * 0.62, scW * 0.18, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "classroomB", "Teachers' Lounge (បន្ទប់គ្រូ)",
+        drawBlueprintRoom(g, "classroomB", "Teachers' Lounge",
                 "Staff Lockers & Battery | East Wing Lower-Mid",
                 "/images/maps/teachers_lounge/teachers_lounge_map.png",
                 scX + scW * 0.42, scY + scH * 0.62, scW * 0.18, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "basement", "Storage Room (បន្ទប់ឃ្លាំង)",
+        drawBlueprintRoom(g, "basement", "Storage Room",
                 "Crowbar & Electric Fuse | East Wing Mid",
                 "/images/maps/storage_room/storage_room_map.png",
                 scX + scW * 0.62, scY + scH * 0.62, scW * 0.17, scH * 0.38,
                 currentMapId, pulseTimer);
 
-        drawBlueprintRoom(g, "entrance", "Restroom (បន្ទប់ទឹក)",
+        drawBlueprintRoom(g, "entrance", "Restroom",
                 "Old Mirror & Water | East Wing Bottom",
                 "/images/maps/restroom/restroom_map.png",
                 scX + scW * 0.81, scY + scH * 0.62, scW * 0.17, scH * 0.38,

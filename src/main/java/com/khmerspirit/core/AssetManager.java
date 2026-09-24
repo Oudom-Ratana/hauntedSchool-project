@@ -19,7 +19,7 @@ public class AssetManager {
         Color shirtColor;
         Color lowerColor;
 
-        if (name.contains("ghost") || name.contains("spirit") || name.contains("ខ្មោច")) {
+        if (name.contains("ghost") || name.contains("spirit")) {
             path = Constants.GHOST_SPRITE;
             shirtColor = Color.web("#1c0a1f");
             lowerColor = Color.web("#0c030f");
@@ -100,6 +100,9 @@ public class AssetManager {
             return imageCache.get(path);
         }
         InputStream stream = AssetManager.class.getResourceAsStream(path);
+        if (stream == null && itemId.toLowerCase().startsWith("key_")) {
+            stream = AssetManager.class.getResourceAsStream("/images/items/key.png");
+        }
         if (stream != null) {
             Image img = new Image(stream);
             imageCache.put(path, img);

@@ -5,7 +5,11 @@ import javafx.scene.paint.Color;
 public class Key extends Item {
 
     public Key() {
-        super("key", "Room Key", false, Color.web("#d4a947"));
+        this("key", "Room Key");
+    }
+
+    public Key(String id, String displayName) {
+        super(id, displayName, false, Color.web("#d4a947"));
     }
 
     @Override

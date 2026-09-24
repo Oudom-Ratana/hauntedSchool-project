@@ -99,7 +99,7 @@ public class MapItemManagementView extends VBox {
 
     private void buildHeader() {
         VBox header = new VBox(2);
-        Label title = new Label("🗺️  Map Item Spawner & Abilities");
+        Label title = new Label("Map Item Spawner & Abilities");
         title.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #f8fafc;");
         Label subtitle = new Label("Click directly anywhere on the real room map to place, inspect, or move item pickups with live coordinate precision");
         subtitle.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 12px; -fx-text-fill: #94a3b8;");
@@ -113,18 +113,18 @@ public class MapItemManagementView extends VBox {
         bar.setPadding(new Insets(10, 14, 10, 14));
         bar.getStyleClass().add("admin-card-container");
 
-        btnViewVisual = new Button("🗺️  Interactive Map View");
+        btnViewVisual = new Button("Interactive Map View");
         btnViewVisual.getStyleClass().add("btn-modern-primary");
         btnViewVisual.setOnAction(e -> switchViewMode(true));
 
-        btnViewTable = new Button("📋  Item Data Table");
+        btnViewTable = new Button("Item Data Table");
         btnViewTable.getStyleClass().add("btn-modern-secondary");
         btnViewTable.setOnAction(e -> switchViewMode(false));
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Button btnRefresh = new Button("🔄  Refresh Map Data");
+        Button btnRefresh = new Button("Refresh Map Data");
         btnRefresh.getStyleClass().add("btn-modern-secondary");
         btnRefresh.setOnAction(e -> loadData());
 
@@ -200,7 +200,7 @@ public class MapItemManagementView extends VBox {
 
         canvasWrapper.getChildren().add(mapCanvas);
 
-        Label mapHintLabel = new Label("💡 Click anywhere on the map to target tile placement. Click an existing item pin to inspect, move, or delete it.");
+        Label mapHintLabel = new Label("Tip: Click anywhere on the map to target tile placement. Click an existing item pin to inspect, move, or delete it.");
         mapHintLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;");
 
         leftPane.getChildren().addAll(topMapBar, canvasWrapper, mapHintLabel);
@@ -217,7 +217,7 @@ public class MapItemManagementView extends VBox {
         card.setPadding(new Insets(14));
         card.setStyle("-fx-background-color: linear-gradient(to bottom, rgba(22, 28, 42, 0.95), rgba(12, 16, 26, 0.95)); -fx-border-color: rgba(212, 175, 55, 0.35); -fx-border-width: 1.5px; -fx-border-radius: 8px; -fx-background-radius: 8px;");
 
-        inspectorModeTitle = new Label("🎯  Pinpoint New Item");
+        inspectorModeTitle = new Label("Pinpoint New Item");
         inspectorModeTitle.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 15px; -fx-font-weight: 900; -fx-text-fill: #ffd591;");
 
         selectedItemBadge = new Label("Mode: New Placement Crosshair");
@@ -301,19 +301,19 @@ public class MapItemManagementView extends VBox {
         activeCheckBox.setStyle("-fx-text-fill: #e2e8f0; -fx-font-weight: bold;");
 
         // Action Buttons
-        btnSpawnOrUpdate = new Button("➕  Spawn Item Here");
+        btnSpawnOrUpdate = new Button("Spawn Item Here");
         btnSpawnOrUpdate.setMaxWidth(Double.MAX_VALUE);
         btnSpawnOrUpdate.getStyleClass().add("btn-khmer-gold");
         btnSpawnOrUpdate.setOnAction(e -> handleSpawnOrUpdate());
 
-        btnDeleteSelected = new Button("🗑️  Remove Item");
+        btnDeleteSelected = new Button("Remove Item");
         btnDeleteSelected.setMaxWidth(Double.MAX_VALUE);
         btnDeleteSelected.getStyleClass().add("btn-khmer-danger");
         btnDeleteSelected.setVisible(false);
         btnDeleteSelected.setManaged(false);
         btnDeleteSelected.setOnAction(e -> handleDeleteVisualItem());
 
-        btnDeselect = new Button("✕  Clear Selection");
+        btnDeselect = new Button("Clear Selection");
         btnDeselect.setMaxWidth(Double.MAX_VALUE);
         btnDeselect.getStyleClass().add("btn-khmer-neutral");
         btnDeselect.setOnAction(e -> {
@@ -391,7 +391,7 @@ public class MapItemManagementView extends VBox {
             return;
         }
         if (selectedMapItem != null) {
-            inspectorModeTitle.setText("✏️  Edit Placed Item");
+            inspectorModeTitle.setText("Edit Placed Item");
             inspectorModeTitle.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 15px; -fx-font-weight: 900; -fx-text-fill: #ffd591;");
             selectedItemBadge.setText("Selected ID: " + selectedMapItem.getId() + " (" + selectedMapItem.getItemName() + ")");
             selectedItemBadge.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 11px; -fx-text-fill: #ffd591; -fx-font-weight: bold;");
@@ -410,18 +410,18 @@ public class MapItemManagementView extends VBox {
             descField.setText(selectedMapItem.getDescription() != null ? selectedMapItem.getDescription() : "");
             activeCheckBox.setSelected(selectedMapItem.isActive());
 
-            btnSpawnOrUpdate.setText("💾  Save Changes");
+            btnSpawnOrUpdate.setText("Save Changes");
             btnSpawnOrUpdate.getStyleClass().setAll("btn-khmer-gold");
 
             btnDeleteSelected.setVisible(true);
             btnDeleteSelected.setManaged(true);
         } else {
-            inspectorModeTitle.setText("🎯  Pinpoint New Item");
+            inspectorModeTitle.setText("Pinpoint New Item");
             inspectorModeTitle.setStyle("-fx-font-family: 'Georgia', serif; -fx-font-size: 15px; -fx-font-weight: 900; -fx-text-fill: #ffd591;");
             selectedItemBadge.setText("Target: (X: " + targetTileX + ", Y: " + targetTileY + ") in " + currentRoomId);
             selectedItemBadge.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 11px; -fx-text-fill: #34d399; -fx-font-weight: bold;");
 
-            btnSpawnOrUpdate.setText("➕  Spawn Item Here");
+            btnSpawnOrUpdate.setText("Spawn Item Here");
             btnSpawnOrUpdate.getStyleClass().setAll("btn-khmer-gold");
 
             btnDeleteSelected.setVisible(false);
@@ -606,7 +606,7 @@ public class MapItemManagementView extends VBox {
             gc.strokeLine(tx, ty + 17, tx, ty + 22);
 
             // Coordinate Tag
-            String targetTag = String.format("📍 (%.1f, %.1f)", targetTileX, targetTileY);
+            String targetTag = String.format("(%.1f, %.1f)", targetTileX, targetTileY);
             gc.setFill(Color.rgb(15, 23, 42, 0.90));
             gc.fillRoundRect(tx - 40, ty - 32, 80, 18, 5, 5);
             gc.setStroke(Color.web("#38bdf8"));
@@ -625,7 +625,7 @@ public class MapItemManagementView extends VBox {
         gc.strokeRoundRect(12, 12, 280, 28, 6, 6);
 
         gc.setFill(Color.web("#ffd591"));
-        gc.fillText("❖ SANCTUM MAP: " + currentRoomId.toUpperCase() + " (" + cols + "x" + rows + " Tiles) ❖", 18, 31);
+        gc.fillText("MAP: " + currentRoomId.toUpperCase() + " (" + cols + "x" + rows + " Tiles)", 18, 31);
     }
 
     private List<MapItemModel> getItemsForRoom(String roomId) {

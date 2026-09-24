@@ -250,6 +250,34 @@ public class TileMap {
         renderRoomLabels(graphics, camera);
     }
 
+    public void renderForeground(GraphicsContext graphics, Camera camera) {
+        if (backgroundImage == null) return;
+        // Render closed doors and wall patches on TOP of player so player stays under/behind closed doors
+        for (Door door : doors) {
+            if (!door.isOpen()) {
+                if (door.getWallPatchBounds() != null && door.getWallPatchSource() != null) {
+                    Rectangle2D wp = door.getWallPatchBounds();
+                    Rectangle2D src = door.getWallPatchSource();
+                    graphics.drawImage(
+                            backgroundImage,
+                            src.getMinX(), src.getMinY(), src.getWidth(), src.getHeight(),
+                            wp.getMinX() - camera.getX(), wp.getMinY() - camera.getY(), wp.getWidth(), wp.getHeight()
+                    );
+                }
+                if (door.isDrawClosedSprite() && door.getBounds() != null && doorClosedImage != null) {
+                    Rectangle2D b = door.getBounds();
+                    graphics.drawImage(
+                            doorClosedImage,
+                            b.getMinX() - camera.getX(),
+                            b.getMinY() - camera.getY(),
+                            b.getWidth(),
+                            b.getHeight()
+                    );
+                }
+            }
+        }
+    }
+
     public Tile getTileAt(int column, int row) {
         if (column < 0 || row < 0 || column >= columns || row >= rows) {
             return Tile.WALL;

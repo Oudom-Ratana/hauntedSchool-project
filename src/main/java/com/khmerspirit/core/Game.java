@@ -34,10 +34,12 @@ import javafx.scene.paint.Stop;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class Game {
 
@@ -70,7 +72,6 @@ public class Game {
     private final Random effectRandom = new Random(7);
     private final List<RainDrop> rainDrops = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
-    private final List<FogPatch> fogPatches = new ArrayList<>();
     private final ObjectAnimation rainAnimation = new ObjectAnimation(ObjectAnimation.Type.RAIN);
     private final ObjectAnimation torchAnimation = new ObjectAnimation(ObjectAnimation.Type.TORCH);
     private double lightningTimer = 2.5;
@@ -91,6 +92,11 @@ public class Game {
     private double tomeCooldownTimer = 0.0;
     private double musicCooldownTimer = 0.0;
     private double batteryEfficiencyTimer = 0.0;
+    private final Set<String> unlockedDoorIds = new HashSet<>();
+
+    // Ambient ghost suffering audio timer (played once every 15 to 20 seconds throughout the project)
+    private double ambientGhostAudioTimer = 0.0;
+    private double nextAmbientGhostAudioInterval = 15.0 + new Random().nextDouble() * 5.0;
 
     public Game(Canvas canvas, String selectedCharacter) {
         this(canvas, selectedCharacter, null);
@@ -101,14 +107,22 @@ public class Game {
         this.graphics = canvas.getGraphicsContext2D();
         this.assetManager = new AssetManager();
         this.playerController = new PlayerController();
-        this.tileMap = TileMap.createClassroomMap();
+        String startRoom = (saveData != null && saveData.getCurrentRoomId() != null && !saveData.getCurrentRoomId().isBlank())
+                ? saveData.getCurrentRoomId()
+                : "classroomA";
+        this.currentMapId = startRoom;
+        this.tileMap = mapLoader.loadMapForId(startRoom);
         this.collisionMap = new CollisionMap(tileMap);
         this.camera = new Camera(canvas.getWidth(), canvas.getHeight(), tileMap.getPixelWidth(), tileMap.getPixelHeight());
+        this.currentRoomName = tileMap.getRooms().isEmpty() ? "Central Hallway" : tileMap.getRooms().getFirst().getDisplayName();
 
         this.saveManager = new SaveManager();
         this.inventory = new Inventory();
         this.inventoryUI = new InventoryUI();
         this.educationManager = new EducationManager(tileMap, assetManager, this);
+        if (saveData != null && !saveData.getCompletedRooms().isEmpty()) {
+            this.educationManager.restoreCompletedRooms(saveData.getCompletedRooms());
+        }
 
         // Mouse click handling for question panel, minimap radar, and full blueprint map
         this.canvas.setOnMouseClicked(e -> {
@@ -120,36 +134,31 @@ public class Game {
             minimapUI.handleMouseClick(e.getX(), e.getY());
         });
 
-        // player spawn in front of classroom entrance looking up the aisle
+        // player spawn in front of classroom entrance looking up the aisle or at exact saved position
         if (saveData == null) {
             this.player = new Player(1138.0, 1025.0, selectedCharacter, assetManager.loadPlayerSprite(selectedCharacter));
         } else {
             this.player = new Player(saveData.getPlayerX(), saveData.getPlayerY(), saveData.getCharacterName(), assetManager.loadPlayerSprite(saveData.getCharacterName()));
             this.inventory.replaceAll(saveData.getInventoryItems());
+            this.player.setHearts(saveData.getHearts());
         }
 
         this.gameLoop = new GameLoop(this);
-        this.itemPickups = createItemPickupsForRoom("classroomA");
-        this.roomItemPickups.put("classrooma", this.itemPickups);
-        this.currentRoomName = "Classroom (ថ្នាក់រៀន)";
+        this.itemPickups = createItemPickupsForRoom(startRoom);
+        this.roomItemPickups.put(startRoom.toLowerCase(), this.itemPickups);
         this.notificationMessage = "WASD/Arrows: Move | SHIFT: Run | G: Pick Up | E: Interact | F: Flashlight | M: Map | H: HUD";
         this.notificationSeconds = 8.0;
         this.playTimeSeconds = saveData == null ? 0.0 : saveData.getPlayTimeSeconds();
 
-        // restore hearts
-        if (saveData != null) {
-            this.player.setHearts(saveData.getHearts());
-        }
-
         // unlock doors for completed rooms
         if (saveData != null && !saveData.getCompletedRooms().isEmpty()) {
-            for (String roomId : saveData.getCompletedRooms()) {
+            for (String compRoom : saveData.getCompletedRooms()) {
                 tileMap.getDoors().stream()
-                        .filter(d -> d.getFromRoomId().equals(roomId))
-                        .findFirst()
-                        .ifPresent(door -> {
+                        .filter(d -> d.getFromRoomId().equalsIgnoreCase(compRoom) || d.getToRoomId().equalsIgnoreCase(compRoom))
+                        .forEach(door -> {
                             door.setLocked(false);
                             tileMap.setDoorOpen(door, true);
+                            unlockedDoorIds.add(door.getId());
                         });
             }
         }
@@ -158,16 +167,39 @@ public class Game {
         if (saveData == null) {
             loadInventory();
         }
+        camera.follow(player.getCenterX(), player.getCenterY());
+        AudioManager.getInstance().updateRoomMusic(startRoom);
         initializeEffects();
     }
 
     public void start() {
+        paused = false;
         gameLoop.start();
     }
 
     public void stop() {
+        paused = true;
         gameLoop.stop();
         AudioManager.getInstance().stopAll();
+    }
+
+    private boolean paused = false;
+
+    public void pause() {
+        paused = true;
+        gameLoop.stop();
+        if (playerController != null) {
+            playerController.resetKeys();
+        }
+    }
+
+    public void resume() {
+        paused = false;
+        gameLoop.start();
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     public void setGameOverHandler(Runnable gameOverHandler) {
@@ -202,6 +234,10 @@ public class Game {
         return educationManager.getActiveRoomId();
     }
 
+    public String getCurrentMapId() {
+        return currentMapId;
+    }
+
     public int getEducationActiveCorrectCount() {
         return educationManager.getActiveTaskCorrectCount();
     }
@@ -211,6 +247,7 @@ public class Game {
     }
 
     public double getPlayTimeSeconds() { return playTimeSeconds; }
+    public void addUnlockedDoor(String doorId) { if (doorId != null) unlockedDoorIds.add(doorId); }
 
     public void onResize(double newWidth, double newHeight) {
         if (camera != null && player != null) {
@@ -283,6 +320,14 @@ public class Game {
             musicCooldownTimer = Math.max(0.0, musicCooldownTimer - deltaSeconds);
         }
 
+        // Ambient ghost suffering audio (shuffled every 15 to 20 seconds)
+        ambientGhostAudioTimer += deltaSeconds;
+        if (ambientGhostAudioTimer >= nextAmbientGhostAudioInterval) {
+            ambientGhostAudioTimer = 0.0;
+            nextAmbientGhostAudioInterval = 15.0 + effectRandom.nextDouble() * 5.0;
+            AudioManager.getInstance().playRandomAmbientGhostSuffering();
+        }
+
         updateEffects(deltaSeconds);
         // play time and auto-save
         playTimeSeconds += deltaSeconds;
@@ -306,16 +351,16 @@ public class Game {
             int tx = (int) (x / Constants.TILE_SIZE);
             int ty = (int) (y / Constants.TILE_SIZE);
             if (ty >= 40) {
-                return "Entrance Lobby (សាលទទួលភ្ញៀវ)";
+                return "Entrance Lobby";
             } else if (tx < 33) {
-                return "West Wing Corridor (ច្រករបៀងខាងលិច)";
+                return "West Wing Corridor";
             } else if (tx > 58) {
-                return "East Wing Corridor (ច្រករបៀងខាងកើត)";
+                return "East Wing Corridor";
             } else {
-                return "Central Grand Hallway (សាលធំកណ្តាល)";
+                return "Central Grand Hallway";
             }
         }
-        return "Main Hall (សាលធំ)";
+        return "Main Hall";
     }
 
     public void render() {
@@ -332,10 +377,10 @@ public class Game {
         renderPickups(lightRadius);
         educationManager.renderGhosts(graphics, camera, player.getCenterX(), player.getCenterY(), lightRadius, nightVisionActive);
         player.render(graphics, camera);
+        tileMap.renderForeground(graphics, camera);
 
-        // 2. World particles & fog
+        // 2. World particles
         renderParticles();
-        renderFog();
 
         // 3. Darkness mask
         renderFlashlightLighting();
@@ -420,31 +465,13 @@ public class Game {
         for (int i = 0; i < 24; i++) {
             particles.add(new Particle(effectRandom.nextDouble() * canvas.getWidth(), effectRandom.nextDouble() * canvas.getHeight()));
         }
-        for (int i = 0; i < 6; i++) {
-            fogPatches.add(new FogPatch(effectRandom.nextDouble() * canvas.getWidth(), effectRandom.nextDouble() * canvas.getHeight()));
+        while (particles.size() < 40) {
+            particles.add(new Particle(effectRandom.nextDouble() * canvas.getWidth(), effectRandom.nextDouble() * canvas.getHeight()));
         }
     }
 
     private void updateEffects(double deltaSeconds) {
         rainAnimation.update(deltaSeconds);
-        torchAnimation.update(deltaSeconds);
-        lightningTimer -= deltaSeconds;
-        if (lightningTimer <= 0.0) {
-            lightningTimer = 2.0 + effectRandom.nextDouble() * 4.0;
-            lightningFlash = 0.25;
-        }
-        if (lightningFlash > 0.0) {
-            lightningFlash = Math.max(0.0, lightningFlash - deltaSeconds * 1.6);
-        }
-
-        for (RainDrop drop : rainDrops) {
-            drop.y += drop.speed * deltaSeconds;
-            if (drop.y > canvas.getHeight()) {
-                drop.y = -drop.length;
-                drop.x = effectRandom.nextDouble() * canvas.getWidth();
-            }
-        }
-
         Iterator<Particle> particleIterator = particles.iterator();
         while (particleIterator.hasNext()) {
             Particle particle = particleIterator.next();
@@ -456,10 +483,6 @@ public class Game {
         while (particles.size() < 40) {
             particles.add(new Particle(effectRandom.nextDouble() * canvas.getWidth(), effectRandom.nextDouble() * canvas.getHeight()));
         }
-
-        for (FogPatch patch : fogPatches) {
-            patch.update(deltaSeconds);
-        }
     }
 
     private void renderRain() {
@@ -470,12 +493,6 @@ public class Game {
         for (RainDrop drop : rainDrops) {
             double y = (drop.y + offsetY) % (canvas.getHeight() + 100);
             graphics.strokeLine(drop.x, y, drop.x + 0.8, y + drop.length);
-        }
-    }
-
-    private void renderFog() {
-        for (FogPatch patch : fogPatches) {
-            patch.render(graphics);
         }
     }
 
@@ -897,6 +914,7 @@ public class Game {
                             if (inventory.hasItem("master_key")) {
                                 door.setLocked(false);
                                 tileMap.setDoorOpen(door, true);
+                                unlockedDoorIds.add(door.getId());
                                 playSound("door");
                                 showNotification("VICTORY! You unlocked the Grand School Exit Gate with the Master Key! [Press E to Escape]");
                                 saveNow();
@@ -910,17 +928,19 @@ public class Game {
 
                         if (door.isLocked()) {
                             String req = door.getRequiredKeyId();
-                            boolean hasKey = (req == null || req.isBlank()) || inventory.hasItem(req) || inventory.hasItem("master_key") || inventory.hasItem("key");
+                            boolean hasKey = (req == null || req.isBlank()) || inventory.hasItem(req) || (!"exit".equalsIgnoreCase(target) && inventory.hasItem("master_key"));
                             if (hasKey) {
                                 door.setLocked(false);
                                 tileMap.setDoorOpen(door, true);
+                                unlockedDoorIds.add(door.getId());
                                 playSound("door");
                                 showNotification("Unlocked and opened the door to " + name + "! [Press E to Enter]");
                                 saveNow();
                                 return true;
                             } else {
                                 playSound("ghost");
-                                showNotification("The door to " + name + " is locked! You need a Key.");
+                                String keyNeeded = getKeyDisplayName(req);
+                                showNotification("The door to " + name + " is locked! You need the " + keyNeeded + ".");
                                 return true;
                             }
                         } else {
@@ -956,12 +976,12 @@ public class Game {
                         String reqKey = door.getRequiredKeyId();
                         boolean hasKey = (reqKey == null || reqKey.isBlank())
                                 || inventory.hasItem(reqKey)
-                                || inventory.hasItem("master_key")
-                                || inventory.hasItem("key");
+                                || inventory.hasItem("master_key");
 
                         if (hasKey) {
                             door.setLocked(false);
                             tileMap.setDoorOpen(door, true);
+                            unlockedDoorIds.add(door.getId());
                             playSound("door");
                             showNotification("Unlocked and opened the door! [Press E to Exit to Main Hall | C to Close]");
                             saveNow();
@@ -1022,6 +1042,23 @@ public class Game {
         };
     }
 
+    public String getKeyDisplayName(String keyId) {
+        if (keyId == null || keyId.isBlank()) return "Key";
+        return switch (keyId.toLowerCase()) {
+            case "key_classroomb" -> "Teachers' Lounge Key";
+            case "key_computer" -> "Music & Art Key";
+            case "key_entrance" -> "Restroom Key";
+            case "key_dormitory" -> "Infirmary Key";
+            case "key_basement" -> "Storage Vault Key";
+            case "key_laboratory" -> "Science Lab Key";
+            case "key_library" -> "Lore Library Key";
+            case "key_principal" -> "Headmaster's Key (Finish all 8 rooms first)";
+            case "master_key" -> "Golden Master Key";
+            case "key_classrooma" -> "Classroom Key";
+            default -> "Room Key";
+        };
+    }
+
     private void renderDoorLabels(GraphicsContext g, Camera cam) {
         boolean isHall = currentMapId.equalsIgnoreCase("hall") || currentMapId.equalsIgnoreCase("school") || currentMapId.equalsIgnoreCase("main_hall");
 
@@ -1074,8 +1111,16 @@ public class Game {
                 Color statusColor;
                 if (!door.isOpen()) {
                     if (door.isLocked()) {
-                        prompt = isHall ? "[E] Unlock (Requires Master Key)" : "[E] Unlock Door (Requires Key)";
-                        statusColor = Color.web("#ff7675");
+                        String reqKey = door.getRequiredKeyId();
+                        boolean hasKey = reqKey != null && (inventory.hasItem(reqKey) || (!"exit".equalsIgnoreCase(door.getFromRoomId()) && inventory.hasItem("master_key")));
+                        String keyName = getKeyDisplayName(reqKey);
+                        if (hasKey) {
+                            prompt = "[E] Unlock (Use " + keyName + ")";
+                            statusColor = Color.web("#ffeaa7");
+                        } else {
+                            prompt = "[E] Locked (Requires " + keyName + ")";
+                            statusColor = Color.web("#ff7675");
+                        }
                     } else {
                         prompt = "[E] Open Door";
                         statusColor = Color.web("#ffeaa7");
@@ -1134,9 +1179,14 @@ public class Game {
             roomItemPickups.put(targetRoomId.toLowerCase(), this.itemPickups);
         }
 
-        // If entering a room that has already been completed, keep its doors unlocked and open
-        if (educationManager != null && educationManager.getCompletedRooms().contains(targetRoomId.toLowerCase())) {
-            for (Door door : this.tileMap.getDoors()) {
+        // Restore door unlock states (for completed rooms or doors previously unlocked)
+        for (Door door : this.tileMap.getDoors()) {
+            boolean isCompleted = educationManager != null && (
+                    educationManager.isRoomCompleted(door.getFromRoomId()) ||
+                    educationManager.isRoomCompleted(door.getToRoomId()) ||
+                    educationManager.isRoomCompleted(targetRoomId)
+            );
+            if (unlockedDoorIds.contains(door.getId()) || isCompleted) {
                 door.setLocked(false);
                 this.tileMap.setDoorOpen(door, true);
             }
@@ -1210,8 +1260,15 @@ public class Game {
         inventory.replaceAll(saveData.getInventoryItems());
     }
 
+    public static boolean isKeyItem(String itemId) {
+        if (itemId == null) return false;
+        String id = itemId.toLowerCase().trim();
+        return id.contains("key");
+    }
+
     private List<ItemPickup> createItemPickupsForRoom(String roomId) {
         List<ItemPickup> pickups = new ArrayList<>();
+        boolean isCompleted = educationManager != null && educationManager.isRoomCompleted(roomId);
 
         // 1. Load active items placed on live map by Admin
         try {
@@ -1219,6 +1276,14 @@ public class Game {
             if (placed != null && !placed.isEmpty()) {
                 for (MapItemModel item : placed) {
                     if (item.isActive()) {
+                        boolean isKey = isKeyItem(item.getItemId());
+                        // Key items only appear if the room's quiz has already been completed!
+                        if (isKey && !isCompleted) {
+                            continue;
+                        }
+                        if (isKey && inventory.hasItem(item.getItemId())) {
+                            continue;
+                        }
                         addPickup(pickups, item.getItemId(), item.getTileX(), item.getTileY());
                     }
                 }
@@ -1246,7 +1311,9 @@ public class Game {
                 addPickup(pickups, "lighter", 14, 14.0);
             }
             case "teacher", "principal_office" -> {
-                addPickup(pickups, "master_key", 24, 10.0);
+                if (isCompleted && !inventory.hasItem("master_key")) {
+                    addPickup(pickups, "master_key", 24, 10.0);
+                }
                 addPickup(pickups, "map", 34, 14.0);
             }
             case "dormitory", "infirmary" -> {
@@ -1280,6 +1347,46 @@ public class Game {
         return pickups;
     }
 
+    public void spawnRoomKeyOnMap(String roomId, String defaultKeyId) {
+        double spawnTileX = -1;
+        double spawnTileY = -1;
+        String keyToSpawn = defaultKeyId;
+
+        // 1. Check if Admin placed a key in Map Item Spawner for this room
+        try {
+            List<MapItemModel> placed = mapItemFileService.loadMapItemsForRoom(roomId);
+            if (placed != null) {
+                for (MapItemModel m : placed) {
+                    if (m.isActive() && isKeyItem(m.getItemId())) {
+                        spawnTileX = m.getTileX();
+                        spawnTileY = m.getTileY();
+                        keyToSpawn = m.getItemId();
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[Game] Error checking admin key position: " + e.getMessage());
+        }
+
+        // 2. Fallback coordinates if no key was placed in Map Item Spawner
+        if (spawnTileX < 0 || spawnTileY < 0) {
+            spawnTileX = 24.0;
+            spawnTileY = 14.5;
+        }
+
+        final String finalKey = keyToSpawn;
+        boolean inInventory = inventory.hasItem(finalKey);
+        boolean onMap = itemPickups.stream()
+                .anyMatch(p -> p.getItem().getId().equalsIgnoreCase(finalKey));
+
+        if (!inInventory && !onMap) {
+            addPickup(itemPickups, finalKey, spawnTileX, spawnTileY);
+            roomItemPickups.put(roomId.toLowerCase(), new ArrayList<>(itemPickups));
+            saveNow();
+        }
+    }
+
     // Allow education manager to spawn pickups into the world
     public void spawnItemPickup(ItemPickup pickup) {
         if (pickup != null) {
@@ -1307,7 +1414,7 @@ public class Game {
         };
     }
 
-    private void saveNow() {
+    public void saveNow() {
         try {
             saveManager.saveGame(GameSaveHelper.buildFrom(this));
         } catch (Exception e) {
@@ -1354,32 +1461,6 @@ public class Game {
             double alpha = Math.max(0.0, life / maxLife);
             g.setFill(Color.rgb(220, 220, 255, alpha * 0.35));
             g.fillOval(x, y, 2.0 + alpha * 1.5, 2.0 + alpha * 1.5);
-        }
-    }
-
-    private static final class FogPatch {
-        double x;
-        double y;
-        double drift;
-        double size;
-        double alpha;
-
-        FogPatch(double x, double y) {
-            this.x = x;
-            this.y = y;
-            this.drift = 10.0 + Math.random() * 12.0;
-            this.size = 50.0 + Math.random() * 100.0;
-            this.alpha = 0.10 + Math.random() * 0.12;
-        }
-
-        void update(double deltaSeconds) {
-            x += drift * deltaSeconds;
-            if (x > 900) x = -120;
-        }
-
-        void render(GraphicsContext g) {
-            g.setFill(Color.rgb(220, 224, 224, alpha));
-            g.fillOval(x, y, size, size * 0.55);
         }
     }
 }

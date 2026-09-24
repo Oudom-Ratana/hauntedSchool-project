@@ -53,16 +53,46 @@ public class Ghost {
 
     private boolean facingLeft = false;
     private int currentDirectionMode = 0; // 0: Down (Forward), 1: Left, 2: Right, 3: Up (Backward)
+    public enum Gender {
+        FEMALE,
+        MALE
+    }
+
     public enum GhostType {
-        PREY("/images/ghost/transparent_ghost_prey_sprite.png"),
-        STUDENT("/images/ghost/transparent_ghost_student_sprite.png"),
-        TEACHER("/images/ghost/transparent_ghost_teacher_sprite.png");
+        PREY("/images/ghost/transparent_ghost_prey_sprite.png", Gender.FEMALE, "Neang Prey"),
+        NEATH("/images/ghost/transparent_ghost_neath_sprite.png", Gender.FEMALE, "Neang Neath"),
+        AHP("/images/ghost/transparent_ghost_ahp_sprite.png", Gender.FEMALE, "Ahp Spirit"),
+        STUDENT_FEMALE("/images/ghost/transparent_ghost_student_sprite.png", Gender.FEMALE, "Lost Female Student"),
+        STUDENT("/images/ghost/transparent_ghost_student_sprite.png", Gender.MALE, "Tormented Student"),
+        TEACHER("/images/ghost/transparent_ghost_teacher_sprite.png", Gender.MALE, "Cursed Teacher"),
+        PRET("/images/ghost/transparent_ghost_pret_sprite.png", Gender.MALE, "Hungry Spirit"),
+        YAKSA("/images/ghost/transparent_ghost_yaksa_sprite.png", Gender.MALE, "Yaksa Demon");
 
         private final String resourcePath;
+        private final Gender gender;
+        private final String displayName;
         private javafx.scene.image.Image cachedImage;
 
-        GhostType(String path) {
+        GhostType(String path, Gender gender, String displayName) {
             this.resourcePath = path;
+            this.gender = gender;
+            this.displayName = displayName;
+        }
+
+        public Gender getGender() {
+            return gender;
+        }
+
+        public boolean isFemale() {
+            return gender == Gender.FEMALE;
+        }
+
+        public boolean isMale() {
+            return gender == Gender.MALE;
+        }
+
+        public String getDisplayName() {
+            return displayName;
         }
 
         public javafx.scene.image.Image getImage() {
@@ -207,6 +237,10 @@ public class Ghost {
                     }
                 } else {
                     chasePersistenceTimer = 0.0;
+                    // Periodic chase voice/scream while pursuing
+                    if (screechCooldown <= 0.0 && distToPlayer <= 260.0) {
+                        playChaseVoice();
+                    }
                 }
             }
             case SEARCH -> {
@@ -252,11 +286,27 @@ public class Ghost {
         }
     }
 
-    private void triggerChase() {
+    public boolean isFemale() {
+        return ghostType != null && ghostType.isFemale();
+    }
+
+    public boolean isMale() {
+        return ghostType == null || ghostType.isMale();
+    }
+
+    public void triggerChase() {
         state = State.CHASE;
         chasePersistenceTimer = 0.0;
+        playChaseVoice();
+    }
+
+    public void playChaseVoice() {
         if (screechCooldown <= 0.0) {
-            AudioManager.getInstance().playOneShot("ghost");
+            if (isFemale()) {
+                AudioManager.getInstance().playGhostChaseFemale();
+            } else {
+                AudioManager.getInstance().playGhostChaseMale();
+            }
             screechCooldown = 6.0;
         }
     }

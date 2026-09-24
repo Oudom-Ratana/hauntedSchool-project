@@ -100,29 +100,29 @@ public class CharacterScene {
         }
 
         // Add bottom navigation buttons
-        // Back Button (ថយ)
-        DropShadow backGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(220, 180, 80, 0.8), 24, 0.45, 0, 0);
+        // Back Button
+        DropShadow backGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.75), 20, 0.35, 0, 3);
         StackPane btnBack = createImageButton("/images/Charactors/btn_back.png",
                 358.0, 152.0, backGlow, () -> SceneManager.showMainMenu());
         btnBack.setLayoutX(550.0);
         btnBack.setLayoutY(1412.0);
 
-        // Start Button (ចាប់ផ្ដើមហ្គេម)
-        DropShadow startGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(255, 225, 95, 0.95), 35, 0.55, 0, 0);
+        // Start Button
+        DropShadow startGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.85), 24, 0.40, 0, 4);
         StackPane btnStart = createImageButton("/images/Charactors/btn_start.png",
                 630.0, 192.0, startGlow, this::startGame);
         btnStart.setLayoutX(950.0);
         btnStart.setLayoutY(1390.0);
 
-        // Continue Button (បន្តទៀត)
-        DropShadow nextGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(72, 195, 120, 0.8), 24, 0.45, 0, 0);
+        // Continue Button
+        DropShadow nextGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.75), 20, 0.35, 0, 3);
         StackPane btnNext = createImageButton("/images/Charactors/btn_next.png",
                 356.0, 152.0, nextGlow, this::continueGame);
         btnNext.setLayoutX(1624.0);
         btnNext.setLayoutY(1412.0);
 
-        // Settings Button (⚙)
-        DropShadow gearGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(255, 210, 80, 0.85), 24, 0.45, 0, 0);
+        // Settings Button
+        DropShadow gearGlow = new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.75), 20, 0.35, 0, 3);
         StackPane btnSettings = createImageButton("/images/Charactors/btn_settings.png",
                 160.0, 160.0, gearGlow, () -> showAudioSettings(root));
         btnSettings.setLayoutX(2310.0);
@@ -223,20 +223,18 @@ public class CharacterScene {
     }
 
     private void startGame() {
-        AudioManager.getInstance().playStartGame();
         AudioManager.getInstance().stopHomeMusic();
         SceneManager.showGame(characters[selectedIndex].getGameCharacterName());
     }
 
     private void continueGame() {
+        AudioManager.getInstance().stopHomeMusic();
         SaveManager saves = new SaveManager();
         if (saves.hasSave()) {
             SceneManager.showGameWithSave(saves.load());
-            return;
+        } else {
+            startGame();
         }
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "No saved game is available yet.");
-        alert.setHeaderText("CONTINUE");
-        alert.showAndWait();
     }
 
     private void showAudioSettings(StackPane root) {

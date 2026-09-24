@@ -107,7 +107,7 @@ public class AdminLoginView extends StackPane {
         imageView.setLayoutY(0);
 
         // 2. Custom Typography: Header Title & Subtitle
-        Label titleLbl = new Label("❖  KHMER SPIRIT SANCTUM  ❖");
+        Label titleLbl = new Label("KHMER SPIRIT SANCTUM");
         titleLbl.setLayoutX(300);
         titleLbl.setLayoutY(246);
         titleLbl.setPrefWidth(600);
@@ -185,7 +185,7 @@ public class AdminLoginView extends StackPane {
         statusMsg.setVisible(false);
 
         // 6. Interactive Button: ENTER SYSTEM (Left slot)
-        Button enterBtn = new Button("⚔  Enter System");
+        Button enterBtn = new Button("Enter System");
         enterBtn.setLayoutX(302);
         enterBtn.setLayoutY(631);
         enterBtn.setPrefWidth(288);
@@ -194,7 +194,7 @@ public class AdminLoginView extends StackPane {
         enterBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-letter-spacing: 1px;");
 
         // 7. Interactive Button: RETURN TO MENU (Right slot)
-        Button returnBtn = new Button("✦  Return to Menu");
+        Button returnBtn = new Button("Return to Menu");
         returnBtn.setLayoutX(612);
         returnBtn.setLayoutY(631);
         returnBtn.setPrefWidth(288);

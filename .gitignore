@@ -11,6 +11,7 @@ dependency-reduced-pom.xml
 ### Crash logs & temp dumps ###
 hs_err_pid*.log
 replay_pid*.log
+saves/
 
 ### Temporary debug screenshots in root only ###
 /debug_*.png

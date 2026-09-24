@@ -19,17 +19,21 @@
 }
 
 .game-title {
-    -fx-font-size: 60px;
+    -fx-font-family: "Chiller", "Old English Text MT", "Copperplate Gothic Bold", "Rockwell", serif;
+    -fx-font-size: 80px;
     -fx-font-weight: 900;
-    -fx-text-fill: #f3e4bb;
-    -fx-letter-spacing: 2px;
+    -fx-text-fill: linear-gradient(to bottom, #fff5d7, #e0a340 55%, #7e2205);
+    -fx-effect: dropshadow(gaussian, rgba(160, 20, 20, 0.90), 18, 0.5, 0, 4);
+    -fx-letter-spacing: 3px;
 }
 
 .game-subtitle {
-    -fx-font-size: 24px;
-    -fx-font-weight: 800;
-    -fx-text-fill: #b54c3b;
-    -fx-letter-spacing: 3px;
+    -fx-font-family: "Chiller", "Copperplate Gothic Bold", "Rockwell", serif;
+    -fx-font-size: 38px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #e74c3c;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 14, 0.5, 0, 3);
+    -fx-letter-spacing: 4px;
 }
 
 .menu-panel {
@@ -111,11 +115,19 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 16, 0.2, 0, 3);
 }
 
-.card-title,
-.hud-title {
+.card-title {
     -fx-font-size: 19px;
     -fx-font-weight: 900;
     -fx-text-fill: #e8d2a0;
+}
+
+.hud-title {
+    -fx-font-family: "Chiller", "Copperplate Gothic Bold", "Rockwell", serif;
+    -fx-font-size: 27px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #f1c40f;
+    -fx-effect: dropshadow(gaussian, rgba(180, 20, 20, 0.75), 10, 0.45, 0, 2);
+    -fx-letter-spacing: 2px;
 }
 
 .character-name {
@@ -150,18 +162,20 @@
 }
 
 .character-game-title {
-    -fx-font-family: "Rockwell", "Georgia", serif;
-    -fx-font-size: 42px;
+    -fx-font-family: "Chiller", "Old English Text MT", "Copperplate Gothic Bold", "Rockwell", serif;
+    -fx-font-size: 52px;
     -fx-font-weight: 900;
     -fx-text-fill: linear-gradient(to bottom, #f5c45d, #9e601c);
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 6, 0.45, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.95), 8, 0.45, 0, 3);
+    -fx-letter-spacing: 3px;
 }
 
 .character-game-subtitle {
-    -fx-font-family: "Georgia", serif;
-    -fx-font-size: 15px;
+    -fx-font-family: "Chiller", "Copperplate Gothic Bold", "Georgia", serif;
+    -fx-font-size: 26px;
     -fx-font-weight: 900;
     -fx-text-fill: #d0a37f;
+    -fx-letter-spacing: 2px;
 }
 
 .character-gallery-heading {
@@ -311,12 +325,14 @@
 }
 
 .character-card-highlight {
+    -fx-border-color: transparent;
+    -fx-border-width: 0px;
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
 }
 
 .character-card-active {
-    -fx-effect: dropshadow(gaussian, rgba(255, 215, 80, 0.95), 36, 0.55, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.88), 28, 0.42, 0, 6);
 }
 
 .list-view,
@@ -1036,4 +1052,34 @@
     -fx-border-color: #2563eb;
     -fx-background-color: #131c31;
     -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.35), 6, 0.2, 0, 0);
+}
+
+/* Barrier List View - High Contrast Dark Theme */
+.barrier-list-view {
+    -fx-background-color: #070b14;
+    -fx-control-inner-background: #070b14;
+    -fx-border-color: #1e293b;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.barrier-list-view .list-cell {
+    -fx-background-color: #0c1322;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 7px 10px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.barrier-list-view .list-cell:filled:hover {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #38bdf8;
+}
+
+.barrier-list-view .list-cell:filled:selected,
+.barrier-list-view .list-cell:filled:selected:hover {
+    -fx-background-color: #1d4ed8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
 }
