@@ -65,7 +65,7 @@ public class Inventory {
         });
     }
 
-    private void removeOne(String itemId) {
+    public void removeOne(String itemId) {
         int remaining = itemCounts.getOrDefault(itemId, 0) - 1;
         if (remaining <= 0) {
             itemCounts.remove(itemId);

@@ -44,6 +44,7 @@ public class Ghost {
     private double fleeFromX = 0.0;
     private double fleeFromY = 0.0;
     private double pacifyTimer = 0.0;
+    private boolean banished = false;
 
     private double lastKnownPlayerX;
     private double lastKnownPlayerY;
@@ -139,6 +140,12 @@ public class Ghost {
 
     public void update(double deltaSeconds, Player player, Game game) {
         lifeTime += deltaSeconds;
+
+        if (banished) {
+            animation.update(deltaSeconds, com.khmerspirit.animation.GhostAnimation.State.DISAPPEAR);
+            return;
+        }
+
         animation.update(deltaSeconds, animationState);
 
         if (animation.isDisappeared()) {
@@ -216,7 +223,7 @@ public class Ghost {
                 moveTowards(lastKnownPlayerX, lastKnownPlayerY, speedChase, deltaSeconds);
 
                 // Proximity heartbeat tension cue
-                if (distToPlayer < 95.0) {
+                if (distToPlayer < 95.0 && !AudioManager.getInstance().isInMusicArtRoom()) {
                     heartbeatTimer += deltaSeconds;
                     if (heartbeatTimer >= 0.65) {
                         AudioManager.getInstance().playOneShot("heartbeat");
@@ -301,6 +308,9 @@ public class Ghost {
     }
 
     public void playChaseVoice() {
+        if (AudioManager.getInstance().isInMusicArtRoom()) {
+            return;
+        }
         if (screechCooldown <= 0.0) {
             if (isFemale()) {
                 AudioManager.getInstance().playGhostChaseFemale();
@@ -736,7 +746,11 @@ public class Ghost {
     public double getY() { return y; }
     public State getState() { return state; }
     public boolean isDisappeared() { return animation.isDisappeared(); }
-    public void banish() { animation.update(0.0, com.khmerspirit.animation.GhostAnimation.State.DISAPPEAR); }
+    public void banish() {
+        this.banished = true;
+        this.state = State.IDLE;
+        animation.update(0.0, com.khmerspirit.animation.GhostAnimation.State.DISAPPEAR);
+    }
     public void stun(double seconds) { this.stunTimer = seconds; }
     public void scareAway(double fromX, double fromY, double seconds) {
         this.fleeTimer = seconds;

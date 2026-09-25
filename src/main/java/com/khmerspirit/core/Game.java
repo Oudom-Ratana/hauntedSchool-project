@@ -393,8 +393,8 @@ public class Game {
         inventoryUI.render(graphics, inventory, canvas.getWidth(), canvas.getHeight(), assetManager);
         renderNotification();
 
-        // Live GTA-style minimap radar & full architectural blueprint overlay
-        boolean hasNightVision = inventory.hasItem("night_vision") || nightVisionActive;
+        // Live GTA-style minimap radar & full architectural blueprint overlay (red ghost dots only appear when wearing night vision)
+        boolean hasNightVision = nightVisionActive && inventory.hasItem("night_vision");
         minimapUI.renderMinimap(graphics, tileMap, player, itemPickups, educationManager.getGhosts(), currentMapId, pulseTimer, hasNightVision);
         minimapUI.renderFullMap(graphics, currentMapId, player.getCenterX(), player.getCenterY(), canvas.getWidth(), canvas.getHeight(), pulseTimer);
 
@@ -830,29 +830,64 @@ public class Game {
                 }
             }
             case "acid_bottle" -> {
-                if (tryUnlockAdjacentDoorWithTool("Acid Bottle")) {
+                double px = player.getCenterX();
+                double py = player.getCenterY();
+
+                // 1. Check if near the Music & Art Room door:
+                Door artDoor = null;
+                for (Door d : tileMap.getDoors()) {
+                    if (d.isNear(px, py, 110.0) && isMusicArtDoor(d) && d.isLocked()) {
+                        artDoor = d;
+                        break;
+                    }
+                }
+
+                if (artDoor != null) {
+                    artDoor.setLocked(false);
+                    tileMap.setDoorOpen(artDoor, true);
+                    unlockedDoorIds.add(artDoor.getId());
                     inventory.useSlot(slot);
+                    playSound("door");
+                    playSound("puzzle_complete");
+                    showNotification("You splashed the Acid Bottle on the padlock! The acid melted the lock of the Music & Art Room! 🧪🚪");
+                    saveNow();
+                    break;
+                }
+
+                // Check if standing near any OTHER locked door:
+                Door otherLockedDoor = null;
+                for (Door d : tileMap.getDoors()) {
+                    if (d.isNear(px, py, 110.0) && !isMusicArtDoor(d) && d.isLocked()) {
+                        otherLockedDoor = d;
+                        break;
+                    }
+                }
+
+                if (otherLockedDoor != null) {
+                    showNotification("The Acid Bottle can only dissolve the lock of the Music & Art Room! It cannot open other rooms. 🧪");
+                    break;
+                }
+
+                // 2. Kill one ghost:
+                com.khmerspirit.entities.Ghost closestGhost = null;
+                double closestDist = 320.0;
+                for (com.khmerspirit.entities.Ghost g : educationManager.getGhosts()) {
+                    if (g.isDisappeared()) continue;
+                    double d = Math.hypot(g.getX() - player.getCenterX(), g.getY() - player.getCenterY());
+                    if (d <= closestDist) {
+                        closestDist = d;
+                        closestGhost = g;
+                    }
+                }
+                if (closestGhost != null) {
+                    closestGhost.banish();
+                    educationManager.getGhosts().remove(closestGhost);
+                    inventory.useSlot(slot);
+                    playSound("puzzle_complete");
+                    showNotification("You threw the Acid Bottle! The corrosive acid dissolved and killed the ghost! 🧪💀👻");
                     saveNow();
                 } else {
-                    // Check if a ghost is close enough to throw acid at:
-                    com.khmerspirit.entities.Ghost closestGhost = null;
-                    double closestDist = 280.0;
-                    for (com.khmerspirit.entities.Ghost g : educationManager.getGhosts()) {
-                        double d = Math.hypot(g.getX() - player.getCenterX(), g.getY() - player.getCenterY());
-                        if (d <= closestDist) {
-                            closestDist = d;
-                            closestGhost = g;
-                        }
-                    }
-                    if (closestGhost != null) {
-                        closestGhost.banish();
-                        inventory.useSlot(slot);
-                        playSound("puzzle_complete");
-                        showNotification("Threw Holy Alchemical Acid vial! Corrosive splash banished the dark spirit! 🧪💥");
-                        saveNow();
-                    } else {
-                        showNotification("Acid Bottle ready: Use near a locked door to melt lock, or near a ghost to banish it! 🧪");
-                    }
+                    showNotification("Acid Bottle ready: Use at the Music & Art Room door to open it, or throw near a ghost to kill it! 🧪");
                 }
             }
             case "key", "master_key" -> {
@@ -880,6 +915,16 @@ public class Game {
                 saveNow();
             }
         }
+    }
+
+    private boolean isMusicArtDoor(Door door) {
+        if (door == null) return false;
+        String from = door.getFromRoomId() == null ? "" : door.getFromRoomId().toLowerCase();
+        String to = door.getToRoomId() == null ? "" : door.getToRoomId().toLowerCase();
+        String id = door.getId() == null ? "" : door.getId().toLowerCase();
+        return from.equals("computer") || from.contains("music") || from.contains("art")
+                || to.equals("computer") || to.contains("music") || to.contains("art")
+                || id.contains("music") || id.contains("art");
     }
 
     private boolean tryUnlockAdjacentDoorWithTool(String toolName) {
@@ -928,19 +973,33 @@ public class Game {
 
                         if (door.isLocked()) {
                             String req = door.getRequiredKeyId();
-                            boolean hasKey = (req == null || req.isBlank()) || inventory.hasItem(req) || (!"exit".equalsIgnoreCase(target) && inventory.hasItem("master_key"));
+                            boolean isMusicArt = isMusicArtDoor(door);
+                            boolean hasKey = (req == null || req.isBlank())
+                                    || inventory.hasItem(req)
+                                    || (!"exit".equalsIgnoreCase(target) && inventory.hasItem("master_key"))
+                                    || (isMusicArt && inventory.hasItem("acid_bottle"));
                             if (hasKey) {
+                                if (isMusicArt && !inventory.hasItem(req) && !inventory.hasItem("master_key") && inventory.hasItem("acid_bottle")) {
+                                    inventory.removeOne("acid_bottle");
+                                    showNotification("You poured Acid on the padlock! The acid dissolved the lock of the Music & Art Room! 🧪🚪");
+                                } else {
+                                    showNotification("Unlocked and opened the door to " + name + "! [Press E to Enter]");
+                                }
                                 door.setLocked(false);
                                 tileMap.setDoorOpen(door, true);
                                 unlockedDoorIds.add(door.getId());
                                 playSound("door");
-                                showNotification("Unlocked and opened the door to " + name + "! [Press E to Enter]");
+                                playSound("puzzle_complete");
                                 saveNow();
                                 return true;
                             } else {
                                 playSound("ghost");
                                 String keyNeeded = getKeyDisplayName(req);
-                                showNotification("The door to " + name + " is locked! You need the " + keyNeeded + ".");
+                                if (isMusicArt) {
+                                    showNotification("The door to " + name + " is locked! You need the " + keyNeeded + " or an Acid Bottle to melt it.");
+                                } else {
+                                    showNotification("The door to " + name + " is locked! You need the " + keyNeeded + ".");
+                                }
                                 return true;
                             }
                         } else {

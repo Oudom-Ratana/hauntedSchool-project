@@ -10,11 +10,11 @@ public class AcidBottle extends Item {
 
     @Override
     public String getUseMessage() {
-        return "You throw the acid bottle! Melts adjacent door locks or dissolves pursuing spirits in contact!";
+        return "You throw the acid bottle! Dissolves the lock of the Music & Art Room or kills a nearby ghost on contact!";
     }
 
     @Override
     public String getAbilityDescription() {
-        return "Corrosive holy alchemical solvent that dissolves locked doors without keys, or banishes nearby spirits upon direct contact.";
+        return "Corrosive solvent: Opens ONLY the Music & Art Room door, or throws at a ghost to kill and dissolve it!";
     }
 }

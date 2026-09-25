@@ -272,6 +272,12 @@ public class AudioManager {
         }
     }
 
+    private boolean inMusicArtRoom = false;
+
+    public boolean isInMusicArtRoom() {
+        return inMusicArtRoom;
+    }
+
     /**
      * Called by Game whenever the player changes rooms or enters a new area.
      */
@@ -279,7 +285,10 @@ public class AudioManager {
         if (roomId == null) return;
         String rid = roomId.toLowerCase().trim();
         boolean isArtRoom = rid.contains("music") || rid.contains("art") || rid.equals("computer");
+        this.inMusicArtRoom = isArtRoom;
         if (isArtRoom) {
+            stopGhostSounds();
+            stopLoop("rain");
             playArtRoomMusic();
         } else {
             if (artMusicPlayer != null) {
@@ -287,6 +296,7 @@ public class AudioManager {
             } else if (gameMusicPlayer == null || !gameMusicPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
                 resumeGameMusic();
             }
+            playLoop("rain");
         }
     }
 
@@ -331,6 +341,9 @@ public class AudioManager {
     }
 
     private void playGhostVoiceTrack(String fileName, double volumeScale) {
+        if (inMusicArtRoom) {
+            return;
+        }
         String uri = resolveGhostAudioUri(fileName);
         if (uri == null) {
             System.err.println("[AudioManager] Could not find ghost chase audio: " + fileName);
@@ -379,6 +392,7 @@ public class AudioManager {
      * in /audio/sfx/ghost/ (whispers, ghost-tgo, ghost_scream, vovo) once every 15-20s.
      */
     public void playRandomAmbientGhostSuffering() {
+        if (inMusicArtRoom) return;
         if (AMBIENT_GHOST_TRACKS.length == 0) return;
         String chosenTrack = AMBIENT_GHOST_TRACKS[new Random().nextInt(AMBIENT_GHOST_TRACKS.length)];
         String uri = resolveGhostAudioUri(chosenTrack);
@@ -540,6 +554,9 @@ public class AudioManager {
      * The clip auto-disposes after completion.
      */
     public void playOneShot(String key) {
+        if (inMusicArtRoom && (key.equalsIgnoreCase("ghost") || key.equalsIgnoreCase("heartbeat") || key.equalsIgnoreCase("jumpscare"))) {
+            return;
+        }
         Clip clip = createClipForKey(key);
         if (clip == null) {
             byte[] data = samples.get(key);
@@ -564,6 +581,9 @@ public class AudioManager {
      * Starts looping a registered sound indefinitely.
      */
     public void playLoop(String key) {
+        if (inMusicArtRoom && key.equalsIgnoreCase("rain")) {
+            return;
+        }
         Clip clip = loopingClips.get(key);
         if (clip == null) {
             clip = createClipForKey(key);
