@@ -561,10 +561,31 @@ public class EducationManager {
             g.fillText("⏳ " + remaining + " LEFT (" + correct + "/5)", btnX + 11, btnY + 17);
         }
 
+        // Category & Difficulty Pill Badge
+        double catDiffBadgeY = insetY + 22.0;
+        String category = q.getCategory() != null ? q.getCategory() : "General Knowledge";
+        String difficulty = q.getDifficulty() != null ? q.getDifficulty() : "Easy";
+        String badgeStr = "🏷 " + category + "   |   ★ " + difficulty;
+
+        Color badgeBorder = "Easy".equalsIgnoreCase(difficulty) ? Color.web("#52c41a") : Color.web("#faad14");
+        Color badgeBg = "Easy".equalsIgnoreCase(difficulty) ? Color.rgb(18, 55, 24, 0.90) : Color.rgb(55, 40, 15, 0.90);
+        Color badgeText = "Easy".equalsIgnoreCase(difficulty) ? Color.web("#95de64") : Color.web("#ffe58f");
+
+        double badgeW = badgeStr.length() * 6.8 + 22.0;
+        g.setFill(badgeBg);
+        g.fillRoundRect(insetX, catDiffBadgeY, badgeW, 20.0, 5, 5);
+        g.setStroke(badgeBorder);
+        g.setLineWidth(1.0);
+        g.strokeRoundRect(insetX, catDiffBadgeY, badgeW, 20.0, 5, 5);
+
+        g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 11));
+        g.setFill(badgeText);
+        g.fillText(badgeStr, insetX + 10, catDiffBadgeY + 14);
+
         // Question Text (Crisp 15px font, comfortably wrapped across full insetW)
         g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 15));
         List<String> qLines = wrapText(q.getText(), insetW - 12, 15);
-        double curY = insetY + 48.0;
+        double curY = insetY + 54.0;
         for (String ql : qLines) {
             g.setFill(Color.rgb(0, 0, 0, 0.95));
             g.fillText(ql, insetX + 1, curY + 1);

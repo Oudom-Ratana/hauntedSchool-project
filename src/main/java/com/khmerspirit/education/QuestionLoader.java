@@ -41,7 +41,7 @@ public class QuestionLoader {
                         else if ("D".equalsIgnoreCase(qm.getCorrectAnswer())) ansIdx = 3;
 
                         if (options.size() >= 2) {
-                            roomQuestions.add(new Question(qm.getText(), options, Math.min(ansIdx, options.size() - 1)));
+                            roomQuestions.add(new Question(qm.getText(), options, Math.min(ansIdx, options.size() - 1), qm.getCategory(), qm.getDifficulty()));
                         }
                     }
                 }

@@ -149,6 +149,10 @@ public class Player {
         return hearts <= 0;
     }
 
+    public int getDirectionRow() {
+        return animation != null ? animation.getDirectionRow() : 0;
+    }
+
     private void move(double deltaX, double deltaY, CollisionMap collisionMap) {
         // 2.5D bottom foot hitbox: width 20, height 14, centered at bottom of the 32x44 sprite
         double boxOffsetX = 6.0;

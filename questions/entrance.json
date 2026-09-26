@@ -1,14 +1,204 @@
 {
   "questions": [
     {
-      "text": "What is 2 + 2?",
-      "options": ["4", "2", "5", "1"],
+      "text": "What does LAN stand for in computer networking?",
+      "options": [
+        "Local Area Network",
+        "Logical Access Node",
+        "Large Array Network",
+        "Linked Application Network"
+      ],
       "answer": "0"
     },
     {
-      "text": "What color is the sky?",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "text": "What does WAN stand for?",
+      "options": [
+        "Wireless Access Network",
+        "Wide Area Network",
+        "Web Application Node",
+        "Worldwide Array Network"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What device connects a local home or school network to the Internet Service Provider (ISP)?",
+      "options": [
+        "Modem",
+        "Monitor",
+        "Printer",
+        "Soundcard"
+      ],
       "answer": "0"
+    },
+    {
+      "text": "What wireless networking technology standard is commonly known as Wi-Fi?",
+      "options": [
+        "IEEE 802.3",
+        "IEEE 802.11",
+        "IEEE 802.15",
+        "Bluetooth 5.0"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What security device monitors and filters incoming and outgoing network traffic?",
+      "options": [
+        "Repeater",
+        "Firewall",
+        "Hub",
+        "Splitter"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What does URL stand for in web browsing?",
+      "options": [
+        "Universal Resource Locator",
+        "Uniform Resource Locator",
+        "Unified Routing Link",
+        "User Request Link"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which standard connector type is used on Cat5e and Cat6 twisted-pair Ethernet cables?",
+      "options": [
+        "USB Type-C",
+        "RJ-45",
+        "HDMI",
+        "VGA"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What protocol is used to transfer files between computers over a network?",
+      "options": [
+        "FTP",
+        "HTTP",
+        "DNS",
+        "ICMP"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What does bandwidth measure in network communication?",
+      "options": [
+        "The physical weight of the cables",
+        "The maximum data transfer capacity of a network link over time",
+        "The number of computers on a desk",
+        "The electric voltage"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What network model architecture features client machines requesting services from central servers?",
+      "options": [
+        "Peer-to-Peer",
+        "Client-Server",
+        "Ad-hoc",
+        "Broadcast"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the purpose of the 'traceroute' (or 'tracert' in Windows) utility?",
+      "options": [
+        "To measure hard drive read speeds",
+        "To show the path and measure transit delays of packets across IP hops to a destination",
+        "To change your IP address",
+        "To crack Wi-Fi passwords"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which protocol is standard for sending outgoing email from a client to an email server?",
+      "options": [
+        "POP3",
+        "IMAP",
+        "SMTP",
+        "HTTP"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the difference between POP3 and IMAP for receiving emails?",
+      "options": [
+        "POP3 downloads and removes emails from the server; IMAP synchronizes emails across multiple devices",
+        "IMAP is older and slower",
+        "POP3 supports folders while IMAP does not",
+        "They are identical protocols"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What does a network switch use to make forwarding decisions on a LAN?",
+      "options": [
+        "IP routing table",
+        "MAC address table (CAM table)",
+        "DNS cache",
+        "URL whitelist"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is latency in computer networking?",
+      "options": [
+        "The total amount of data downloaded",
+        "The time delay taken for data to travel from source to destination",
+        "The strength of the Wi-Fi signal",
+        "The frequency of the CPU"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What private IP address range is defined by RFC 1918 for Class A private networks?",
+      "options": [
+        "10.0.0.0 to 10.255.255.255",
+        "172.16.0.0 to 172.31.255.255",
+        "192.168.0.0 to 192.168.255.255",
+        "224.0.0.0 to 239.255.255.255"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is the purpose of VLAN (Virtual Local Area Network) technology?",
+      "options": [
+        "To connect to Bluetooth headsets",
+        "To logically segment and isolate devices on the same physical switch into separate broadcast domains",
+        "To boost Internet download speeds",
+        "To replace Ethernet cables with fiber"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which security protocol is currently considered the most secure standard for home Wi-Fi?",
+      "options": [
+        "WEP",
+        "WPA",
+        "WPA2",
+        "WPA3"
+      ],
+      "answer": "3"
+    },
+    {
+      "text": "What is packet loss in network performance?",
+      "options": [
+        "When physical cables are stolen",
+        "When data packets traversing a network fail to reach their destination",
+        "When a computer runs out of RAM",
+        "When the monitor goes black"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What does TTL (Time to Live) in an IPv4 header do?",
+      "options": [
+        "Sets the time zone on the receiver",
+        "Prevents packets from circulating endlessly in routing loops by decrementing at each router hop",
+        "Measures battery percentage",
+        "Encrypts the packet payload"
+      ],
+      "answer": "1"
     }
   ]
 }

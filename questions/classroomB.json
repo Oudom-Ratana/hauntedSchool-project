@@ -1,14 +1,204 @@
 {
   "questions": [
     {
-      "text": "What is 2 + 2?",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "text": "What does IP stand for in computer networking?",
+      "options": [
+        "Internet Protocol",
+        "Internal Program",
+        "Interconnect Point",
+        "Interface Port"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "Which layer of the OSI model handles end-to-end data transport and reliability?",
+      "options": [
+        "Data Link Layer",
+        "Network Layer",
+        "Transport Layer",
+        "Session Layer"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the standard port number for unencrypted HTTP web traffic?",
+      "options": [
+        "21",
+        "22",
+        "80",
+        "443"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the default port number for secure HTTPS web traffic?",
+      "options": [
+        "80",
+        "443",
+        "8080",
+        "8443"
+      ],
       "answer": "1"
     },
     {
-      "text": "What color is the sky?",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "text": "What protocol automatically assigns dynamic IP addresses to devices on a network?",
+      "options": [
+        "DNS",
+        "DHCP",
+        "SNMP",
+        "FTP"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What does DNS stand for?",
+      "options": [
+        "Data Network Service",
+        "Domain Name System",
+        "Dynamic Node Server",
+        "Digital Name Storage"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which command-line utility is used to test network connectivity using ICMP packets?",
+      "options": [
+        "ping",
+        "netstat",
+        "ipconfig",
+        "nslookup"
+      ],
       "answer": "0"
+    },
+    {
+      "text": "What is the standard IPv4 loopback address referring to 'localhost'?",
+      "options": [
+        "192.168.1.1",
+        "10.0.0.1",
+        "127.0.0.1",
+        "0.0.0.0"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What physical address is permanently burned into a Network Interface Card (NIC)?",
+      "options": [
+        "IP Address",
+        "MAC Address",
+        "Port Number",
+        "Subnet Mask"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which network topology connects every computer to a single central switch or hub?",
+      "options": [
+        "Bus Topology",
+        "Star Topology",
+        "Ring Topology",
+        "Mesh Topology"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the primary difference between TCP and UDP?",
+      "options": [
+        "TCP is connectionless; UDP establishes handshakes",
+        "TCP guarantees ordered, reliable packet delivery; UDP is connectionless and faster",
+        "TCP only works on LANs",
+        "UDP encrypts all traffic by default"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "How many bits are in an IPv4 address compared to an IPv6 address?",
+      "options": [
+        "IPv4 has 32 bits; IPv6 has 128 bits",
+        "IPv4 has 16 bits; IPv6 has 64 bits",
+        "IPv4 has 64 bits; IPv6 has 256 bits",
+        "IPv4 has 128 bits; IPv6 has 32 bits"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What protocol is used to map an IPv4 address to a local physical MAC address?",
+      "options": [
+        "DNS",
+        "ARP",
+        "NAT",
+        "DHCP"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What does NAT (Network Address Translation) allow a home router to do?",
+      "options": [
+        "Boost Wi-Fi signal strength",
+        "Allow multiple private local devices to share a single public IP address",
+        "Encrypt all browser history",
+        "Block all incoming emails"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the default subnet mask for a standard Class C IPv4 network (/24)?",
+      "options": [
+        "255.0.0.0",
+        "255.255.0.0",
+        "255.255.255.0",
+        "255.255.255.255"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which HTTP response status code indicates 'Not Found'?",
+      "options": [
+        "200",
+        "301",
+        "404",
+        "500"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the three-way handshake sequence used to establish a TCP connection?",
+      "options": [
+        "SYN, SYN-ACK, ACK",
+        "ACK, SYN, FIN",
+        "HELLO, WAIT, START",
+        "CONNECT, ACCEPT, READY"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "Which port is standard for secure SSH (Secure Shell) remote terminal access?",
+      "options": [
+        "21",
+        "22",
+        "23",
+        "25"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "At which layer of the OSI model does a network router operate?",
+      "options": [
+        "Layer 1 (Physical)",
+        "Layer 2 (Data Link)",
+        "Layer 3 (Network)",
+        "Layer 4 (Transport)"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the maximum payload size (MTU) of a standard Ethernet frame?",
+      "options": [
+        "512 bytes",
+        "1024 bytes",
+        "1500 bytes",
+        "4096 bytes"
+      ],
+      "answer": "2"
     }
   ]
 }

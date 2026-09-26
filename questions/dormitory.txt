@@ -1,0 +1,140 @@
+Q: How many bones are in an adult human skeleton?
+A: 186
+B: 206
+C: 226
+D: 256
+Answer: 2
+
+Q: Which organ pumps oxygenated blood throughout the human body?
+A: Lungs
+B: Liver
+C: Heart
+D: Kidneys
+Answer: 3
+
+Q: What is the largest organ of the human body by surface area?
+A: Liver
+B: Skin
+C: Brain
+D: Large Intestine
+Answer: 2
+
+Q: What gas do humans inhale for cellular respiration?
+A: Carbon dioxide
+B: Helium
+C: Oxygen
+D: Nitrogen
+Answer: 3
+
+Q: Which vitamin is synthesized by human skin when exposed to sunlight?
+A: Vitamin A
+B: Vitamin B12
+C: Vitamin C
+D: Vitamin D
+Answer: 4
+
+Q: What is the normal resting body temperature of a healthy human in Celsius?
+A: 35.0 C
+B: 37.0 C
+C: 39.5 C
+D: 41.0 C
+Answer: 2
+
+Q: What mineral is vital for healthy bones and teeth?
+A: Iron
+B: Calcium
+C: Zinc
+D: Sodium
+Answer: 2
+
+Q: Which sense organ contains the cochlea responsible for hearing?
+A: Eye
+B: Ear
+C: Nose
+D: Tongue
+Answer: 2
+
+Q: What protein in red blood cells binds and transports oxygen?
+A: Hemoglobin
+B: Keratin
+C: Collagen
+D: Insulin
+Answer: 1
+
+Q: What part of the brain controls balance and fine motor coordination?
+A: Cerebrum
+B: Cerebellum
+C: Brainstem
+D: Thalamus
+Answer: 2
+
+Q: Which blood type is considered the universal red blood cell donor?
+A: A positive
+B: B negative
+C: AB positive
+D: O negative
+Answer: 4
+
+Q: What hormone produced by the pancreas regulates blood glucose levels?
+A: Thyroxine
+B: Adrenaline
+C: Insulin
+D: Cortisol
+Answer: 3
+
+Q: What is the functional biological unit of the human kidney?
+A: Nephron
+B: Neuron
+C: Alveolus
+D: Villus
+Answer: 1
+
+Q: Which division of the autonomic nervous system triggers the 'fight or flight' response?
+A: Parasympathetic
+B: Sympathetic
+C: Enteric
+D: Somatic
+Answer: 2
+
+Q: Where in the human digestive system does the majority of nutrient absorption occur?
+A: Stomach
+B: Small Intestine
+C: Large Intestine
+D: Esophagus
+Answer: 2
+
+Q: What pathogen causes the common cold and seasonal flu?
+A: Bacteria
+B: Virus
+C: Fungus
+D: Protozoa
+Answer: 2
+
+Q: What is the primary function of white blood cells (leukocytes)?
+A: Carry oxygen
+B: Form scabs
+C: Defend against pathogens and infection
+D: Regulate body temperature
+Answer: 3
+
+Q: What genetic molecule carries hereditary instructions for living organisms?
+A: RNA
+B: DNA
+C: ATP
+D: Lipids
+Answer: 2
+
+Q: Which blood vessels carry oxygen-depleted blood back toward the heart from tissues?
+A: Arteries
+B: Veins
+C: Capillaries
+D: Arterioles
+Answer: 2
+
+Q: What type of joint is found at the human shoulder and hip, allowing multi-axis movement?
+A: Hinge joint
+B: Ball-and-socket joint
+C: Pivot joint
+D: Saddle joint
+Answer: 2
+

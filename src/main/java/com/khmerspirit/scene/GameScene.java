@@ -34,6 +34,7 @@ public class GameScene {
     private AnimationTimer hudTimer;
     private StackPane pauseOverlay;
     private boolean isGameOver = false;
+    private boolean isVictory = false;
 
     public GameScene(String selectedCharacter) {
         this(selectedCharacter, null);
@@ -56,6 +57,7 @@ public class GameScene {
             game = new Game(canvas, selectedCharacter, saveData);
         }
         game.setGameOverHandler(() -> showGameOverOverlay(playArea));
+        game.setVictoryHandler(() -> showVictoryOverlay(playArea));
 
         HBox hud = createHud(playArea);
 
@@ -79,19 +81,42 @@ public class GameScene {
         // Note: No bottom footer so UI is 100% visible on small / windowed displays
 
         Scene scene = new Scene(root, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE || event.getCode() == KeyCode.P) {
-                togglePause(playArea);
+        canvas.setFocusTraversable(true);
+        canvas.requestFocus();
+
+        // Event filter captures Arrow keys, WASD, and hotkeys before any control focus traversal
+        scene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+            KeyCode code = event.getCode();
+            if (code == KeyCode.ESCAPE || code == KeyCode.P) {
+                if (!isGameOver && !isVictory) {
+                    togglePause(playArea);
+                }
                 event.consume();
                 return;
             }
-            if (game != null && !game.isPaused() && !isGameOver) {
-                game.getPlayerController().press(event.getCode());
+            if (code == KeyCode.UP || code == KeyCode.DOWN || code == KeyCode.LEFT || code == KeyCode.RIGHT) {
+                if (game != null && !game.isPaused() && !isGameOver && !isVictory) {
+                    game.getPlayerController().press(code);
+                }
+                event.consume(); // Prevent JavaFX focus traversal
+                return;
+            }
+            if (game != null && !game.isPaused() && !isGameOver && !isVictory) {
+                game.getPlayerController().press(code);
             }
         });
-        scene.setOnKeyReleased(event -> {
-            if (game != null && !game.isPaused() && !isGameOver) {
-                game.getPlayerController().release(event.getCode());
+
+        scene.addEventFilter(javafx.scene.input.KeyEvent.KEY_RELEASED, event -> {
+            KeyCode code = event.getCode();
+            if (code == KeyCode.UP || code == KeyCode.DOWN || code == KeyCode.LEFT || code == KeyCode.RIGHT) {
+                if (game != null && !game.isPaused() && !isGameOver && !isVictory) {
+                    game.getPlayerController().release(code);
+                }
+                event.consume();
+                return;
+            }
+            if (game != null && !game.isPaused() && !isGameOver && !isVictory) {
+                game.getPlayerController().release(code);
             }
         });
 
@@ -134,11 +159,13 @@ public class GameScene {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button pauseButton = new Button("⏸ PAUSE");
+        pauseButton.setFocusTraversable(false);
         pauseButton.getStyleClass().add("secondary-button");
         pauseButton.setStyle("-fx-background-color: rgba(212, 175, 55, 0.18); -fx-border-color: #d4af37; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-text-fill: #f1c40f; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 6 14; -fx-cursor: hand;");
         pauseButton.setOnAction(event -> togglePause(playArea));
 
         Button homeButton = new Button("🏠 MENU");
+        homeButton.setFocusTraversable(false);
         homeButton.getStyleClass().add("secondary-button");
         homeButton.setStyle("-fx-background-color: rgba(192, 57, 43, 0.28); -fx-border-color: #c0392b; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 6 14; -fx-cursor: hand;");
         homeButton.setOnAction(event -> returnToMainMenu());
@@ -372,5 +399,167 @@ public class GameScene {
         });
 
         return button;
+    }
+
+    private void showVictoryOverlay(StackPane playArea) {
+        javafx.application.Platform.runLater(() -> {
+            isVictory = true;
+            if (hudTimer != null) {
+                hudTimer.stop();
+            }
+            if (pauseOverlay != null) {
+                playArea.getChildren().remove(pauseOverlay);
+                pauseOverlay = null;
+            }
+
+            // Trigger triumphant Khmer victory celebration theme
+            AudioManager.getInstance().playVictoryMusic();
+
+            StackPane overlay = new StackPane();
+            overlay.setStyle("-fx-background-color: rgba(5, 12, 10, 0.88);");
+            overlay.setPickOnBounds(true);
+
+            VBox card = new VBox(15);
+            card.setMaxSize(760, 530);
+            card.setAlignment(Pos.CENTER);
+            card.setPadding(new Insets(26, 36, 26, 36));
+            card.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #112017 0%, #1c180e 60%, #2a1f0d 100%); " +
+                "-fx-background-radius: 18px; " +
+                "-fx-border-color: #f1c40f; " +
+                "-fx-border-width: 2.5px; " +
+                "-fx-border-radius: 18px; " +
+                "-fx-effect: dropshadow(gaussian, rgba(241, 196, 15, 0.45), 32, 0.4, 0, 0);"
+            );
+
+            // Khmer decorative badge
+            Label badge = new Label("✨ ជ័យជម្នះ • FREEDOM AT LAST ✨");
+            badge.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #f1c40f; -fx-background-color: rgba(241, 196, 15, 0.15); -fx-background-radius: 12px; -fx-padding: 4 14; -fx-border-color: rgba(241, 196, 15, 0.5); -fx-border-radius: 12px;");
+
+            // Triumphant Title
+            Label title = new Label("VICTORY! YOU ESCAPED!");
+            title.setStyle("-fx-font-size: 32px; -fx-font-weight: 900; -fx-text-fill: #ffd700; -fx-effect: dropshadow(one-pass-box, #d4ac0d, 8, 0.3, 0, 2);");
+
+            Label subtitle = new Label("The morning sun breaks over Sisowath High. The curse is shattered forever.");
+            subtitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #e0e0e0; -fx-font-style: italic;");
+
+            // Story Mode Epilogue Box
+            VBox storyBox = new VBox(6);
+            storyBox.setPadding(new Insets(12, 16, 12, 16));
+            storyBox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.45); -fx-background-radius: 10px; -fx-border-color: rgba(241, 196, 15, 0.3); -fx-border-radius: 10px;");
+
+            Label storyKhmer = new Label("អ្នកបានយកឈ្នះលើវិញ្ញាណអាក្រក់ និងដោះស្រាយអាថ៌កំបាំងសាលាដោយជោគជ័យ!");
+            storyKhmer.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;");
+
+            Label storyText = new Label(
+                "As the grand wrought-iron gates swung open to the dawn light, the spectral cries of the Ahp, Pret, " +
+                "and trapped spirits faded into the calm Phnom Penh morning breeze. With every classroom purified " +
+                "and the sacred Khmer relics safely recovered, the fifty-year supernatural seal is broken forever."
+            );
+            storyText.setWrapText(true);
+            storyText.setMaxWidth(680);
+            storyText.setStyle("-fx-font-size: 12px; -fx-text-fill: #cfd8dc; -fx-line-spacing: 3px;");
+            storyBox.getChildren().addAll(storyKhmer, storyText);
+
+            // Stats Dashboard (4 stat cards)
+            HBox statsBox = new HBox(12);
+            statsBox.setAlignment(Pos.CENTER);
+
+            double playSeconds = (game != null) ? game.getPlayTimeSeconds() : 0.0;
+            int mins = (int) (playSeconds / 60);
+            int secs = (int) (playSeconds % 60);
+            String timeFormatted = String.format("%02d:%02d", mins, secs);
+
+            int heartsLeft = (game != null && game.getPlayer() != null) ? game.getPlayer().getHearts() : 5;
+            int itemsCount = (game != null && game.getInventory() != null) ? game.getInventory().getItemCounts().values().stream().mapToInt(Integer::intValue).sum() : 0;
+            int roomsPurified = (game != null) ? game.getEducationCompletedRooms().size() : 10;
+
+            statsBox.getChildren().addAll(
+                createStatCard("⏱ TIME SURVIVED", timeFormatted, "#3498db"),
+                createStatCard("♥ REMAINING VITALITY", heartsLeft + " / 5 Hearts", "#e74c3c"),
+                createStatCard("🏺 RELICS COLLECTED", itemsCount + " Items", "#f39c12"),
+                createStatCard("🏫 ROOMS PURIFIED", roomsPurified + " / 10 Rooms", "#2ecc71")
+            );
+
+            // Action Buttons
+            HBox actions = new HBox(18);
+            actions.setAlignment(Pos.CENTER);
+            actions.setPadding(new Insets(6, 0, 0, 0));
+
+            Button playAgainBtn = new Button("↻ PLAY AGAIN");
+            playAgainBtn.setStyle(
+                "-fx-background-color: #27ae60; " +
+                "-fx-text-fill: #ffffff; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 14px; " +
+                "-fx-padding: 10 24; " +
+                "-fx-background-radius: 8px; " +
+                "-fx-cursor: hand; " +
+                "-fx-effect: dropshadow(gaussian, rgba(39, 174, 96, 0.4), 10, 0.3, 0, 2);"
+            );
+            playAgainBtn.setOnMouseEntered(e -> playAgainBtn.setStyle(
+                "-fx-background-color: #2ecc71; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 24; -fx-background-radius: 8px; -fx-cursor: hand;"
+            ));
+            playAgainBtn.setOnMouseExited(e -> playAgainBtn.setStyle(
+                "-fx-background-color: #27ae60; -fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 24; -fx-background-radius: 8px; -fx-cursor: hand;"
+            ));
+            playAgainBtn.setOnAction(e -> {
+                if (hudTimer != null) hudTimer.stop();
+                game.stop();
+                new com.khmerspirit.save.SaveManager().deleteSave();
+                SceneManager.showGame(selectedCharacter);
+            });
+
+            Button menuBtn = new Button("⌂ MAIN MENU");
+            menuBtn.setStyle(
+                "-fx-background-color: #d4ac0d; " +
+                "-fx-text-fill: #111111; " +
+                "-fx-font-weight: bold; " +
+                "-fx-font-size: 14px; " +
+                "-fx-padding: 10 24; " +
+                "-fx-background-radius: 8px; " +
+                "-fx-cursor: hand; " +
+                "-fx-effect: dropshadow(gaussian, rgba(212, 172, 13, 0.4), 10, 0.3, 0, 2);"
+            );
+            menuBtn.setOnMouseEntered(e -> menuBtn.setStyle(
+                "-fx-background-color: #f1c40f; -fx-text-fill: #111111; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 24; -fx-background-radius: 8px; -fx-cursor: hand;"
+            ));
+            menuBtn.setOnMouseExited(e -> menuBtn.setStyle(
+                "-fx-background-color: #d4ac0d; -fx-text-fill: #111111; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 10 24; -fx-background-radius: 8px; -fx-cursor: hand;"
+            ));
+            menuBtn.setOnAction(e -> {
+                if (hudTimer != null) hudTimer.stop();
+                game.stop();
+                new com.khmerspirit.save.SaveManager().deleteSave();
+                SceneManager.showMainMenu();
+            });
+
+            actions.getChildren().addAll(playAgainBtn, menuBtn);
+
+            card.getChildren().addAll(badge, title, subtitle, storyBox, statsBox, actions);
+            overlay.getChildren().add(card);
+            playArea.getChildren().add(overlay);
+            playAgainBtn.requestFocus();
+        });
+    }
+
+    private VBox createStatCard(String label, String value, String accentColor) {
+        VBox box = new VBox(4);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(8, 14, 8, 14));
+        box.setStyle(
+            "-fx-background-color: rgba(20, 25, 30, 0.75); " +
+            "-fx-background-radius: 8px; " +
+            "-fx-border-color: " + accentColor + "; " +
+            "-fx-border-width: 1.5px; " +
+            "-fx-border-radius: 8px; " +
+            "-fx-min-width: 140px;"
+        );
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #a0aec0;");
+        Label val = new Label(value);
+        val.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: " + accentColor + ";");
+        box.getChildren().addAll(lbl, val);
+        return box;
     }
 }

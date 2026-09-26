@@ -225,6 +225,14 @@ public class AudioManager {
     }
 
     /**
+     * Plays the triumphant victory fanfare and Khmer home music when player escapes.
+     */
+    public void playVictoryMusic() {
+        stopAll();
+        playHomeMusic();
+    }
+
+    /**
      * Plays the dedicated Music & Art Room track ("music&art.mp3").
      * Automatically pauses Tili Tili Bom while playing.
      */

@@ -1,0 +1,140 @@
+Q: Which is the largest ocean on planet Earth by surface area?
+A: Atlantic Ocean
+B: Indian Ocean
+C: Arctic Ocean
+D: Pacific Ocean
+Answer: 4
+
+Q: What is the capital city of France?
+A: Rome
+B: Berlin
+C: Paris
+D: Madrid
+Answer: 3
+
+Q: Who painted the world-famous portrait known as the Mona Lisa?
+A: Vincent van Gogh
+B: Leonardo da Vinci
+C: Pablo Picasso
+D: Claude Monet
+Answer: 2
+
+Q: Which continent is the Sahara Desert located on?
+A: Asia
+B: Africa
+C: South America
+D: Australia
+Answer: 2
+
+Q: How many continents are there on Earth?
+A: 5
+B: 6
+C: 7
+D: 8
+Answer: 3
+
+Q: What is the tallest mountain above sea level on Earth?
+A: K2
+B: Mount Kilimanjaro
+C: Mount Everest
+D: Denali
+Answer: 3
+
+Q: What famous ancient temple complex in Cambodia was built during the reign of King Suryavarman II?
+A: Borobudur
+B: Angkor Wat
+C: Prambanan
+D: Bagan
+Answer: 2
+
+Q: What is the capital city of Japan?
+A: Beijing
+B: Seoul
+C: Tokyo
+D: Bangkok
+Answer: 3
+
+Q: What is the primary currency used in Cambodia alongside the US Dollar?
+A: Baht
+B: Riel
+C: Dong
+D: Kip
+Answer: 2
+
+Q: Who wrote the famous English tragic play 'Romeo and Juliet'?
+A: Charles Dickens
+B: William Shakespeare
+C: Mark Twain
+D: Jane Austen
+Answer: 2
+
+Q: Which great river is the longest in the world according to most geographical surveys?
+A: Amazon River
+B: Nile River
+C: Yangtze River
+D: Mississippi River
+Answer: 2
+
+Q: What is the largest country in the world by land area?
+A: Canada
+B: China
+C: Russia
+D: United States
+Answer: 3
+
+Q: Which civilization built Machu Picchu high in the Andes mountains?
+A: Aztec Civilization
+B: Inca Civilization
+C: Maya Civilization
+D: Olmec Civilization
+Answer: 2
+
+Q: What is the capital city of Australia?
+A: Sydney
+B: Melbourne
+C: Canberra
+D: Brisbane
+Answer: 3
+
+Q: Who discovered the antibiotic Penicillin in 1928?
+A: Louis Pasteur
+B: Alexander Fleming
+C: Marie Curie
+D: Robert Koch
+Answer: 2
+
+Q: What historic treaty marked the end of World War I in 1919?
+A: Treaty of Versailles
+B: Treaty of Paris
+C: Treaty of Ghent
+D: Treaty of Utrecht
+Answer: 1
+
+Q: What is the most abundant gas in Earth's atmosphere, making up approximately 78%?
+A: Oxygen
+B: Carbon Dioxide
+C: Argon
+D: Nitrogen
+Answer: 4
+
+Q: Which ancient wonder of the world was located in Alexandria, Egypt, serving as a beacon for sailors?
+A: Hanging Gardens
+B: Lighthouse of Alexandria (Pharos)
+C: Colossus of Rhodes
+D: Statue of Zeus
+Answer: 2
+
+Q: What great freshwater lake in Cambodia is connected to the Mekong River and expands dramatically during monsoon season?
+A: Inle Lake
+B: Tonle Sap Lake
+C: Songkhla Lake
+D: Laguna de Bay
+Answer: 2
+
+Q: Which famous scientist developed the General Theory of Relativity?
+A: Isaac Newton
+B: Albert Einstein
+C: Niels Bohr
+D: Galileo Galilei
+Answer: 2
+

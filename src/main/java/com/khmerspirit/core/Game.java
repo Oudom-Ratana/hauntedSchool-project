@@ -31,6 +31,9 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +72,8 @@ public class Game {
     private final double autoSaveInterval = 10.0; // seconds
     private boolean gameOver = false;
     private Runnable gameOverHandler;
+    private boolean victory = false;
+    private Runnable victoryHandler;
     private final Random effectRandom = new Random(7);
     private final List<RainDrop> rainDrops = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
@@ -97,6 +102,10 @@ public class Game {
     // Ambient ghost suffering audio timer (played once every 15 to 20 seconds throughout the project)
     private double ambientGhostAudioTimer = 0.0;
     private double nextAmbientGhostAudioInterval = 15.0 + new Random().nextDouble() * 5.0;
+
+    // Item Acquired showcase popup
+    private com.khmerspirit.items.Item acquiredShowcaseItem = null;
+    private double itemShowcaseTimer = 0.0;
 
     public Game(Canvas canvas, String selectedCharacter) {
         this(canvas, selectedCharacter, null);
@@ -206,6 +215,14 @@ public class Game {
         this.gameOverHandler = gameOverHandler;
     }
 
+    public void setVictoryHandler(Runnable victoryHandler) {
+        this.victoryHandler = victoryHandler;
+    }
+
+    public boolean isVictory() {
+        return victory;
+    }
+
     public PlayerController getPlayerController() {
         return playerController;
     }
@@ -257,7 +274,7 @@ public class Game {
     }
 
     public void update(double deltaSeconds) {
-        if (gameOver) {
+        if (gameOver || victory) {
             return;
         }
 
@@ -340,6 +357,10 @@ public class Game {
         if (notificationSeconds > 0.0) {
             notificationSeconds = Math.max(0.0, notificationSeconds - deltaSeconds);
         }
+
+        if (itemShowcaseTimer > 0.0) {
+            itemShowcaseTimer = Math.max(0.0, itemShowcaseTimer - deltaSeconds);
+        }
     }
 
     private String determineRoomName(double x, double y) {
@@ -392,6 +413,7 @@ public class Game {
         educationManager.renderQuestionPanel(graphics, canvas.getWidth(), canvas.getHeight());
         inventoryUI.render(graphics, inventory, canvas.getWidth(), canvas.getHeight(), assetManager);
         renderNotification();
+        renderItemPickupShowcase(canvas.getWidth(), canvas.getHeight());
 
         // Live GTA-style minimap radar & full architectural blueprint overlay (red ghost dots only appear when wearing night vision)
         boolean hasNightVision = nightVisionActive && inventory.hasItem("night_vision");
@@ -413,6 +435,20 @@ public class Game {
         stop();
         if (gameOverHandler != null) {
             gameOverHandler.run();
+        }
+    }
+
+    public void triggerVictory() {
+        if (victory || gameOver) {
+            return;
+        }
+
+        victory = true;
+        saveManager.deleteSave();
+        stop();
+        AudioManager.getInstance().playVictoryMusic();
+        if (victoryHandler != null) {
+            victoryHandler.run();
         }
     }
 
@@ -447,7 +483,7 @@ public class Game {
                 ? (flashlightOn && flashlightBattery > 0 ? "🔦 ON (" + (int) flashlightBattery + "%) [F]" : "🔦 OFF (" + (int) flashlightBattery + "%) [F]")
                 : "🔦 NONE";
         String sprintStatus = playerController.isSprinting() ? " [RUN]" : " [WALK]";
-        graphics.fillText("MOVE: WASD" + sprintStatus + " | " + flashStatus, dx + 16, dy + 46);
+        graphics.fillText("MOVE: WASD / ARROWS" + sprintStatus + " | " + flashStatus, dx + 16, dy + 46);
 
         // Key guidance
         graphics.fillText("G: PICK UP | E: ENTER | Q: QUEST GUIDE | M: MAP | H: HUD", dx + 16, dy + 68);
@@ -565,24 +601,39 @@ public class Game {
             javafx.scene.image.Image sprite = assetManager.loadItemSprite(pickup.getItem().getId());
             pickup.render(graphics, camera, sprite);
 
-            // Floating [G] Pick Up prompt when player is near the pickup
+            // Modern floating [G] Pick Up pill prompt with animated bobbing and keycap badge
             if (pickup.isNear(player.getCenterX(), player.getCenterY())) {
                 double sx = pickup.getX() - camera.getX();
                 double sy = pickup.getY() - camera.getY();
-                String prompt = "[G] Pick up " + pickup.getItem().getDisplayName();
-                double textW = prompt.length() * 7.2 + 20.0;
+                double bob = Math.sin(pulseTimer * 6.0) * 3.5;
+                String itemName = pickup.getItem().getDisplayName();
+                double textW = itemName.length() * 6.8 + 58.0;
                 double bx = sx - textW / 2.0;
-                double by = sy - 44.0;
+                double by = sy - 48.0 + bob;
 
-                graphics.setFill(Color.rgb(12, 10, 15, 0.90));
-                graphics.fillRoundRect(bx, by, textW, 22.0, 6, 6);
-                graphics.setStroke(Color.rgb(225, 175, 55, 0.92));
-                graphics.setLineWidth(1.5);
-                graphics.strokeRoundRect(bx, by, textW, 22.0, 6, 6);
+                // Glowing drop shadow & pill body
+                graphics.setFill(Color.rgb(4, 8, 16, 0.94));
+                graphics.fillRoundRect(bx, by, textW, 26.0, 13, 13);
+                graphics.setStroke(Color.rgb(245, 158, 11, 0.90));
+                graphics.setLineWidth(1.4);
+                graphics.strokeRoundRect(bx + 0.5, by + 0.5, textW - 1, 25.0, 13, 13);
 
+                // Golden [G] Keycap Button Badge
+                graphics.setFill(Color.rgb(245, 158, 11, 0.95));
+                graphics.fillRoundRect(bx + 4, by + 4, 20, 18, 5, 5);
                 graphics.setFont(javafx.scene.text.Font.font("Segoe UI", javafx.scene.text.FontWeight.BOLD, 11));
-                graphics.setFill(Color.web("#ffeaa7"));
-                graphics.fillText(prompt, bx + 10, by + 15);
+                graphics.setFill(Color.rgb(0, 0, 0, 0.95));
+                graphics.fillText("G", bx + 10, by + 17);
+
+                // Action + Item Name text
+                graphics.setFont(javafx.scene.text.Font.font("Segoe UI", javafx.scene.text.FontWeight.BOLD, 11));
+                graphics.setFill(Color.rgb(255, 255, 255, 0.98));
+                graphics.fillText("Pick Up " + itemName, bx + 28, by + 17);
+
+                // Small downwards pointer triangle pointing at the item
+                graphics.setFill(Color.rgb(245, 158, 11, 0.95));
+                graphics.fillPolygon(new double[]{sx - 4, sx + 4, sx},
+                        new double[]{by + 26, by + 26, by + 30}, 3);
             }
         }
     }
@@ -1013,7 +1064,7 @@ public class Game {
                         // Open door: Pressing E enters the room!
                         if ("exit".equalsIgnoreCase(target)) {
                             playSound("door");
-                            showNotification("VICTORY! You escaped the Haunted School alive with all ancient relics!");
+                            triggerVictory();
                             return true;
                         }
 
@@ -1293,16 +1344,22 @@ public class Game {
         while (iterator.hasNext()) {
             ItemPickup pickup = iterator.next();
             if (pickup.isNear(player.getCenterX(), player.getCenterY())) {
-                inventory.addItem(pickup.getItem());
+                Item picked = pickup.getItem();
+                inventory.addItem(picked);
                 iterator.remove();
                 saveNow();
-                String itemId = pickup.getItem().getId().toLowerCase();
+
+                // Trigger modern item acquired showcase popup card
+                acquiredShowcaseItem = picked;
+                itemShowcaseTimer = 3.8;
+
+                String itemId = picked.getId().toLowerCase();
                 if (itemId.contains("key")) {
                     AudioManager.getInstance().playGetKey();
                 } else {
                     AudioManager.getInstance().playItemPickup();
                 }
-                showNotification("Picked up " + pickup.getItem().getDisplayName() + ".");
+                showNotification("Acquired " + picked.getDisplayName() + "!");
                 return;
             }
         }
@@ -1521,5 +1578,148 @@ public class Game {
             g.setFill(Color.rgb(220, 220, 255, alpha * 0.35));
             g.fillOval(x, y, 2.0 + alpha * 1.5, 2.0 + alpha * 1.5);
         }
+    }
+
+    /**
+     * Renders modern RPG-grade Item Acquired showcase banner at top-center.
+     */
+    private void renderItemPickupShowcase(double canvasWidth, double canvasHeight) {
+        if (itemShowcaseTimer <= 0.0 || acquiredShowcaseItem == null) {
+            return;
+        }
+
+        // Smooth slide-in / slide-out animation
+        double progress = Math.min(1.0, (3.8 - itemShowcaseTimer) / 0.35);
+        if (itemShowcaseTimer < 0.4) {
+            progress = Math.max(0.0, itemShowcaseTimer / 0.4);
+        }
+
+        double cardW = 480.0;
+        double cardH = 90.0;
+        double targetY = 22.0;
+        double startY = -cardH - 10.0;
+        double cardY = startY + (targetY - startY) * Math.sin(progress * Math.PI / 2.0);
+        double cardX = (canvasWidth - cardW) / 2.0;
+
+        graphics.save();
+
+        // 1. Ambient Drop Shadow & Glowing Outer Rim
+        double pulse = 0.5 + 0.5 * Math.sin(pulseTimer * 6.0);
+        graphics.setFill(Color.rgb(0, 0, 0, 0.75 * progress));
+        graphics.fillRoundRect(cardX - 4, cardY - 4, cardW + 8, cardH + 8, 16, 16);
+
+        // Outer golden glow border
+        graphics.setStroke(Color.rgb(245, 158, 11, (0.35 + 0.25 * pulse) * progress));
+        graphics.setLineWidth(4.0);
+        graphics.strokeRoundRect(cardX - 2, cardY - 2, cardW + 4, cardH + 4, 14, 14);
+
+        // 2. High-Tech Glassmorphism Card Body
+        LinearGradient cardBg = new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0.0, Color.rgb(15, 23, 42, 0.96 * progress)),
+                new Stop(0.5, Color.rgb(10, 15, 29, 0.97 * progress)),
+                new Stop(1.0, Color.rgb(2, 6, 23, 0.99 * progress)));
+        graphics.setFill(cardBg);
+        graphics.fillRoundRect(cardX, cardY, cardW, cardH, 12, 12);
+
+        graphics.setStroke(Color.rgb(250, 204, 21, 0.85 * progress));
+        graphics.setLineWidth(1.8);
+        graphics.strokeRoundRect(cardX + 0.5, cardY + 0.5, cardW - 1, cardH - 1, 12, 12);
+
+        // 3. Illuminated Pedestal for Item Sprite (Left Side)
+        double pedX = cardX + 14.0;
+        double pedY = cardY + 13.0;
+        double pedSize = 64.0;
+
+        graphics.setFill(Color.rgb(24, 34, 52, 0.95 * progress));
+        graphics.fillRoundRect(pedX, pedY, pedSize, pedSize, 10, 10);
+        graphics.setStroke(Color.rgb(245, 158, 11, 0.60 * progress));
+        graphics.setLineWidth(1.2);
+        graphics.strokeRoundRect(pedX + 0.5, pedY + 0.5, pedSize - 1, pedSize - 1, 10, 10);
+
+        // Subtle radial light behind sprite
+        RadialGradient pedGlow = new RadialGradient(0, 0, pedX + pedSize / 2.0, pedY + pedSize / 2.0, pedSize / 2.0, false, CycleMethod.NO_CYCLE,
+                new Stop(0.0, Color.rgb(250, 204, 21, 0.35 * progress)),
+                new Stop(1.0, Color.rgb(250, 204, 21, 0.0)));
+        graphics.setFill(pedGlow);
+        graphics.fillOval(pedX + 4, pedY + 4, pedSize - 8, pedSize - 8);
+
+        // Floating Item Sprite
+        Image sprite = assetManager.loadItemSprite(acquiredShowcaseItem.getId());
+        double spriteBob = Math.sin(pulseTimer * 5.0) * 3.0;
+        if (sprite != null) {
+            graphics.drawImage(sprite, pedX + 12, pedY + 12 + spriteBob, 40, 40);
+        } else {
+            graphics.setFill(acquiredShowcaseItem.getColor());
+            graphics.fillRoundRect(pedX + 17, pedY + 17 + spriteBob, 30, 30, 6, 6);
+        }
+
+        // 4. Item Info (Right Side)
+        double textX = cardX + 88.0;
+
+        // Sub-banner: ✦ NEW ITEM ACQUIRED ✦
+        graphics.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        graphics.setFill(Color.rgb(250, 204, 21, 0.95 * progress));
+        graphics.fillText("✦  NEW ITEM ACQUIRED  ✦", textX, cardY + 22);
+
+        // Category Tag Badge
+        String categoryTag = getItemCategoryTag(acquiredShowcaseItem.getId());
+        Color tagColor = getItemCategoryColor(acquiredShowcaseItem.getId());
+        double tagW = categoryTag.length() * 6.5 + 14.0;
+        double tagX = cardX + cardW - tagW - 14.0;
+        double tagY = cardY + 10.0;
+
+        graphics.setFill(Color.rgb((int)(tagColor.getRed()*255), (int)(tagColor.getGreen()*255), (int)(tagColor.getBlue()*255), 0.22 * progress));
+        graphics.fillRoundRect(tagX, tagY, tagW, 18, 5, 5);
+        graphics.setStroke(Color.rgb((int)(tagColor.getRed()*255), (int)(tagColor.getGreen()*255), (int)(tagColor.getBlue()*255), 0.80 * progress));
+        graphics.setLineWidth(1.0);
+        graphics.strokeRoundRect(tagX + 0.5, tagY + 0.5, tagW - 1, 17, 5, 5);
+
+        graphics.setFont(Font.font("Consolas", FontWeight.BOLD, 9));
+        graphics.setFill(tagColor);
+        graphics.fillText(categoryTag, tagX + 7, tagY + 13);
+
+        // Item Name in Bold
+        graphics.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        graphics.setFill(Color.rgb(255, 255, 255, 0.98 * progress));
+        graphics.fillText(acquiredShowcaseItem.getDisplayName().toUpperCase(), textX, cardY + 44);
+
+        // Item Ability / Functional Description
+        graphics.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 11));
+        graphics.setFill(Color.rgb(148, 163, 184, 0.95 * progress));
+        String desc = acquiredShowcaseItem.getAbilityDescription();
+        if (desc.length() > 58) {
+            desc = desc.substring(0, 56) + "...";
+        }
+        graphics.fillText(desc, textX, cardY + 62);
+
+        // Bottom usage shortcut hint
+        graphics.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        graphics.setFill(Color.rgb(250, 204, 21, 0.85 * progress));
+        graphics.fillText("Added to Inventory  •  Press [1-9] to select  •  [SPACE] / [E] to use", textX, cardY + 79);
+
+        graphics.restore();
+    }
+
+    private String getItemCategoryTag(String itemId) {
+        if (itemId == null) return "ITEM";
+        String id = itemId.toLowerCase();
+        if (id.contains("key")) return "KEY ITEM";
+        if (id.contains("acid")) return "OFFENSIVE RELIC";
+        if (id.contains("flash") || id.contains("light") || id.contains("battery") || id.contains("vision")) return "SURVIVAL GEAR";
+        if (id.contains("aid") || id.contains("medicine")) return "MEDICAL SUPPLY";
+        if (id.contains("charm") || id.contains("bell") || id.contains("tome")) return "SACRED RELIC";
+        if (id.contains("crowbar") || id.contains("fuse") || id.contains("tool")) return "UTILITY TOOL";
+        return "INVESTIGATION ITEM";
+    }
+
+    private Color getItemCategoryColor(String itemId) {
+        if (itemId == null) return Color.web("#94a3b8");
+        String id = itemId.toLowerCase();
+        if (id.contains("key")) return Color.web("#fbbf24");
+        if (id.contains("acid")) return Color.web("#4ade80");
+        if (id.contains("flash") || id.contains("light") || id.contains("battery") || id.contains("vision")) return Color.web("#38bdf8");
+        if (id.contains("aid") || id.contains("medicine")) return Color.web("#f43f5e");
+        if (id.contains("charm") || id.contains("bell") || id.contains("tome")) return Color.web("#c084fc");
+        return Color.web("#e2e8f0");
     }
 }

@@ -309,6 +309,21 @@ public class QuestionManagementView extends HBox {
         questionTextArea.setPrefRowCount(3);
         questionTextArea.setWrapText(true);
         questionTextArea.getStyleClass().add("modern-form-input");
+        String baseAreaStyle = "-fx-control-inner-background: #0f172a; -fx-background-color: #0f172a; "
+                + "-fx-text-fill: #f8fafc; -fx-prompt-text-fill: #64748b; "
+                + "-fx-border-color: #1e293b; -fx-border-width: 1px; -fx-border-radius: 6px; -fx-background-radius: 6px; "
+                + "-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; "
+                + "-fx-highlight-fill: #2563eb; -fx-highlight-text-fill: #ffffff;";
+        String focusedAreaStyle = "-fx-control-inner-background: #131c31; -fx-background-color: #131c31; "
+                + "-fx-text-fill: #ffffff; -fx-prompt-text-fill: #94a3b8; "
+                + "-fx-border-color: #2563eb; -fx-border-width: 1.5px; -fx-border-radius: 6px; -fx-background-radius: 6px; "
+                + "-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; "
+                + "-fx-highlight-fill: #2563eb; -fx-highlight-text-fill: #ffffff; "
+                + "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.35), 8, 0.2, 0, 0);";
+        questionTextArea.setStyle(baseAreaStyle);
+        questionTextArea.focusedProperty().addListener((obs, oldV, isFocused) -> {
+            questionTextArea.setStyle(isFocused ? focusedAreaStyle : baseAreaStyle);
+        });
 
         charCounterLabel = new Label("0/500");
         charCounterLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #64748b; -fx-alignment: center-right;");
@@ -611,10 +626,15 @@ public class QuestionManagementView extends HBox {
             loadData();
             showAlert(Alert.AlertType.INFORMATION, "Success", "Question updated successfully!");
         } else {
-            // Create new question
             String newId = "Q_" + (masterData.size() + 1);
+            String defaultCat = "General Knowledge";
+            if ("classroomA".equalsIgnoreCase(roomId) || "basement".equalsIgnoreCase(roomId)) defaultCat = "Math";
+            else if ("laboratory".equalsIgnoreCase(roomId) || "dormitory".equalsIgnoreCase(roomId)) defaultCat = "Science";
+            else if ("computer".equalsIgnoreCase(roomId) || "teacher".equalsIgnoreCase(roomId)) defaultCat = "Coding (Java, OOP)";
+            else if ("classroomB".equalsIgnoreCase(roomId) || "entrance".equalsIgnoreCase(roomId)) defaultCat = "Networking";
+
             QuestionModel newQ = new QuestionModel(
-                    newId, text, a, b, c, d, ans, "General", roomId, "Medium",
+                    newId, text, a, b, c, d, ans, defaultCat, roomId, "Medium",
                     "Item", "Flashlight", "", active, qType, taskNum != null ? taskNum : 1
             );
             masterData.add(newQ);

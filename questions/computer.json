@@ -1,1 +1,204 @@
-{ "questions": [] }
+{
+  "questions": [
+    {
+      "text": "Which keyword in Java is used to inherit from a superclass?",
+      "options": [
+        "implements",
+        "extends",
+        "inherits",
+        "instanceof"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the entry point method signature for a standalone Java application?",
+      "options": [
+        "public void start()",
+        "public static void main(String[] args)",
+        "public run(String args)",
+        "static void execute()"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the default value of an uninitialized boolean field in a Java class?",
+      "options": [
+        "true",
+        "false",
+        "null",
+        "0"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which of the following is NOT a primitive data type in Java?",
+      "options": [
+        "int",
+        "char",
+        "String",
+        "double"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which OOP pillar bundles data fields and methods together while restricting direct access?",
+      "options": [
+        "Inheritance",
+        "Encapsulation",
+        "Polymorphism",
+        "Abstraction"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What keyword is used to create a new instance of an object in Java?",
+      "options": [
+        "create",
+        "make",
+        "new",
+        "instantiate"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What does the 'final' keyword on a variable in Java signify?",
+      "options": [
+        "The variable is static",
+        "The value cannot be reassigned once initialized",
+        "The variable is garbage collected immediately",
+        "The variable is private"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which Java collection interface guarantees that elements are unique without duplicates?",
+      "options": [
+        "List",
+        "Queue",
+        "Set",
+        "Map"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What keyword in Java is used to invoke a parent class constructor or method?",
+      "options": [
+        "this",
+        "super",
+        "parent",
+        "base"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What symbol is used for single-line comments in Java source code?",
+      "options": [
+        "#",
+        "//",
+        "/*",
+        "--"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the key difference between method overloading and method overriding?",
+      "options": [
+        "Overloading occurs at runtime; Overriding occurs at compile-time",
+        "Overloading has the same name with different parameters; Overriding re-declares the same signature in a subclass",
+        "They are identical concepts in Java",
+        "Overriding only works for static methods"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which memory area in the JVM stores dynamically allocated objects and instance variables?",
+      "options": [
+        "Stack",
+        "Heap",
+        "Method Area",
+        "Program Counter"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the purpose of an abstract class in Java?",
+      "options": [
+        "It can never have concrete methods",
+        "It provides a common base blueprint and cannot be directly instantiated",
+        "It guarantees all methods are static",
+        "It prevents subclasses from inheriting"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which keyword is used in a method header to declare that it may throw checked exceptions?",
+      "options": [
+        "try",
+        "catch",
+        "throws",
+        "throw"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What does the Java 'this' keyword represent?",
+      "options": [
+        "A reference to the current object instance",
+        "A reference to the parent class",
+        "A pointer to the JVM",
+        "A static method caller"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "Which interface must be implemented to sort objects using java.util.Collections.sort() naturally?",
+      "options": [
+        "Comparator<T>",
+        "Comparable<T>",
+        "Cloneable",
+        "Serializable"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the output of comparing two Strings using '==' instead of '.equals()'?",
+      "options": [
+        "'==' compares memory addresses (object references); '.equals()' compares character contents",
+        "They always produce identical results",
+        "'.equals()' compares string length only",
+        "'==' is faster and compares contents"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is polymorphism in Java Object-Oriented Programming?",
+      "options": [
+        "Compiling code for multiple operating systems",
+        "The ability of an object to take on many forms and execute subclass-specific methods",
+        "Converting integers to floats",
+        "Packaging code into JAR files"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Can an interface in Java 8 and later contain concrete methods with bodies?",
+      "options": [
+        "No, interfaces can never have method bodies",
+        "Yes, using the 'default' or 'static' keywords",
+        "Only if the interface is marked abstract",
+        "Only private static methods"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What block of code in a try-catch-finally statement ALWAYS executes?",
+      "options": [
+        "try block",
+        "catch block",
+        "finally block",
+        "None of the above"
+      ],
+      "answer": "2"
+    }
+  ]
+}

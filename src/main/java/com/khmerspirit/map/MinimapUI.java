@@ -96,9 +96,14 @@ public class MinimapUI {
 
         g.save();
 
-        // 1. Radar background shadow
-        g.setFill(Color.rgb(0, 0, 0, 0.65));
-        g.fillOval(MINIMAP_X - 4, MINIMAP_Y - 4, MINIMAP_SIZE + 8, MINIMAP_SIZE + 8);
+        // 1. Radar background shadow & outer chassis
+        g.setFill(Color.rgb(2, 6, 12, 0.85));
+        g.fillOval(MINIMAP_X - 6, MINIMAP_Y - 6, MINIMAP_SIZE + 12, MINIMAP_SIZE + 12);
+
+        // Outer Tactical Bezel with cyber notches
+        g.setStroke(Color.rgb(15, 30, 48, 0.95));
+        g.setLineWidth(5.0);
+        g.strokeOval(MINIMAP_X - 2.5, MINIMAP_Y - 2.5, MINIMAP_SIZE + 5, MINIMAP_SIZE + 5);
 
         // 2. Circular clipping for live radar content
         g.beginPath();
@@ -106,20 +111,22 @@ public class MinimapUI {
         g.closePath();
         g.clip();
 
-        // Radar background glass
+        // High-tech dark glass backdrop
         RadialGradient bgGrad = new RadialGradient(0, 0, RADAR_CENTER_X, RADAR_CENTER_Y, RADAR_RADIUS, false, CycleMethod.NO_CYCLE,
-                new Stop(0.0, Color.rgb(15, 26, 36, 0.94)),
-                new Stop(0.75, Color.rgb(8, 14, 20, 0.96)),
-                new Stop(1.0, Color.rgb(4, 7, 10, 0.98)));
+                new Stop(0.0, Color.rgb(8, 20, 32, 0.96)),
+                new Stop(0.70, Color.rgb(4, 12, 22, 0.98)),
+                new Stop(1.0, Color.rgb(2, 6, 14, 1.00)));
         g.setFill(bgGrad);
         g.fillRect(MINIMAP_X, MINIMAP_Y, MINIMAP_SIZE, MINIMAP_SIZE);
 
-        // Grid scanlines
-        g.setStroke(Color.rgb(40, 70, 95, 0.28));
+        // Concentric Tactical Distance Rings
         g.setLineWidth(1.0);
-        for (double r = 24.0; r < RADAR_RADIUS; r += 24.0) {
+        double[] rangeRings = {24.0, 48.0};
+        for (double r : rangeRings) {
+            g.setStroke(Color.rgb(30, 75, 110, 0.35));
             g.strokeOval(RADAR_CENTER_X - r, RADAR_CENTER_Y - r, r * 2.0, r * 2.0);
         }
+        g.setStroke(Color.rgb(30, 75, 110, 0.25));
         g.strokeLine(RADAR_CENTER_X - RADAR_RADIUS, RADAR_CENTER_Y, RADAR_CENTER_X + RADAR_RADIUS, RADAR_CENTER_Y);
         g.strokeLine(RADAR_CENTER_X, RADAR_CENTER_Y - RADAR_RADIUS, RADAR_CENTER_X, RADAR_CENTER_Y + RADAR_RADIUS);
 
@@ -128,8 +135,8 @@ public class MinimapUI {
         double py = player.getCenterY();
         double zoom = 0.085; // 100px in world = 8.5px on radar
 
-        // Draw collision boxes / walls on radar
-        g.setFill(Color.rgb(70, 95, 120, 0.50));
+        // Draw collision boxes / walls on radar in sleek cyan-slate
+        g.setFill(Color.rgb(56, 110, 160, 0.55));
         for (Rectangle2D box : tileMap.getCollisionBoxes()) {
             double bx = RADAR_CENTER_X + (box.getMinX() - px) * zoom;
             double by = RADAR_CENTER_Y + (box.getMinY() - py) * zoom;
@@ -138,7 +145,7 @@ public class MinimapUI {
             g.fillRect(bx, by, Math.max(2.0, bw), Math.max(2.0, bh));
         }
 
-        // Draw doors on radar
+        // Draw doors on radar with glowing status
         for (Door door : tileMap.getDoors()) {
             double dx;
             double dy;
@@ -152,81 +159,150 @@ public class MinimapUI {
             double rx = RADAR_CENTER_X + (dx - px) * zoom;
             double ry = RADAR_CENTER_Y + (dy - py) * zoom;
 
-            g.setFill(door.isOpen() ? Color.rgb(74, 222, 128, 0.90) : Color.rgb(250, 204, 21, 0.90));
+            if (door.isOpen()) {
+                g.setFill(Color.rgb(34, 197, 94, 0.95)); // Neon Green
+            } else {
+                g.setFill(Color.rgb(245, 158, 11, 0.95)); // Amber Gold
+            }
             g.fillRect(rx - 3, ry - 3, 6, 6);
         }
 
-        // Draw nearby Item pickups as pulsing gold blips
-        double pulse = 0.5 + 0.5 * Math.sin(pulseTimer * 4.0);
+        // Rotating Sweeping Radar Beam (Authentic Tactical Sonar)
+        double sweepAngle = (pulseTimer * 130.0) % 360.0;
+        g.setFill(Color.rgb(0, 245, 212, 0.08));
+        g.fillArc(RADAR_CENTER_X - RADAR_RADIUS, RADAR_CENTER_Y - RADAR_RADIUS, MINIMAP_SIZE, MINIMAP_SIZE, -sweepAngle, 35.0, javafx.scene.shape.ArcType.ROUND);
+
+        double sweepRad = Math.toRadians(sweepAngle);
+        g.setStroke(Color.rgb(0, 245, 212, 0.55));
+        g.setLineWidth(1.5);
+        g.strokeLine(RADAR_CENTER_X, RADAR_CENTER_Y,
+                RADAR_CENTER_X + Math.cos(sweepRad) * RADAR_RADIUS,
+                RADAR_CENTER_Y + Math.sin(sweepRad) * RADAR_RADIUS);
+
+        // Expanding Sonar Ping Ring from Player
+        double pingR = (pulseTimer * 26.0) % RADAR_RADIUS;
+        double pingAlpha = Math.max(0.0, 1.0 - (pingR / RADAR_RADIUS)) * 0.40;
+        g.setStroke(Color.rgb(0, 245, 212, pingAlpha));
+        g.setLineWidth(1.2);
+        g.strokeOval(RADAR_CENTER_X - pingR, RADAR_CENTER_Y - pingR, pingR * 2.0, pingR * 2.0);
+
+        // Draw nearby Item pickups as glowing gold diamond blips
+        double pulse = 0.5 + 0.5 * Math.sin(pulseTimer * 5.0);
         if (pickups != null) {
             for (ItemPickup pickup : pickups) {
                 double rx = RADAR_CENTER_X + (pickup.getX() - px) * zoom;
                 double ry = RADAR_CENTER_Y + (pickup.getY() - py) * zoom;
-                g.setFill(Color.rgb(255, 215, 0, 0.70 + 0.30 * pulse));
+                g.setFill(Color.rgb(250, 204, 21, 0.80 + 0.20 * pulse));
                 g.fillOval(rx - 3.5, ry - 3.5, 7, 7);
-                g.setStroke(Color.rgb(255, 255, 255, 0.85));
+                g.setStroke(Color.rgb(255, 255, 255, 0.90));
+                g.setLineWidth(1.0);
                 g.strokeOval(rx - 3.5, ry - 3.5, 7, 7);
             }
         }
 
-        // Draw roaming Ghosts as spooky red blips ONLY if player has Night Vision Goggles!
+        // Draw roaming Ghosts as menacing crimson blips ONLY if player is using Night Vision Goggles!
+        boolean ghostVeryClose = false;
         if (hasNightVision && ghosts != null) {
             for (Ghost ghost : ghosts) {
+                double dist = Math.hypot(ghost.getX() - px, ghost.getY() - py);
+                if (dist < 260.0) {
+                    ghostVeryClose = true;
+                }
                 double gx = RADAR_CENTER_X + (ghost.getX() - px) * zoom;
                 double gy = RADAR_CENTER_Y + (ghost.getY() - py) * zoom;
-                g.setFill(Color.rgb(239, 68, 68, 0.85 + 0.15 * pulse));
-                g.fillOval(gx - 4.5, gy - 4.5, 9, 9);
-                g.setStroke(Color.rgb(255, 120, 120, 0.95));
-                g.strokeOval(gx - 4.5, gy - 4.5, 9, 9);
+
+                // Pulsing red threat halo
+                g.setFill(Color.rgb(239, 68, 68, 0.35 * pulse));
+                g.fillOval(gx - 7.0, gy - 7.0, 14, 14);
+
+                g.setFill(Color.rgb(239, 68, 68, 0.95));
+                g.fillOval(gx - 4.0, gy - 4.0, 8, 8);
+                g.setStroke(Color.rgb(255, 180, 180, 0.95));
+                g.setLineWidth(1.0);
+                g.strokeOval(gx - 4.0, gy - 4.0, 8, 8);
             }
         }
 
         // Flashlight field-of-view cone
-        RadialGradient coneGrad = new RadialGradient(0, 0, RADAR_CENTER_X, RADAR_CENTER_Y, 45.0, false, CycleMethod.NO_CYCLE,
-                new Stop(0.0, Color.rgb(255, 240, 160, 0.28)),
+        RadialGradient coneGrad = new RadialGradient(0, 0, RADAR_CENTER_X, RADAR_CENTER_Y, 48.0, false, CycleMethod.NO_CYCLE,
+                new Stop(0.0, Color.rgb(255, 240, 160, 0.25)),
                 new Stop(1.0, Color.rgb(255, 240, 160, 0.0)));
         g.setFill(coneGrad);
-        g.fillArc(RADAR_CENTER_X - 45, RADAR_CENTER_Y - 45, 90, 90, 45, 90, javafx.scene.shape.ArcType.ROUND);
+        g.fillArc(RADAR_CENTER_X - 48, RADAR_CENTER_Y - 48, 96, 96, 45, 90, javafx.scene.shape.ArcType.ROUND);
 
-        // Player icon in center (glowing cyan triangle/dot)
-        g.setFill(Color.rgb(0, 245, 212, 0.95));
-        g.fillOval(RADAR_CENTER_X - 4, RADAR_CENTER_Y - 4, 8, 8);
+        // Player Tactical Directional Chevron (Rotates according to facing direction: 0=Down, 1=Left, 2=Right, 3=Up)
+        int dir = player.getDirectionRow();
+        double angleDeg = 90.0; // default down
+        if (dir == 1) angleDeg = 180.0; // left
+        else if (dir == 2) angleDeg = 0.0; // right
+        else if (dir == 3) angleDeg = 270.0; // up
+        else if (dir == 0) angleDeg = 90.0; // down
+
+        double radA = Math.toRadians(angleDeg);
+        double noseX = RADAR_CENTER_X + Math.cos(radA) * 7.0;
+        double noseY = RADAR_CENTER_Y + Math.sin(radA) * 7.0;
+        double leftX = RADAR_CENTER_X + Math.cos(radA + 2.4) * 6.0;
+        double leftY = RADAR_CENTER_Y + Math.sin(radA + 2.4) * 6.0;
+        double rightX = RADAR_CENTER_X + Math.cos(radA - 2.4) * 6.0;
+        double rightY = RADAR_CENTER_Y + Math.sin(radA - 2.4) * 6.0;
+
+        g.setFill(Color.rgb(0, 245, 212, 0.98));
+        g.fillPolygon(new double[]{noseX, leftX, RADAR_CENTER_X, rightX},
+                new double[]{noseY, leftY, RADAR_CENTER_Y, rightY}, 4);
         g.setStroke(Color.rgb(255, 255, 255, 0.95));
-        g.setLineWidth(1.5);
-        g.strokeOval(RADAR_CENTER_X - 4, RADAR_CENTER_Y - 4, 8, 8);
+        g.setLineWidth(1.2);
+        g.strokePolygon(new double[]{noseX, leftX, RADAR_CENTER_X, rightX},
+                new double[]{noseY, leftY, RADAR_CENTER_Y, rightY}, 4);
 
-        g.restore();
+        g.restore(); // restore clip
 
-        // 3. Brass/Amber Bezel Frame
-        g.setStroke(Color.web("#c49b45"));
-        g.setLineWidth(2.5);
+        // 3. Modern Neon Bezel Frame (Cyan & Amber Cyberpunk Rim)
+        g.setStroke(Color.rgb(0, 229, 255, 0.85));
+        g.setLineWidth(2.2);
         g.strokeOval(MINIMAP_X, MINIMAP_Y, MINIMAP_SIZE, MINIMAP_SIZE);
-        g.setStroke(Color.web("#6b4f23"));
+
+        g.setStroke(Color.rgb(14, 165, 233, 0.40));
         g.setLineWidth(1.0);
-        g.strokeOval(MINIMAP_X - 2.5, MINIMAP_Y - 2.5, MINIMAP_SIZE + 5, MINIMAP_SIZE + 5);
+        g.strokeOval(MINIMAP_X - 3.5, MINIMAP_Y - 3.5, MINIMAP_SIZE + 7, MINIMAP_SIZE + 7);
 
-        // Compass marks (N, S, E, W)
-        g.setFont(Font.font("Arial", FontWeight.BOLD, 10));
-        g.setFill(Color.web("#ffd972"));
-        g.fillText("N", RADAR_CENTER_X - 4, MINIMAP_Y + 12);
-        g.setFill(Color.web("#b89a58"));
-        g.fillText("S", RADAR_CENTER_X - 3.5, MINIMAP_Y + MINIMAP_SIZE - 4);
+        // Tactical Cardinal Marks ([N], [S], [E], [W]) with glowing labels
+        g.setFont(Font.font("Consolas", FontWeight.BOLD, 10));
+        g.setFill(Color.rgb(0, 245, 212, 0.95));
+        g.fillText("N", RADAR_CENTER_X - 3.5, MINIMAP_Y + 12);
+        g.setFill(Color.rgb(148, 163, 184, 0.85));
+        g.fillText("S", RADAR_CENTER_X - 3.0, MINIMAP_Y + MINIMAP_SIZE - 4);
         g.fillText("W", MINIMAP_X + 4, RADAR_CENTER_Y + 3.5);
-        g.fillText("E", MINIMAP_X + MINIMAP_SIZE - 11, RADAR_CENTER_Y + 3.5);
+        g.fillText("E", MINIMAP_X + MINIMAP_SIZE - 10, RADAR_CENTER_Y + 3.5);
 
-        // 4. "MAP [M]" interactive button badge at bottom of radar
-        double badgeW = 90.0;
-        double badgeH = 18.0;
+        // Proximity Threat Alert (if ghost nearby and night vision on)
+        if (ghostVeryClose && hasNightVision) {
+            double alertW = 100.0;
+            double alertH = 16.0;
+            double alertX = RADAR_CENTER_X - alertW / 2.0;
+            double alertY = MINIMAP_Y - 14.0;
+            g.setFill(Color.rgb(220, 38, 38, 0.90));
+            g.fillRoundRect(alertX, alertY, alertW, alertH, 4, 4);
+            g.setFill(Color.WHITE);
+            g.setFont(Font.font("Arial", FontWeight.BOLD, 9));
+            g.fillText("⚠ GHOST NEARBY", alertX + 6, alertY + 12);
+        }
+
+        // 4. "RADAR // [M] EXPAND" interactive tactical pill badge
+        double badgeW = 110.0;
+        double badgeH = 20.0;
         double badgeX = RADAR_CENTER_X - badgeW / 2.0;
-        double badgeY = MINIMAP_Y + MINIMAP_SIZE + 4.0;
-        g.setFill(Color.rgb(0, 0, 0, 0.85));
+        double badgeY = MINIMAP_Y + MINIMAP_SIZE + 6.0;
+
+        g.setFill(Color.rgb(6, 12, 20, 0.92));
         g.fillRoundRect(badgeX, badgeY, badgeW, badgeH, 6, 6);
-        g.setStroke(Color.web("#c49b45"));
+        g.setStroke(Color.rgb(0, 229, 255, 0.70));
         g.setLineWidth(1.0);
         g.strokeRoundRect(badgeX + 0.5, badgeY + 0.5, badgeW - 1, badgeH - 1, 6, 6);
-        g.setFill(Color.web("#ffd972"));
-        g.setFont(Font.font("Consolas", FontWeight.BOLD, 10));
-        g.fillText("MAP [M] / CLICK", badgeX + 7, badgeY + 13);
+
+        // Inner glowing text
+        g.setFill(Color.rgb(0, 245, 212, 0.95));
+        g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 10));
+        g.fillText("RADAR  •  [M] MAP", badgeX + 11, badgeY + 14);
     }
 
     /**
@@ -266,15 +342,25 @@ public class MinimapUI {
             g.strokeLine(padX, gy, padX + mapW, gy);
         }
 
-        // Title & Header
-        g.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        g.setFill(Color.web("#ffd972"));
+        // Title & Header Bar (Cyber-Investigation Tablet)
+        g.setFont(Font.font("Segoe UI", FontWeight.BOLD, 18));
+        g.setFill(Color.rgb(0, 245, 212, 0.98));
         g.setTextAlign(TextAlignment.LEFT);
-        g.fillText("ARCHITECTURAL BLUEPRINT - KHMER HIGH SCHOOL (GROUND FLOOR)", padX + 24, padY + 36);
+        g.fillText("INVESTIGATION TABLET  //  SISOWATH CAMPUS BLUEPRINT (1F)", padX + 24, padY + 34);
 
-        g.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
-        g.setFill(Color.web("#94a3b8"));
-        g.fillText("Live GPS Tracking Connected | Press [M], [ESC], or Click Anywhere to Close", padX + 24, padY + 54);
+        g.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 12));
+        g.setFill(Color.rgb(148, 163, 184, 0.95));
+        g.fillText("Live Tracker Active  •  Press [M] / [ESC] or Click Anywhere to Close", padX + 24, padY + 52);
+
+        // Right-aligned status badges
+        double badgeRightX = padX + mapW - 24.0;
+        g.setFont(Font.font("Consolas", FontWeight.BOLD, 11));
+        g.setTextAlign(TextAlignment.RIGHT);
+        g.setFill(Color.rgb(34, 197, 94, 0.95)); // Green online badge
+        g.fillText("● GPS LOCK: 100%  |  SENSORS: ACTIVE", badgeRightX, padY + 34);
+        g.setFill(Color.rgb(250, 204, 21, 0.90));
+        g.fillText("CAMPUS SECURITY RADAR LINK", badgeRightX, padY + 52);
+        g.setTextAlign(TextAlignment.LEFT);
 
         // Layout Origin & Dimensions for Schematic
         double scX = padX + 36.0;

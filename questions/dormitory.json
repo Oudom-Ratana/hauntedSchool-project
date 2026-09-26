@@ -1,1 +1,204 @@
-{ "questions": [] }
+{
+  "questions": [
+    {
+      "text": "How many bones are in an adult human skeleton?",
+      "options": [
+        "186",
+        "206",
+        "226",
+        "256"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which organ pumps oxygenated blood throughout the human body?",
+      "options": [
+        "Lungs",
+        "Liver",
+        "Heart",
+        "Kidneys"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the largest organ of the human body by surface area?",
+      "options": [
+        "Liver",
+        "Skin",
+        "Brain",
+        "Large Intestine"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What gas do humans inhale for cellular respiration?",
+      "options": [
+        "Carbon dioxide",
+        "Helium",
+        "Oxygen",
+        "Nitrogen"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which vitamin is synthesized by human skin when exposed to sunlight?",
+      "options": [
+        "Vitamin A",
+        "Vitamin B12",
+        "Vitamin C",
+        "Vitamin D"
+      ],
+      "answer": "3"
+    },
+    {
+      "text": "What is the normal resting body temperature of a healthy human in Celsius?",
+      "options": [
+        "35.0 C",
+        "37.0 C",
+        "39.5 C",
+        "41.0 C"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What mineral is vital for healthy bones and teeth?",
+      "options": [
+        "Iron",
+        "Calcium",
+        "Zinc",
+        "Sodium"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which sense organ contains the cochlea responsible for hearing?",
+      "options": [
+        "Eye",
+        "Ear",
+        "Nose",
+        "Tongue"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What protein in red blood cells binds and transports oxygen?",
+      "options": [
+        "Hemoglobin",
+        "Keratin",
+        "Collagen",
+        "Insulin"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What part of the brain controls balance and fine motor coordination?",
+      "options": [
+        "Cerebrum",
+        "Cerebellum",
+        "Brainstem",
+        "Thalamus"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which blood type is considered the universal red blood cell donor?",
+      "options": [
+        "A positive",
+        "B negative",
+        "AB positive",
+        "O negative"
+      ],
+      "answer": "3"
+    },
+    {
+      "text": "What hormone produced by the pancreas regulates blood glucose levels?",
+      "options": [
+        "Thyroxine",
+        "Adrenaline",
+        "Insulin",
+        "Cortisol"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the functional biological unit of the human kidney?",
+      "options": [
+        "Nephron",
+        "Neuron",
+        "Alveolus",
+        "Villus"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "Which division of the autonomic nervous system triggers the 'fight or flight' response?",
+      "options": [
+        "Parasympathetic",
+        "Sympathetic",
+        "Enteric",
+        "Somatic"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Where in the human digestive system does the majority of nutrient absorption occur?",
+      "options": [
+        "Stomach",
+        "Small Intestine",
+        "Large Intestine",
+        "Esophagus"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What pathogen causes the common cold and seasonal flu?",
+      "options": [
+        "Bacteria",
+        "Virus",
+        "Fungus",
+        "Protozoa"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the primary function of white blood cells (leukocytes)?",
+      "options": [
+        "Carry oxygen",
+        "Form scabs",
+        "Defend against pathogens and infection",
+        "Regulate body temperature"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What genetic molecule carries hereditary instructions for living organisms?",
+      "options": [
+        "RNA",
+        "DNA",
+        "ATP",
+        "Lipids"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which blood vessels carry oxygen-depleted blood back toward the heart from tissues?",
+      "options": [
+        "Arteries",
+        "Veins",
+        "Capillaries",
+        "Arterioles"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What type of joint is found at the human shoulder and hip, allowing multi-axis movement?",
+      "options": [
+        "Hinge joint",
+        "Ball-and-socket joint",
+        "Pivot joint",
+        "Saddle joint"
+      ],
+      "answer": "1"
+    }
+  ]
+}

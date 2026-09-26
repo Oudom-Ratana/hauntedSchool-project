@@ -1037,6 +1037,7 @@
 
 .modern-form-input {
     -fx-background-color: #0f172a;
+    -fx-control-inner-background: #0f172a;
     -fx-border-color: #1e293b;
     -fx-border-width: 1px;
     -fx-border-radius: 6px;
@@ -1051,7 +1052,23 @@
 .modern-form-input:focused {
     -fx-border-color: #2563eb;
     -fx-background-color: #131c31;
+    -fx-control-inner-background: #131c31;
     -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.35), 6, 0.2, 0, 0);
+}
+
+.text-area.modern-form-input,
+.text-area.modern-form-input .content {
+    -fx-background-color: #0f172a;
+    -fx-control-inner-background: #0f172a;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #f8fafc;
+}
+
+.text-area.modern-form-input:focused,
+.text-area.modern-form-input:focused .content {
+    -fx-background-color: #131c31;
+    -fx-control-inner-background: #131c31;
+    -fx-text-fill: #ffffff;
 }
 
 /* Barrier List View - High Contrast Dark Theme */

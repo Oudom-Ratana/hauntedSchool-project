@@ -185,22 +185,56 @@ public class AdminLoginView extends StackPane {
         statusMsg.setVisible(false);
 
         // 6. Interactive Button: ENTER SYSTEM (Left slot)
-        Button enterBtn = new Button("Enter System");
-        enterBtn.setLayoutX(302);
-        enterBtn.setLayoutY(631);
-        enterBtn.setPrefWidth(288);
-        enterBtn.setPrefHeight(80);
-        enterBtn.getStyleClass().add("btn-khmer-gold");
-        enterBtn.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-letter-spacing: 1px;");
+        Button enterBtn = new Button("⚡  ENTER SYSTEM");
+        enterBtn.setLayoutX(306);
+        enterBtn.setLayoutY(634);
+        enterBtn.setPrefWidth(280);
+        enterBtn.setPrefHeight(74);
+        String enterBaseStyle = "-fx-background-color: linear-gradient(to bottom, rgba(212, 175, 55, 0.25), rgba(153, 101, 21, 0.45)), rgba(15, 23, 42, 0.85); "
+                + "-fx-text-fill: #fef08a; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 15px; -fx-font-weight: 800; -fx-letter-spacing: 1.5px; "
+                + "-fx-border-color: linear-gradient(to bottom, #fde047, #b45309); -fx-border-width: 1.8px; -fx-border-radius: 12px; -fx-background-radius: 12px; "
+                + "-fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(234, 179, 8, 0.45), 14, 0.3, 0, 2);";
+        String enterHoverStyle = "-fx-background-color: linear-gradient(to bottom, rgba(250, 204, 21, 0.45), rgba(202, 138, 4, 0.65)), rgba(30, 41, 59, 0.92); "
+                + "-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 15px; -fx-font-weight: 800; -fx-letter-spacing: 1.5px; "
+                + "-fx-border-color: #fef08a; -fx-border-width: 2px; -fx-border-radius: 12px; -fx-background-radius: 12px; "
+                + "-fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(250, 204, 21, 0.85), 22, 0.5, 0, 3);";
+        enterBtn.setStyle(enterBaseStyle);
+        enterBtn.setOnMouseEntered(e -> {
+            enterBtn.setStyle(enterHoverStyle);
+            enterBtn.setScaleX(1.025);
+            enterBtn.setScaleY(1.025);
+        });
+        enterBtn.setOnMouseExited(e -> {
+            enterBtn.setStyle(enterBaseStyle);
+            enterBtn.setScaleX(1.0);
+            enterBtn.setScaleY(1.0);
+        });
 
         // 7. Interactive Button: RETURN TO MENU (Right slot)
-        Button returnBtn = new Button("Return to Menu");
-        returnBtn.setLayoutX(612);
-        returnBtn.setLayoutY(631);
-        returnBtn.setPrefWidth(288);
-        returnBtn.setPrefHeight(80);
-        returnBtn.getStyleClass().add("btn-khmer-stone");
-        returnBtn.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-letter-spacing: 1px;");
+        Button returnBtn = new Button("↩  RETURN TO MENU");
+        returnBtn.setLayoutX(616);
+        returnBtn.setLayoutY(634);
+        returnBtn.setPrefWidth(280);
+        returnBtn.setPrefHeight(74);
+        String returnBaseStyle = "-fx-background-color: linear-gradient(to bottom, rgba(159, 18, 57, 0.22), rgba(76, 5, 25, 0.48)), rgba(15, 23, 42, 0.85); "
+                + "-fx-text-fill: #fecdd3; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 14px; -fx-font-weight: 700; -fx-letter-spacing: 1.2px; "
+                + "-fx-border-color: linear-gradient(to bottom, #f43f5e, #881337); -fx-border-width: 1.8px; -fx-border-radius: 12px; -fx-background-radius: 12px; "
+                + "-fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.35), 12, 0.25, 0, 2);";
+        String returnHoverStyle = "-fx-background-color: linear-gradient(to bottom, rgba(244, 63, 94, 0.42), rgba(190, 18, 60, 0.65)), rgba(30, 41, 59, 0.92); "
+                + "-fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 14px; -fx-font-weight: 700; -fx-letter-spacing: 1.2px; "
+                + "-fx-border-color: #fda4af; -fx-border-width: 2px; -fx-border-radius: 12px; -fx-background-radius: 12px; "
+                + "-fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.75), 20, 0.45, 0, 3);";
+        returnBtn.setStyle(returnBaseStyle);
+        returnBtn.setOnMouseEntered(e -> {
+            returnBtn.setStyle(returnHoverStyle);
+            returnBtn.setScaleX(1.025);
+            returnBtn.setScaleY(1.025);
+        });
+        returnBtn.setOnMouseExited(e -> {
+            returnBtn.setStyle(returnBaseStyle);
+            returnBtn.setScaleX(1.0);
+            returnBtn.setScaleY(1.0);
+        });
 
         // 8. Footer Credential Hint
         Label hintLbl = new Label("Default Credentials: admin / admin123  •  Press [ESC] to return to main menu");

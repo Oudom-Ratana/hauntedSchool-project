@@ -1,0 +1,140 @@
+Q: What is the closest planet to the Sun in our solar system?
+A: Venus
+B: Earth
+C: Mercury
+D: Mars
+Answer: 3
+
+Q: What is the capital city of Cambodia?
+A: Siem Reap
+B: Battambang
+C: Phnom Penh
+D: Sihanoukville
+Answer: 3
+
+Q: Which animal is known as the 'King of the Jungle' in popular culture?
+A: Tiger
+B: Elephant
+C: Lion
+D: Gorilla
+Answer: 3
+
+Q: How many days are in a leap year?
+A: 364
+B: 365
+C: 366
+D: 367
+Answer: 3
+
+Q: What is the color of an emerald gemstone?
+A: Red
+B: Blue
+C: Green
+D: Yellow
+Answer: 3
+
+Q: Which country is famous for the ancient Pyramids of Giza?
+A: Greece
+B: Egypt
+C: Italy
+D: Turkey
+Answer: 2
+
+Q: What instrument is used to measure atmospheric air pressure?
+A: Thermometer
+B: Barometer
+C: Hygrometer
+D: Anemometer
+Answer: 2
+
+Q: What is the national flower of Cambodia?
+A: Lotus
+B: Romduol
+C: Jasmine
+D: Orchid
+Answer: 2
+
+Q: What is the primary language spoken in Brazil?
+A: Spanish
+B: Portuguese
+C: French
+D: English
+Answer: 2
+
+Q: What is the freezing point of water on the Fahrenheit scale?
+A: 0 F
+B: 32 F
+C: 100 F
+D: 212 F
+Answer: 2
+
+Q: What is the largest living mammal currently on Earth?
+A: African Elephant
+B: Blue Whale
+C: Colossal Squid
+D: Giraffe
+Answer: 2
+
+Q: In what year did the Apollo 11 mission successfully land the first humans on the Moon?
+A: 1965
+B: 1969
+C: 1972
+D: 1975
+Answer: 2
+
+Q: What is the name of the ancient trade route connecting China with the Mediterranean world?
+A: Amber Road
+B: Silk Road
+C: Spice Route
+D: Incense Route
+Answer: 2
+
+Q: Which country gifted the Statue of Liberty to the United States in the late 19th century?
+A: United Kingdom
+B: France
+C: Spain
+D: Germany
+Answer: 2
+
+Q: What is the deepest known oceanic trench on Earth?
+A: Java Trench
+B: Puerto Rico Trench
+C: Mariana Trench
+D: Tonga Trench
+Answer: 3
+
+Q: What international organization was founded in 1945 following World War II to maintain peace and security?
+A: League of Nations
+B: United Nations
+C: NATO
+D: World Bank
+Answer: 2
+
+Q: Which classical composer continued to compose masterpieces like the Ninth Symphony after becoming completely deaf?
+A: Wolfgang Amadeus Mozart
+B: Ludwig van Beethoven
+C: Johann Sebastian Bach
+D: Frederic Chopin
+Answer: 2
+
+Q: What is the study of celestial bodies such as stars, planets, and galaxies called?
+A: Astrology
+B: Astronomy
+C: Geology
+D: Meteorology
+Answer: 2
+
+Q: Which country has the highest population in the world as of recent United Nations estimates?
+A: China
+B: India
+C: United States
+D: Indonesia
+Answer: 2
+
+Q: What is the primary constitutional role of the King of Cambodia under the 1993 Constitution?
+A: Head of Government with executive powers
+B: Reigns as Head of State but does not govern
+C: Chief Justice of Supreme Court
+D: Commander of Police only
+Answer: 2
+

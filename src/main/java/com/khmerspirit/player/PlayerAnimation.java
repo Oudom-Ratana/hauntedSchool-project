@@ -58,6 +58,10 @@ public class PlayerAnimation {
         return state;
     }
 
+    public int getDirectionRow() {
+        return directionRow;
+    }
+
     private void updateDirection(double velocityX, double velocityY) {
         if (Math.abs(velocityX) > Math.abs(velocityY)) {
             directionRow = velocityX < 0 ? 1 : 2;

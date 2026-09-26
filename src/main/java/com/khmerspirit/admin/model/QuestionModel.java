@@ -14,9 +14,9 @@ public class QuestionModel {
     private String optionC;
     private String optionD;
     private String correctAnswer; // "A", "B", "C", "D"
-    private String category;      // "Programming", "Networking", "CyberSecurity", "Hardware", "General"
+    private String category;      // "Math", "Science", "Coding (Java, OOP)", "Networking", "General Knowledge"
     private String room;          // "entrance", "classroomA", "classroomB", "computer", "laboratory", etc.
-    private String difficulty;    // "Easy", "Medium", "Hard"
+    private String difficulty;    // "Easy", "Medium"
     private String rewardType;    // "Item", "Key", "Health", "Buff", etc.
     private String rewardValue;   // e.g. "Flashlight", "Master Key", "First Aid Kit"
     private String explanation;   // Feedback or educational clue

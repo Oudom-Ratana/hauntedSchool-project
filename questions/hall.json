@@ -1,0 +1,204 @@
+{
+  "questions": [
+    {
+      "text": "What is the closest planet to the Sun in our solar system?",
+      "options": [
+        "Venus",
+        "Earth",
+        "Mercury",
+        "Mars"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the capital city of Cambodia?",
+      "options": [
+        "Siem Reap",
+        "Battambang",
+        "Phnom Penh",
+        "Sihanoukville"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which animal is known as the 'King of the Jungle' in popular culture?",
+      "options": [
+        "Tiger",
+        "Elephant",
+        "Lion",
+        "Gorilla"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "How many days are in a leap year?",
+      "options": [
+        "364",
+        "365",
+        "366",
+        "367"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the color of an emerald gemstone?",
+      "options": [
+        "Red",
+        "Blue",
+        "Green",
+        "Yellow"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which country is famous for the ancient Pyramids of Giza?",
+      "options": [
+        "Greece",
+        "Egypt",
+        "Italy",
+        "Turkey"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What instrument is used to measure atmospheric air pressure?",
+      "options": [
+        "Thermometer",
+        "Barometer",
+        "Hygrometer",
+        "Anemometer"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the national flower of Cambodia?",
+      "options": [
+        "Lotus",
+        "Romduol",
+        "Jasmine",
+        "Orchid"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the primary language spoken in Brazil?",
+      "options": [
+        "Spanish",
+        "Portuguese",
+        "French",
+        "English"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the freezing point of water on the Fahrenheit scale?",
+      "options": [
+        "0 F",
+        "32 F",
+        "100 F",
+        "212 F"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the largest living mammal currently on Earth?",
+      "options": [
+        "African Elephant",
+        "Blue Whale",
+        "Colossal Squid",
+        "Giraffe"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "In what year did the Apollo 11 mission successfully land the first humans on the Moon?",
+      "options": [
+        "1965",
+        "1969",
+        "1972",
+        "1975"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the name of the ancient trade route connecting China with the Mediterranean world?",
+      "options": [
+        "Amber Road",
+        "Silk Road",
+        "Spice Route",
+        "Incense Route"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which country gifted the Statue of Liberty to the United States in the late 19th century?",
+      "options": [
+        "United Kingdom",
+        "France",
+        "Spain",
+        "Germany"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the deepest known oceanic trench on Earth?",
+      "options": [
+        "Java Trench",
+        "Puerto Rico Trench",
+        "Mariana Trench",
+        "Tonga Trench"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What international organization was founded in 1945 following World War II to maintain peace and security?",
+      "options": [
+        "League of Nations",
+        "United Nations",
+        "NATO",
+        "World Bank"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which classical composer continued to compose masterpieces like the Ninth Symphony after becoming completely deaf?",
+      "options": [
+        "Wolfgang Amadeus Mozart",
+        "Ludwig van Beethoven",
+        "Johann Sebastian Bach",
+        "Frederic Chopin"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the study of celestial bodies such as stars, planets, and galaxies called?",
+      "options": [
+        "Astrology",
+        "Astronomy",
+        "Geology",
+        "Meteorology"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which country has the highest population in the world as of recent United Nations estimates?",
+      "options": [
+        "China",
+        "India",
+        "United States",
+        "Indonesia"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the primary constitutional role of the King of Cambodia under the 1993 Constitution?",
+      "options": [
+        "Head of Government with executive powers",
+        "Reigns as Head of State but does not govern",
+        "Chief Justice of Supreme Court",
+        "Commander of Police only"
+      ],
+      "answer": "1"
+    }
+  ]
+}

@@ -1,1 +1,204 @@
-{ "questions": [] }
+{
+  "questions": [
+    {
+      "text": "Which is the largest ocean on planet Earth by surface area?",
+      "options": [
+        "Atlantic Ocean",
+        "Indian Ocean",
+        "Arctic Ocean",
+        "Pacific Ocean"
+      ],
+      "answer": "3"
+    },
+    {
+      "text": "What is the capital city of France?",
+      "options": [
+        "Rome",
+        "Berlin",
+        "Paris",
+        "Madrid"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Who painted the world-famous portrait known as the Mona Lisa?",
+      "options": [
+        "Vincent van Gogh",
+        "Leonardo da Vinci",
+        "Pablo Picasso",
+        "Claude Monet"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which continent is the Sahara Desert located on?",
+      "options": [
+        "Asia",
+        "Africa",
+        "South America",
+        "Australia"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "How many continents are there on Earth?",
+      "options": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the tallest mountain above sea level on Earth?",
+      "options": [
+        "K2",
+        "Mount Kilimanjaro",
+        "Mount Everest",
+        "Denali"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What famous ancient temple complex in Cambodia was built during the reign of King Suryavarman II?",
+      "options": [
+        "Borobudur",
+        "Angkor Wat",
+        "Prambanan",
+        "Bagan"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the capital city of Japan?",
+      "options": [
+        "Beijing",
+        "Seoul",
+        "Tokyo",
+        "Bangkok"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the primary currency used in Cambodia alongside the US Dollar?",
+      "options": [
+        "Baht",
+        "Riel",
+        "Dong",
+        "Kip"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Who wrote the famous English tragic play 'Romeo and Juliet'?",
+      "options": [
+        "Charles Dickens",
+        "William Shakespeare",
+        "Mark Twain",
+        "Jane Austen"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which great river is the longest in the world according to most geographical surveys?",
+      "options": [
+        "Amazon River",
+        "Nile River",
+        "Yangtze River",
+        "Mississippi River"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the largest country in the world by land area?",
+      "options": [
+        "Canada",
+        "China",
+        "Russia",
+        "United States"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which civilization built Machu Picchu high in the Andes mountains?",
+      "options": [
+        "Aztec Civilization",
+        "Inca Civilization",
+        "Maya Civilization",
+        "Olmec Civilization"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the capital city of Australia?",
+      "options": [
+        "Sydney",
+        "Melbourne",
+        "Canberra",
+        "Brisbane"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Who discovered the antibiotic Penicillin in 1928?",
+      "options": [
+        "Louis Pasteur",
+        "Alexander Fleming",
+        "Marie Curie",
+        "Robert Koch"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What historic treaty marked the end of World War I in 1919?",
+      "options": [
+        "Treaty of Versailles",
+        "Treaty of Paris",
+        "Treaty of Ghent",
+        "Treaty of Utrecht"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is the most abundant gas in Earth's atmosphere, making up approximately 78%?",
+      "options": [
+        "Oxygen",
+        "Carbon Dioxide",
+        "Argon",
+        "Nitrogen"
+      ],
+      "answer": "3"
+    },
+    {
+      "text": "Which ancient wonder of the world was located in Alexandria, Egypt, serving as a beacon for sailors?",
+      "options": [
+        "Hanging Gardens",
+        "Lighthouse of Alexandria (Pharos)",
+        "Colossus of Rhodes",
+        "Statue of Zeus"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What great freshwater lake in Cambodia is connected to the Mekong River and expands dramatically during monsoon season?",
+      "options": [
+        "Inle Lake",
+        "Tonle Sap Lake",
+        "Songkhla Lake",
+        "Laguna de Bay"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which famous scientist developed the General Theory of Relativity?",
+      "options": [
+        "Isaac Newton",
+        "Albert Einstein",
+        "Niels Bohr",
+        "Galileo Galilei"
+      ],
+      "answer": "1"
+    }
+  ]
+}

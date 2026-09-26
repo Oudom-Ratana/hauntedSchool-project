@@ -1,1 +1,204 @@
-{ "questions": [] }
+{
+  "questions": [
+    {
+      "text": "Which access modifier makes a class member accessible ONLY within its own class?",
+      "options": [
+        "public",
+        "protected",
+        "private",
+        "default (package-private)"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the index of the very first element in a standard Java array?",
+      "options": [
+        "0",
+        "1",
+        "-1",
+        "null"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "Which keyword is used to implement an interface in a Java class?",
+      "options": [
+        "inherits",
+        "extends",
+        "implements",
+        "uses"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is a constructor in Java?",
+      "options": [
+        "A special method called to initialize a new object",
+        "A method that destroys objects",
+        "A tool for compiling source code",
+        "A reserved variable name"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "Which operator is used to test logical equality of values in Java?",
+      "options": [
+        "=",
+        "==",
+        "===",
+        "!="
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the wrapper class for the primitive type 'int' in Java?",
+      "options": [
+        "Int",
+        "Integer",
+        "Number",
+        "Int32"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which loop construct evaluates its boolean condition AFTER executing the loop body at least once?",
+      "options": [
+        "for loop",
+        "while loop",
+        "do-while loop",
+        "enhanced for loop"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What keyword stops the execution of a loop immediately and transfers control out of it?",
+      "options": [
+        "continue",
+        "skip",
+        "break",
+        "return"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What does JVM stand for?",
+      "options": [
+        "Java Virtual Machine",
+        "Java Variable Manager",
+        "Java Visual Monitor",
+        "Joint Vector Module"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is the return type of a method that does not return any value?",
+      "options": [
+        "null",
+        "empty",
+        "void",
+        "zero"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What design pattern restricts class instantiation to a single unique instance application-wide?",
+      "options": [
+        "Factory Pattern",
+        "Singleton Pattern",
+        "Observer Pattern",
+        "Strategy Pattern"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is autoboxing and unboxing in modern Java?",
+      "options": [
+        "Automatic memory garbage collection",
+        "Automatic conversion between primitive types and their wrapper classes",
+        "Compressing files into JAR format",
+        "Compiling Java to C++"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What happens to an object when there are no longer any active references pointing to it?",
+      "options": [
+        "It causes a memory leak crash",
+        "It becomes eligible for Garbage Collection",
+        "It is automatically saved to disk",
+        "It becomes static"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Why are Strings considered immutable in Java?",
+      "options": [
+        "Their contents cannot be changed after creation; modifications return new String instances",
+        "They can only hold 256 characters",
+        "They cannot be used in loops",
+        "They are stored on the stack only"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is the difference between ArrayList and LinkedList in Java?",
+      "options": [
+        "ArrayList uses a dynamic resizable array; LinkedList uses doubly-linked node pointers",
+        "ArrayList cannot store objects",
+        "LinkedList is always slower in all operations",
+        "They are identical classes"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is the purpose of the '@Override' annotation in Java?",
+      "options": [
+        "It compiles code into machine code",
+        "It signals the compiler that the method is intended to override a superclass method",
+        "It creates a new thread",
+        "It prevents subclassing"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which class in Java is the ultimate root ancestor of every class hierarchy?",
+      "options": [
+        "java.lang.Class",
+        "java.lang.System",
+        "java.lang.Object",
+        "java.lang.Root"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the difference between 'throw' and 'throws' keywords in Java?",
+      "options": [
+        "'throw' explicitly triggers an exception; 'throws' declares exceptions in a method signature",
+        "'throws' is for runtime exceptions only",
+        "They are interchangeable",
+        "'throw' is a variable type"
+      ],
+      "answer": "0"
+    },
+    {
+      "text": "What is the purpose of generics (e.g. List<String>) introduced in Java 5?",
+      "options": [
+        "To allow classes to run faster on GPU",
+        "To enforce compile-time type safety and eliminate runtime ClassCastExceptions",
+        "To allow code to run without JVM",
+        "To enable multiple class inheritance"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the time complexity of looking up a key in a well-distributed Java HashMap?",
+      "options": [
+        "O(n)",
+        "O(log n)",
+        "O(1)",
+        "O(n^2)"
+      ],
+      "answer": "2"
+    }
+  ]
+}

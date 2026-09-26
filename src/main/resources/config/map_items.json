@@ -1,25 +1,5 @@
 [
   {
-    "id": "ITEM_001",
-    "itemId": "flashlight",
-    "itemName": "Flashlight",
-    "roomId": "classroomA",
-    "tileX": 24.0,
-    "tileY": 21.0,
-    "description": "On the front study desk",
-    "active": true
-  },
-  {
-    "id": "ITEM_003",
-    "itemId": "bronze_bell",
-    "itemName": "Sacred Bronze Bell",
-    "roomId": "classroomB",
-    "tileX": 34.0,
-    "tileY": 14.0,
-    "description": "Resting on faculty coffee table (Stuns ghosts 5s)",
-    "active": true
-  },
-  {
     "id": "ITEM_004",
     "itemId": "battery",
     "itemName": "Flashlight Battery",
@@ -41,8 +21,8 @@
   },
   {
     "id": "ITEM_006",
-    "itemId": "sheet_music",
-    "itemName": "Haunted Melody Sheet",
+    "itemId": "night_vision",
+    "itemName": "Night Vision Goggles",
     "roomId": "computer",
     "tileX": 24.0,
     "tileY": 10.0,
@@ -210,46 +190,6 @@
     "active": true
   },
   {
-    "id": "ITEM_023",
-    "itemId": "battery",
-    "itemName": "Battery",
-    "roomId": "classroomA",
-    "tileX": 35.5,
-    "tileY": 8.5,
-    "description": "",
-    "active": true
-  },
-  {
-    "id": "ITEM_023",
-    "itemId": "first_aid_kit",
-    "itemName": "First Aid Kit",
-    "roomId": "classroomA",
-    "tileX": 17.0,
-    "tileY": 13.5,
-    "description": "",
-    "active": true
-  },
-  {
-    "id": "ITEM_024",
-    "itemId": "holy_charm",
-    "itemName": "Holy Charm",
-    "roomId": "classroomA",
-    "tileX": 20.5,
-    "tileY": 17.0,
-    "description": "",
-    "active": true
-  },
-  {
-    "id": "ITEM_025",
-    "itemId": "acid_bottle",
-    "itemName": "Acid Bottle",
-    "roomId": "classroomA",
-    "tileX": 31.0,
-    "tileY": 17.5,
-    "description": "",
-    "active": true
-  },
-  {
     "id": "ITEM_026",
     "itemId": "bronze_bell",
     "itemName": "Bronze Bell",
@@ -260,23 +200,43 @@
     "active": true
   },
   {
-    "id": "ITEM_027",
-    "itemId": "electric_fuse",
-    "itemName": "Electric Fuse",
+    "id": "ITEM_028",
+    "itemId": "flashlight",
+    "itemName": "Flashlight",
+    "roomId": "classroomA",
+    "tileX": 25.0,
+    "tileY": 19.0,
+    "description": "On the front study desk",
+    "active": true
+  },
+  {
+    "id": "ITEM_023",
+    "itemId": "acid_bottle",
+    "itemName": "Acid Bottle",
     "roomId": "classroomA",
     "tileX": 36.0,
-    "tileY": 14.5,
+    "tileY": 8.0,
     "description": "",
     "active": true
   },
   {
-    "id": "ITEM_028",
-    "itemId": "night_vision",
-    "itemName": "Night Vision Goggles",
-    "roomId": "classroomA",
-    "tileX": 12.5,
-    "tileY": 19.0,
-    "description": "",
+    "id": "ITEM_023",
+    "itemId": "sheet_music",
+    "itemName": "Sheet Music",
+    "roomId": "classroomB",
+    "tileX": 13.5,
+    "tileY": 17.0,
+    "description": "Resting on faculty coffee table (Stuns ghosts 5s)",
+    "active": true
+  },
+  {
+    "id": "ITEM_024",
+    "itemId": "medicine_bottle",
+    "itemName": "Medicine Bottle",
+    "roomId": "entrance",
+    "tileX": 24.0,
+    "tileY": 14.0,
+    "description": "On the wooden art easel",
     "active": true
   }
 ]

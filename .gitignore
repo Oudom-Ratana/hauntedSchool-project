@@ -6,6 +6,7 @@ target/
 
 ### Large Executable Artifacts (Rebuilt on pull via automate.ps1 or mvn) ###
 *.jar
+*.zip
 dependency-reduced-pom.xml
 
 ### Crash logs & temp dumps ###

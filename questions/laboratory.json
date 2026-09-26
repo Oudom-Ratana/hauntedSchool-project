@@ -1,1 +1,204 @@
-{ "questions": [] }
+{
+  "questions": [
+    {
+      "text": "What is the chemical formula for water?",
+      "options": [
+        "CO2",
+        "H2O",
+        "NaCl",
+        "O2"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the center of an atom called?",
+      "options": [
+        "Electron",
+        "Nucleus",
+        "Proton",
+        "Neutron"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the primary gas that plants absorb from the atmosphere for photosynthesis?",
+      "options": [
+        "Oxygen",
+        "Nitrogen",
+        "Carbon Dioxide",
+        "Hydrogen"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the chemical symbol for Gold on the periodic table?",
+      "options": [
+        "Ag",
+        "Au",
+        "Fe",
+        "Pb"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which planet is known as the Red Planet in our solar system?",
+      "options": [
+        "Venus",
+        "Mars",
+        "Jupiter",
+        "Saturn"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the freezing point of pure water at standard atmospheric pressure in Celsius?",
+      "options": [
+        "-10 C",
+        "0 C",
+        "32 C",
+        "100 C"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What organelle is famously known as the powerhouse of the cell?",
+      "options": [
+        "Nucleus",
+        "Ribosome",
+        "Mitochondria",
+        "Golgi apparatus"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What force pulls objects toward the center of the Earth?",
+      "options": [
+        "Magnetism",
+        "Friction",
+        "Gravity",
+        "Centrifugal force"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What state of matter has a definite volume but no fixed shape?",
+      "options": [
+        "Solid",
+        "Liquid",
+        "Gas",
+        "Plasma"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the pH value of pure neutral water at 25 degrees Celsius?",
+      "options": [
+        "0",
+        "5",
+        "7",
+        "14"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the acceleration due to Earth's gravity near sea level?",
+      "options": [
+        "8.9 m/s^2",
+        "9.8 m/s^2",
+        "10.8 m/s^2",
+        "12.0 m/s^2"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which element has atomic number 6 on the periodic table?",
+      "options": [
+        "Nitrogen",
+        "Carbon",
+        "Boron",
+        "Oxygen"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What type of chemical bond involves the sharing of electron pairs between atoms?",
+      "options": [
+        "Ionic bond",
+        "Covalent bond",
+        "Hydrogen bond",
+        "Metallic bond"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the SI unit of electrical resistance?",
+      "options": [
+        "Volt",
+        "Ampere",
+        "Ohm",
+        "Watt"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "According to Newton's Second Law of Motion, what is the formula for force?",
+      "options": [
+        "F = m / a",
+        "F = m * a",
+        "F = m * v",
+        "F = 1/2 m * v^2"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What type of lens is thinner in the center and causes light rays to diverge?",
+      "options": [
+        "Convex lens",
+        "Concave lens",
+        "Bifocal lens",
+        "Cylindrical lens"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the speed of light in a vacuum (approximate)?",
+      "options": [
+        "30,000 km/s",
+        "150,000 km/s",
+        "300,000 km/s",
+        "1,000,000 km/s"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Which blood component is primarily responsible for blood clotting to stop bleeding?",
+      "options": [
+        "Red blood cells",
+        "White blood cells",
+        "Platelets",
+        "Hemoglobin"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is an exothermic reaction?",
+      "options": [
+        "A reaction that absorbs thermal energy",
+        "A reaction that releases thermal energy",
+        "A reaction requiring electricity",
+        "A reaction that halts without oxygen"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which law states that energy cannot be created or destroyed, only transformed?",
+      "options": [
+        "First Law of Thermodynamics",
+        "Second Law of Thermodynamics",
+        "Hooke's Law",
+        "Boyle's Law"
+      ],
+      "answer": "0"
+    }
+  ]
+}

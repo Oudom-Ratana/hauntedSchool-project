@@ -1,0 +1,140 @@
+Q: Which access modifier makes a class member accessible ONLY within its own class?
+A: public
+B: protected
+C: private
+D: default (package-private)
+Answer: 3
+
+Q: What is the index of the very first element in a standard Java array?
+A: 0
+B: 1
+C: -1
+D: null
+Answer: 1
+
+Q: Which keyword is used to implement an interface in a Java class?
+A: inherits
+B: extends
+C: implements
+D: uses
+Answer: 3
+
+Q: What is a constructor in Java?
+A: A special method called to initialize a new object
+B: A method that destroys objects
+C: A tool for compiling source code
+D: A reserved variable name
+Answer: 1
+
+Q: Which operator is used to test logical equality of values in Java?
+A: =
+B: ==
+C: ===
+D: !=
+Answer: 2
+
+Q: What is the wrapper class for the primitive type 'int' in Java?
+A: Int
+B: Integer
+C: Number
+D: Int32
+Answer: 2
+
+Q: Which loop construct evaluates its boolean condition AFTER executing the loop body at least once?
+A: for loop
+B: while loop
+C: do-while loop
+D: enhanced for loop
+Answer: 3
+
+Q: What keyword stops the execution of a loop immediately and transfers control out of it?
+A: continue
+B: skip
+C: break
+D: return
+Answer: 3
+
+Q: What does JVM stand for?
+A: Java Virtual Machine
+B: Java Variable Manager
+C: Java Visual Monitor
+D: Joint Vector Module
+Answer: 1
+
+Q: What is the return type of a method that does not return any value?
+A: null
+B: empty
+C: void
+D: zero
+Answer: 3
+
+Q: What design pattern restricts class instantiation to a single unique instance application-wide?
+A: Factory Pattern
+B: Singleton Pattern
+C: Observer Pattern
+D: Strategy Pattern
+Answer: 2
+
+Q: What is autoboxing and unboxing in modern Java?
+A: Automatic memory garbage collection
+B: Automatic conversion between primitive types and their wrapper classes
+C: Compressing files into JAR format
+D: Compiling Java to C++
+Answer: 2
+
+Q: What happens to an object when there are no longer any active references pointing to it?
+A: It causes a memory leak crash
+B: It becomes eligible for Garbage Collection
+C: It is automatically saved to disk
+D: It becomes static
+Answer: 2
+
+Q: Why are Strings considered immutable in Java?
+A: Their contents cannot be changed after creation; modifications return new String instances
+B: They can only hold 256 characters
+C: They cannot be used in loops
+D: They are stored on the stack only
+Answer: 1
+
+Q: What is the difference between ArrayList and LinkedList in Java?
+A: ArrayList uses a dynamic resizable array; LinkedList uses doubly-linked node pointers
+B: ArrayList cannot store objects
+C: LinkedList is always slower in all operations
+D: They are identical classes
+Answer: 1
+
+Q: What is the purpose of the '@Override' annotation in Java?
+A: It compiles code into machine code
+B: It signals the compiler that the method is intended to override a superclass method
+C: It creates a new thread
+D: It prevents subclassing
+Answer: 2
+
+Q: Which class in Java is the ultimate root ancestor of every class hierarchy?
+A: java.lang.Class
+B: java.lang.System
+C: java.lang.Object
+D: java.lang.Root
+Answer: 3
+
+Q: What is the difference between 'throw' and 'throws' keywords in Java?
+A: 'throw' explicitly triggers an exception; 'throws' declares exceptions in a method signature
+B: 'throws' is for runtime exceptions only
+C: They are interchangeable
+D: 'throw' is a variable type
+Answer: 1
+
+Q: What is the purpose of generics (e.g. List<String>) introduced in Java 5?
+A: To allow classes to run faster on GPU
+B: To enforce compile-time type safety and eliminate runtime ClassCastExceptions
+C: To allow code to run without JVM
+D: To enable multiple class inheritance
+Answer: 2
+
+Q: What is the time complexity of looking up a key in a well-distributed Java HashMap?
+A: O(n)
+B: O(log n)
+C: O(1)
+D: O(n^2)
+Answer: 3
+

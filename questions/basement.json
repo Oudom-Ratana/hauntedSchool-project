@@ -1,15 +1,204 @@
-{ "questions": [{
-      "text": "What color is the sky?",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+{
+  "questions": [
+    {
+      "text": "What is 1/2 + 1/4?",
+      "options": [
+        "2/6",
+        "3/4",
+        "1/8",
+        "2/4"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the Roman numeral for 50?",
+      "options": [
+        "C",
+        "D",
+        "L",
+        "X"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the average (mean) of 10, 20, and 30?",
+      "options": [
+        "15",
+        "20",
+        "25",
+        "30"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "How many sides does a regular decagon have?",
+      "options": [
+        "8",
+        "9",
+        "10",
+        "12"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is 8 * 9?",
+      "options": [
+        "64",
+        "71",
+        "72",
+        "81"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "If a train travels 60 miles per hour, how far does it travel in 3.5 hours?",
+      "options": [
+        "180 miles",
+        "210 miles",
+        "240 miles",
+        "270 miles"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is 10 to the power of 4 (10^4)?",
+      "options": [
+        "1,000",
+        "10,000",
+        "100,000",
+        "1,000,000"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "Which angle is classified as an obtuse angle?",
+      "options": [
+        "45 degrees",
+        "90 degrees",
+        "125 degrees",
+        "180 degrees"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is 40% of 150?",
+      "options": [
+        "45",
+        "50",
+        "60",
+        "75"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the absolute value of -42?",
+      "options": [
+        "-42",
+        "0",
+        "42",
+        "84"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "What is the volume of a cylinder with radius r = 3 and height h = 7? (Use pi = 22/7)",
+      "options": [
+        "132",
+        "198",
+        "231",
+        "264"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "If 2^(x+1) = 32, what is the value of x?",
+      "options": [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the surface area of a cube with edge length 5 cm?",
+      "options": [
+        "125 cm^2",
+        "150 cm^2",
+        "175 cm^2",
+        "200 cm^2"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "In how many different ways can 4 books be arranged on a shelf?",
+      "options": [
+        "12",
+        "16",
+        "24",
+        "48"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "If a card is drawn from a standard 52-card deck, what is the probability of drawing an Ace?",
+      "options": [
+        "1/13",
+        "1/26",
+        "1/52",
+        "4/13"
+      ],
       "answer": "0"
     },
-{
-      "text": "What color is the sky?",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-      "answer": "0"
+    {
+      "text": "What is the distance between points (1, 2) and (4, 6)?",
+      "options": [
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
+      "answer": "1"
     },
-{
-      "text": "What color is the sky?",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-      "answer": "0"
-    }] }
+    {
+      "text": "What is the sum of the first 10 positive integers (1 + 2 + ... + 10)?",
+      "options": [
+        "45",
+        "50",
+        "55",
+        "60"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "If f(x) = 2x^2 - 3x + 1, what is f(3)?",
+      "options": [
+        "8",
+        "10",
+        "12",
+        "14"
+      ],
+      "answer": "1"
+    },
+    {
+      "text": "What is the simple interest on a principal of $1,000 at 5% annual rate for 3 years?",
+      "options": [
+        "$50",
+        "$100",
+        "$150",
+        "$200"
+      ],
+      "answer": "2"
+    },
+    {
+      "text": "Simplify: (x^3 * x^4) / x^2.",
+      "options": [
+        "x^4",
+        "x^5",
+        "x^6",
+        "x^7"
+      ],
+      "answer": "1"
+    }
+  ]
+}
