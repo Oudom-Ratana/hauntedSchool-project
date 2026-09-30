@@ -238,5 +238,35 @@
     "tileY": 14.0,
     "description": "On the wooden art easel",
     "active": true
+  },
+  {
+    "id": "ITEM_025",
+    "itemId": "notebook",
+    "itemName": "Notebook",
+    "roomId": "classroomA",
+    "tileX": 16.0,
+    "tileY": 16.5,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_026",
+    "itemId": "first_aid_kit",
+    "itemName": "First Aid Kit",
+    "roomId": "classroomA",
+    "tileX": 31.0,
+    "tileY": 16.0,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_027",
+    "itemId": "master_key",
+    "itemName": "Grand Master Key",
+    "roomId": "classroomA",
+    "tileX": 32.0,
+    "tileY": 13.5,
+    "description": "",
+    "active": true
   }
 ]

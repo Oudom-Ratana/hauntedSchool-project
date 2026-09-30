@@ -228,5 +228,35 @@
     "tileY": 17.0,
     "description": "Resting on faculty coffee table (Stuns ghosts 5s)",
     "active": true
+  },
+  {
+    "id": "ITEM_024",
+    "itemId": "medicine_bottle",
+    "itemName": "Medicine Bottle",
+    "roomId": "entrance",
+    "tileX": 24.0,
+    "tileY": 14.0,
+    "description": "On the wooden art easel",
+    "active": true
+  },
+  {
+    "id": "ITEM_025",
+    "itemId": "notebook",
+    "itemName": "Notebook",
+    "roomId": "classroomA",
+    "tileX": 16.0,
+    "tileY": 16.5,
+    "description": "",
+    "active": true
+  },
+  {
+    "id": "ITEM_026",
+    "itemId": "first_aid_kit",
+    "itemName": "First Aid Kit",
+    "roomId": "classroomA",
+    "tileX": 31.0,
+    "tileY": 16.0,
+    "description": "",
+    "active": true
   }
 ]

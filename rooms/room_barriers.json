@@ -225,6 +225,13 @@
       "width": 43.0,
       "height": 214.0,
       "label": "Obstacle #15"
+    },
+    {
+      "x": 217.0,
+      "y": 230.0,
+      "width": 41.0,
+      "height": 50.0,
+      "label": "Obstacle #16"
     }
   ],
   "computer": [
@@ -453,6 +460,27 @@
       "width": 140.0,
       "height": 174.0,
       "label": "Obstacle #16"
+    },
+    {
+      "x": 173.0,
+      "y": 170.0,
+      "width": 130.0,
+      "height": 59.0,
+      "label": "Obstacle #17"
+    },
+    {
+      "x": 112.0,
+      "y": 164.0,
+      "width": 77.0,
+      "height": 253.0,
+      "label": "Obstacle #18"
+    },
+    {
+      "x": 175.0,
+      "y": 198.0,
+      "width": 77.0,
+      "height": 121.0,
+      "label": "Obstacle #19"
     }
   ],
   "library": [

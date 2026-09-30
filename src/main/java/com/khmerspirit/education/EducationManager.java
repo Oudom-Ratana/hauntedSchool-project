@@ -630,13 +630,15 @@ public class EducationManager {
             g.setFill(Color.web("#140d02"));
             g.fillText(String.valueOf(i + 1), badgeX + 11, badgeY + 20);
 
-            // Option text (generous width up to ~670px, wrapping up to 2 lines without any truncation)
+            // Option text placed cleanly inside the dark blank slot (clearing the left carved frame edge)
             String optText = options.get(i);
-            double textW = colW - 65.0;
+            double textPaddingLeft = 115.0;
+            double textPaddingRight = 115.0;
+            double textW = colW - (textPaddingLeft + textPaddingRight);
             List<String> optLines = wrapText(optText, textW, 13);
             g.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 13));
 
-            double textX = bx + 52.0;
+            double textX = bx + textPaddingLeft;
             if (optLines.size() <= 1) {
                 double textY = by + (boxH / 2.0) + 5.0;
                 g.setFill(Color.rgb(0, 0, 0, 0.98));

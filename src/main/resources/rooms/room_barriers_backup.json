@@ -453,6 +453,27 @@
       "width": 140.0,
       "height": 174.0,
       "label": "Obstacle #16"
+    },
+    {
+      "x": 173.0,
+      "y": 170.0,
+      "width": 130.0,
+      "height": 59.0,
+      "label": "Obstacle #17"
+    },
+    {
+      "x": 112.0,
+      "y": 164.0,
+      "width": 77.0,
+      "height": 253.0,
+      "label": "Obstacle #18"
+    },
+    {
+      "x": 175.0,
+      "y": 198.0,
+      "width": 77.0,
+      "height": 121.0,
+      "label": "Obstacle #19"
     }
   ],
   "library": [
@@ -843,9 +864,9 @@
       "label": "West Wall"
     },
     {
-      "x": 1296.0,
+      "x": 1336.0,
       "y": 0.0,
-      "width": 80.0,
+      "width": 40.0,
       "height": 768.0,
       "label": "East Wall"
     },
@@ -864,8 +885,8 @@
       "label": "South Right Wall"
     },
     {
-      "x": 365.0,
-      "y": 160.0,
+      "x": 499.0,
+      "y": 82.0,
       "width": 55.0,
       "height": 110.0,
       "label": "Stone Pillar NW"
@@ -878,18 +899,88 @@
       "label": "Stone Pillar SW"
     },
     {
-      "x": 595.0,
-      "y": 160.0,
-      "width": 55.0,
-      "height": 110.0,
-      "label": "Stone Pillar NE"
+      "x": 502.0,
+      "y": 271.0,
+      "width": 44.0,
+      "height": 103.0,
+      "label": "Obstacle #10"
     },
     {
-      "x": 595.0,
-      "y": 460.0,
-      "width": 55.0,
-      "height": 110.0,
-      "label": "Stone Pillar SE"
+      "x": 509.0,
+      "y": 427.0,
+      "width": 35.0,
+      "height": 85.0,
+      "label": "Obstacle #11"
+    },
+    {
+      "x": 509.0,
+      "y": 596.0,
+      "width": 46.0,
+      "height": 167.0,
+      "label": "Obstacle #12"
+    },
+    {
+      "x": 828.0,
+      "y": 595.0,
+      "width": 44.0,
+      "height": 155.0,
+      "label": "Obstacle #13"
+    },
+    {
+      "x": 830.0,
+      "y": 426.0,
+      "width": 46.0,
+      "height": 88.0,
+      "label": "Obstacle #14"
+    },
+    {
+      "x": 825.0,
+      "y": 240.0,
+      "width": 50.0,
+      "height": 112.0,
+      "label": "Obstacle #15"
+    },
+    {
+      "x": 821.0,
+      "y": 74.0,
+      "width": 49.0,
+      "height": 122.0,
+      "label": "Obstacle #16"
+    },
+    {
+      "x": 897.0,
+      "y": 121.0,
+      "width": 84.0,
+      "height": 79.0,
+      "label": "Obstacle #15"
+    },
+    {
+      "x": 777.0,
+      "y": 445.0,
+      "width": 37.0,
+      "height": 77.0,
+      "label": "Obstacle #16"
+    },
+    {
+      "x": 564.0,
+      "y": 438.0,
+      "width": 40.0,
+      "height": 88.0,
+      "label": "Obstacle #17"
+    },
+    {
+      "x": 565.0,
+      "y": 224.0,
+      "width": 31.0,
+      "height": 91.0,
+      "label": "Obstacle #18"
+    },
+    {
+      "x": 775.0,
+      "y": 234.0,
+      "width": 40.0,
+      "height": 85.0,
+      "label": "Obstacle #19"
     }
   ],
   "entrance": [
